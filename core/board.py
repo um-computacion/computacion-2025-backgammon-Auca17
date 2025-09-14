@@ -1,15 +1,15 @@
 class Board:
     def __init__(self):
         # El tablero tiene 24 puntos (triángulos)
-        self.points = [None for _ in range(24)]
+        self.__points__ = [None for _ in range(24)]
         # La barra central separa ambos lados
-        self.bar = None
+        self.__bar__ = None
         # Lados del tablero
-        self.left_side = self.points[:12]
-        self.right_side = self.points[12:]
+        self.__left_side__ = self.__points__[:12]
+        self.__right_side__ = self.__points__[12:]
 
     def display(self):
         print("Backgammon Board:")
-        print("Left Side:", self.left_side)
-        print("Bar:", self.bar)
-        print("Right Side:", self.right_side)
+        print("Left Side:", self.__left_side__)
+        print("Bar:", self.__bar__)
+        print("Right Side:", self.__right_side__)
