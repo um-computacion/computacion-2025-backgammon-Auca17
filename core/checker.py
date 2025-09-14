@@ -14,9 +14,9 @@ class Checker:
             color (str): Color del jugador.
             position (int or str): Posición inicial.
         """
-        self.color = color
-        self.position = position
-        self.is_captured = False
+        self.__color__ = color
+        self.__position__ = position
+        self.__is_captured__ = False
 
     def move_to(self, new_position):
         """
@@ -25,11 +25,11 @@ class Checker:
         Args:
             new_position (int or str): Nueva posición.
         """
-        self.position = new_position
+        self.__position__ = new_position
 
     def capture(self):
         """
         Captura la ficha y la envía al 'bar'.
         """
-        self.is_captured = True
-        self.position = 'bar'
+        self.__is_captured__ = True
+        self.__position__ = 'bar'
