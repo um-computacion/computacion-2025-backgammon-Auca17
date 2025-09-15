@@ -7,6 +7,7 @@
 **Texto exacto del prompt:** Bien podrias generar el tablero de un backgammon en donde no haya ni checkers ni dados. Simplemente un tablero, y explica un poco el proceso para comprender como lo generaste
 
 **Instrucciones del sistema:**
+
 - Siempre sigue los principios SOLID
 - Incluir docstrings y comentarios claros en el código generado
 - Proporciona una explicación detallada para cada prompt y documenta tanto el prompt como la respuesta generada dentro de los archivos prompts-desarrollo.md, prompts/prompts-documentacion.md o prompts/prompts-testing.md. Usa únicamente estos archivos para la documentación de prompts.
@@ -17,12 +18,14 @@
 ---
 
 Para generar el tablero de Backgammon en Python, primero debemos entender su estructura:
+
 - El tablero tiene 24 puntos (triángulos), divididos en dos lados de 12 puntos cada uno.
 - Hay una barra central que separa ambos lados.
 - Cada lado tiene 6 puntos en la parte superior y 6 en la inferior.
 - No incluimos fichas (checkers) ni dados, solo la representación del tablero.
 
 Proceso de generación:
+
 1. Definimos una clase Board.
 2. Creamos una lista para los 24 puntos.
 3. Añadimos atributos para la barra central y los lados del tablero.
@@ -54,6 +57,7 @@ class Board:
 ```
 
 **Comentarios:**
+
 - Se incluye docstring en la clase y en los métodos.
 - Se agregan comentarios claros en el código.
 - El ejemplo respeta los principios SOLID, especialmente el de responsabilidad única.
@@ -71,6 +75,7 @@ class Board:
 **Texto exacto del prompt:** Bien y ya que generaste el tablero, quiero que expliques como generar el checker dentro de checker.py por que no se me cruza una idea de como hacerlo
 
 **Instrucciones del sistema:**
+
 - Siempre sigue los principios SOLID
 - Incluir docstrings y comentarios claros en el código generado
 - Proporciona una explicación detallada para cada prompt y documenta tanto el prompt como la respuesta generada dentro de los archivos prompts-desarrollo.md, prompts/prompts-documentacion.md o prompts/prompts-testing.md. Usa únicamente estos archivos para la documentación de prompts.
@@ -135,6 +140,7 @@ class Checker:
 ```
 
 **Comentarios:**
+
 - La clase Checker encapsula el comportamiento y estado de una ficha.
 - Permite mover la ficha y capturarla, manteniendo la lógica separada y clara.
 - El diseño respeta los principios SOLID, especialmente el de responsabilidad única y fácil extensión.
@@ -152,6 +158,7 @@ class Checker:
 **Texto exacto del prompt:** Ahora en player dime, cual seria tu estructura a seguir para crear una clase player. Recuerda que yo no tengo mucha idea de jugarlo, y quisiera ver bien como haces la estructura para seguir los pasos, de un codigo confiable, recuerda que los atributos deben estar con __ al principio y al final
 
 **Instrucciones del sistema:**
+
 - Siempre sigue los principios SOLID
 - Incluir docstrings y comentarios claros en el código generado
 - Proporciona una explicación detallada para cada prompt y documenta tanto el prompt como la respuesta generada dentro de los archivos prompts-desarrollo.md, prompts/prompts-documentacion.md o prompts/prompts-testing.md. Usa únicamente estos archivos para la documentación de prompts.
@@ -227,6 +234,7 @@ class Player:
 ```
 
 **Comentarios:**
+
 - Todos los atributos principales son privados usando doble guión bajo.
 - Se incluyen docstrings y comentarios claros.
 - El diseño respeta los principios SOLID y facilita la extensión y mantenimiento.
@@ -244,6 +252,7 @@ class Player:
 **Texto exacto del prompt:** Dime para la clase game, que harias para conectar todo, yo siendo sincero nunca en mi vida he usado python para un juego tan "complejo", asi que quisiera que  me guies con algunas notaciones para entender que haces
 
 **Instrucciones del sistema:**
+
 - Siempre sigue los principios SOLID
 - Incluir docstrings y comentarios claros en el código generado
 - Proporciona una explicación detallada para cada prompt y documenta tanto el prompt como la respuesta generada dentro de los archivos prompts-desarrollo.md, prompts/prompts-documentacion.md o prompts/prompts-testing.md. Usa únicamente estos archivos para la documentación de prompts.
@@ -256,6 +265,7 @@ class Player:
 Para la clase Game en Backgammon, el objetivo es conectar todos los componentes principales: el tablero, los jugadores y las fichas. La clase Game actúa como el controlador central del juego, gestionando el flujo de la partida y la interacción entre los objetos.
 
 Proceso recomendado:
+
 1. **Atributos principales**:
    - Instancia del tablero (`Board`)
    - Lista de jugadores (`Player`)
@@ -338,6 +348,7 @@ class Game:
 ```
 
 **Comentarios:**
+
 - La clase Game centraliza la lógica y conecta los objetos principales.
 - Cada método tiene docstring y comentarios para facilitar la comprensión.
 - El diseño respeta SOLID, separando responsabilidades y facilitando la extensión.
