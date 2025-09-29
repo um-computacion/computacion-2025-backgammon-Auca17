@@ -1,27 +1,25 @@
-# c:\Users\Rufda\Desktop\Python\computacion-2025-backgammon-Auca17\board.py
-
 from checker import Checker
 
 class Board:
     def __init__(self):
         # points: lista de 24 listas, cada una representa las fichas en cada punto del tablero
-        self.points = [[] for _ in range(24)]
+        self.__points__ = [[] for _ in range(24)]
         # captured: fichas capturadas (barra), separadas por color
-        self.captured = { 'white': [], 'black': [] }
+        self.__captured__ = { 'white': [], 'black': [] }
         # home: fichas que ya salieron del tablero (borne off), separadas por color
-        self.home = { 'white': [], 'black': [] }
+        self.__home__ = { 'white': [], 'black': [] }
         self._setup_initial_position()
 
     def _setup_initial_position(self):
         # Inicializa la posición estándar de Backgammon
-        self.points[0] = [Checker('white') for _ in range(2)]
-        self.points[11] = [Checker('white') for _ in range(5)]
-        self.points[16] = [Checker('white') for _ in range(3)]
-        self.points[18] = [Checker('white') for _ in range(5)]
-        self.points[23] = [Checker('black') for _ in range(2)]
-        self.points[12] = [Checker('black') for _ in range(5)]
-        self.points[7] = [Checker('black') for _ in range(3)]
-        self.points[5] = [Checker('black') for _ in range(5)]
+        self.__points__[0] = [Checker('white') for _ in range(2)]
+        self.__points__[11] = [Checker('white') for _ in range(5)]
+        self.__points__[16] = [Checker('white') for _ in range(3)]
+        self.__points__[18] = [Checker('white') for _ in range(5)]
+        self.__points__[23] = [Checker('black') for _ in range(2)]
+        self.__points__[12] = [Checker('black') for _ in range(5)]
+        self.__points__[7] = [Checker('black') for _ in range(3)]
+        self.__points__[5] = [Checker('black') for _ in range(5)]
 
     def move_checker(self, color, from_point, to_point):
         """
@@ -32,28 +30,28 @@ class Board:
         - No puede moverse a un punto bloqueado (más de una ficha rival).
         - Si hay una ficha rival sola en to_point, la captura y la manda a la barra.
         """
-        if not self.points[from_point] or self.points[from_point][-1].color != color:
+        if not self.__points__[from_point] or self.__points__[from_point][-1].color != color:
             raise ValueError("No checker of this color at from_point")
         if to_point < 0 or to_point > 23:
             raise ValueError("Invalid destination point")
-        if self.points[to_point] and self.points[to_point][-1].color != color and len(self.points[to_point]) > 1:
+        if self.__points__[to_point] and self.__points__[to_point][-1].color != color and len(self.__points__[to_point]) > 1:
             raise ValueError("Cannot move to a blocked point")
-        checker = self.points[from_point].pop()
+        checker = self.__points__[from_point].pop()
         # Captura si hay una ficha rival sola
-        if self.points[to_point] and self.points[to_point][-1].color != color and len(self.points[to_point]) == 1:
-            captured = self.points[to_point].pop()
-            self.captured[captured.color].append(captured)
-        self.points[to_point].append(checker)
+        if self.__points__[to_point] and self.__points__[to_point][-1].color != color and len(self.__points__[to_point]) == 1:
+            captured = self.__points__[to_point].pop()
+            self.__captured__[captured.color].append(captured)
+        self.__points__[to_point].append(checker)
 
     def bear_off(self, color, from_point):
         """
         Saca una ficha del color dado desde from_point al home.
         Verifica que haya una ficha del color en from_point.
         """
-        if not self.points[from_point] or self.points[from_point][-1].color != color:
+        if not self.__points__[from_point] or self.__points__[from_point][-1].color != color:
             raise ValueError("No checker of this color at from_point")
-        checker = self.points[from_point].pop()
-        self.home[color].append(checker)
+        checker = self.__points__[from_point].pop()
+        self.__home__[color].append(checker)
 
     def enter_from_captured(self, color, to_point):
         """
@@ -61,31 +59,31 @@ class Board:
         Valida que haya fichas capturadas y que el punto de entrada no esté bloqueado.
         Si hay una ficha rival sola, la captura.
         """
-        if not self.captured[color]:
+        if not self.__captured__[color]:
             raise ValueError("No checker on the bar")
-        if self.points[to_point] and self.points[to_point][-1].color != color and len(self.points[to_point]) > 1:
+        if self.__points__[to_point] and self.__points__[to_point][-1].color != color and len(self.__points__[to_point]) > 1:
             raise ValueError("Cannot enter to a blocked point")
-        checker = self.captured[color].pop()
+        checker = self.__captured__[color].pop()
         # Captura si hay una ficha rival sola
-        if self.points[to_point] and self.points[to_point][-1].color != color and len(self.points[to_point]) == 1:
-            captured = self.points[to_point].pop()
-            self.captured[captured.color].append(captured)
-        self.points[to_point].append(checker)
+        if self.__points__[to_point] and self.__points__[to_point][-1].color != color and len(self.__points__[to_point]) == 1:
+            captured = self.__points__[to_point].pop()
+            self.__captured__[captured.color].append(captured)
+        self.__points__[to_point].append(checker)
 
     def get_point(self, index):
         """
         Devuelve la lista de fichas en el punto index.
         """
-        return self.points[index]
+        return self.__points__[index]
 
     def get_captured(self, color):
         """
         Devuelve la lista de fichas capturadas (barra) del color dado.
         """
-        return self.captured[color]
+        return self.__captured__[color]
 
     def get_home(self, color):
         """
         Devuelve la lista de fichas que ya salieron del tablero (borne off) del color dado.
         """
-        return self.home[color]
+        return self.__home__[color]
