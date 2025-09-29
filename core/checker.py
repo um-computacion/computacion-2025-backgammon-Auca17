@@ -1,21 +1,22 @@
 class Checker:
     """
     Attributes:
-        color (str): Color o identificador del jugador propietario.
-        position (int or str): Posición actual en el tablero (punto, 'bar', 'borne').
-        is_captured (bool): Indica si la ficha está capturada.
+        __color__ (str): Color o identificador del jugador propietario.
+        __position__ (int or str): Posición actual en el tablero (punto, 'bar', 'borne').
+        __is_captured__ (bool): Indica si la ficha está capturada.
     """
 
-    def __init__(self, color, position):
+    def __init__(self, color):
         """
-        Inicializa una ficha con color y posición.
+        Inicializa una ficha con color.
 
         Args:
             color (str): Color del jugador.
-            position (int or str): Posición inicial.
         """
+        if color not in ('white', 'black'):
+            raise ValueError("Color must be 'white' or 'black'")
         self.__color__ = color
-        self.__position__ = position
+        self.__position__ = None
         self.__is_captured__ = False
 
     def move_to(self, new_position):
@@ -33,3 +34,7 @@ class Checker:
         """
         self.__is_captured__ = True
         self.__position__ = 'bar'
+
+    def __repr__(self):
+        # Representación textual de la ficha, útil para depuración
+        return f"Checker({self.__color__})"
