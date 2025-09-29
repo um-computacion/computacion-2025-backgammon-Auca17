@@ -1,11 +1,7 @@
 class Player:
-    def __init__(self, name, color):
-        # Inicializa el nombre y color del jugador
-        self.__name__ = name
-        self.__color__ = color
-        # Inicializa la cantidad de fichas fuera del tablero y en casa
-        self.__bar_checkers__ = 0
-        self.__home_checkers__ = 0
+    def __init__(self, name):
+        self.name = name
+        self.checkers_off = 0  # Simplified: track checkers borne off
 
     def get_name(self):
         """
@@ -13,13 +9,6 @@ class Player:
         Es útil para mostrar información en la interfaz o en mensajes del juego.
         """
         return self.__name__
-
-    def get_color(self):
-        """
-        Devuelve el color del jugador.
-        Permite distinguir entre los dos jugadores en el juego.
-        """
-        return self.__color__
 
     def add_bar_checker(self):
         """
