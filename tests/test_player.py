@@ -1,6 +1,7 @@
 import unittest
 from core.player import Player
 
+
 class TestPlayer(unittest.TestCase):
     """
     Clase de pruebas unitarias para la clase Player.
@@ -39,5 +40,6 @@ class TestPlayer(unittest.TestCase):
         self.assertNotIn(1, self.player.checkers)
         self.assertEqual(len(self.player.checkers), 0)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

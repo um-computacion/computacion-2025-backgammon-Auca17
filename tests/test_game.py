@@ -3,6 +3,7 @@ from core.game import Game
 from core.player import Player
 from core.board import Board
 
+
 class TestGame(unittest.TestCase):
     """
     Clase de pruebas unitarias para la clase Game.
@@ -39,5 +40,5 @@ class TestGame(unittest.TestCase):
         self.assertEqual(self.game.__current_turn__, 0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

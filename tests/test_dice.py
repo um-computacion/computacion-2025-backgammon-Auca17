@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 from core.dice import Dice
 
+
 class TestDice(unittest.TestCase):
     def setUp(self):
         self.dice = Dice()
@@ -11,7 +12,7 @@ class TestDice(unittest.TestCase):
         self.assertIsNone(self.dice.__value1__)
         self.assertIsNone(self.dice.__value2__)
 
-    @patch('core.dice.random.randint')
+    @patch("core.dice.random.randint")
     def test_roll(self, mock_randint):
         """Test that roll sets values using random.randint."""
         mock_randint.side_effect = [3, 5]
@@ -38,5 +39,6 @@ class TestDice(unittest.TestCase):
         self.dice.__value2__ = 6
         self.assertFalse(self.dice.is_double())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

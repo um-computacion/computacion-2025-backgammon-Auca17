@@ -13,7 +13,7 @@ class Checker:
         Args:
             color (str): Color del jugador.
         """
-        if color not in ('white', 'black'):
+        if color not in ("white", "black"):
             raise ValueError("Color must be 'white' or 'black'")
         self.__color__ = color
         self.__position__ = None
@@ -33,7 +33,7 @@ class Checker:
         Captura la ficha y la envía al 'bar'.
         """
         self.__is_captured__ = True
-        self.__position__ = 'bar'
+        self.__position__ = "bar"
 
     def __repr__(self):
         # Representación textual de la ficha, útil para depuración

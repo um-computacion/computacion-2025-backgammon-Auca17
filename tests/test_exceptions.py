@@ -2,6 +2,7 @@
 import unittest
 from core.game import Game as BackgammonGame  # Relative import from parent directory
 
+
 class TestBackgammonExceptions(unittest.TestCase):
     def setUp(self):
         self.game = BackgammonGame()
@@ -21,5 +22,6 @@ class TestBackgammonExceptions(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.game.make_move(1, 6)  # If dice rolled 1 and 2, say
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
