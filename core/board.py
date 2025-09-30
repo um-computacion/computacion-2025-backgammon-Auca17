@@ -1,4 +1,4 @@
-from checker import Checker
+from core.checker import Checker
 
 class Board:
     def __init__(self):
@@ -21,27 +21,26 @@ class Board:
         self.__points__[7] = [Checker('black') for _ in range(3)]
         self.__points__[5] = [Checker('black') for _ in range(5)]
 
-    def move_checker(self, color, from_point, to_point):
+    def move_checker(self, __color__, __from_point__, __to_point__):
         """
-        Mueve una ficha del color dado desde from_point a to_point.
-        Valida que el movimiento sea legal según las reglas estándar:
-        - Debe haber una ficha del color en from_point.
-        - to_point debe estar dentro del rango.
-        - No puede moverse a un punto bloqueado (más de una ficha rival).
-        - Si hay una ficha rival sola en to_point, la captura y la manda a la barra.
+        Mueve una ficha del color dado desde __from_point__ a __to_point__.
+        Lanza ValueError si no hay fichas en __from_point__.
         """
-        if not self.__points__[from_point] or self.__points__[from_point][-1].color != color:
+        if __from_point__ < 0 or __from_point__ > 23 or __to_point__ < 0 or __to_point__ > 23:
+            raise IndexError("Punto fuera de los límites del tablero")
+        # Lanzar ValueError si el punto de origen está vacío, sin importar el color
+        if not self.__points__[__from_point__]:
+            raise ValueError("No checker at from_point")
+        if self.__points__[__from_point__][-1].__color__ != __color__:
             raise ValueError("No checker of this color at from_point")
-        if to_point < 0 or to_point > 23:
-            raise ValueError("Invalid destination point")
-        if self.__points__[to_point] and self.__points__[to_point][-1].color != color and len(self.__points__[to_point]) > 1:
+        if self.__points__[__to_point__] and self.__points__[__to_point__][-1].__color__ != __color__ and len(self.__points__[__to_point__]) > 1:
             raise ValueError("Cannot move to a blocked point")
-        checker = self.__points__[from_point].pop()
+        checker = self.__points__[__from_point__].pop()
         # Captura si hay una ficha rival sola
-        if self.__points__[to_point] and self.__points__[to_point][-1].color != color and len(self.__points__[to_point]) == 1:
-            captured = self.__points__[to_point].pop()
-            self.__captured__[captured.color].append(captured)
-        self.__points__[to_point].append(checker)
+        if self.__points__[__to_point__] and self.__points__[__to_point__][-1].__color__ != __color__ and len(self.__points__[__to_point__]) == 1:
+            captured = self.__points__[__to_point__].pop()
+            self.__captured__[captured.__color__].append(captured)
+        self.__points__[__to_point__].append(checker)
 
     def bear_off(self, color, from_point):
         """
@@ -87,3 +86,19 @@ class Board:
         Devuelve la lista de fichas que ya salieron del tablero (borne off) del color dado.
         """
         return self.__home__[color]
+
+    def get_point_count(self, index):
+        """
+        Devuelve la cantidad de fichas en el punto dado.
+        :param index: Índice del punto (0-23).
+        :return: Número de fichas en el punto.
+        """
+        return len(self.__points__[index])
+
+    @property
+    def __points_status__(self):
+        """
+        Devuelve una lista de diccionarios con la cantidad de fichas en cada punto.
+        Esto permite compatibilidad con tests que usan ['count'].
+        """
+        return [{'count': len(point)} for point in self.__points__]

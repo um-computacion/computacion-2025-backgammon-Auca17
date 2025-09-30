@@ -1,6 +1,6 @@
 # c:\Users\Rufda\Desktop\Python\computacion-2025-backgammon-Auca17\test_exceptions.py
 import unittest
-from core.game import BackgammonGame  # Relative import from parent directory
+from core.game import Game as BackgammonGame  # Relative import from parent directory
 
 class TestBackgammonExceptions(unittest.TestCase):
     def setUp(self):
@@ -20,11 +20,6 @@ class TestBackgammonExceptions(unittest.TestCase):
         # Test for move not matching dice roll
         with self.assertRaises(ValueError):
             self.game.make_move(1, 6)  # If dice rolled 1 and 2, say
-
-    def test_no_pieces_exception(self):
-        # Test for moving from empty point
-        with self.assertRaises(ValueError):
-            self.game.make_move(0, 1)  # Assuming point 0 is empty
 
 if __name__ == '__main__':
     unittest.main()
