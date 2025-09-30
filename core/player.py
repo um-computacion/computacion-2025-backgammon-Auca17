@@ -13,6 +13,8 @@ class Player:
         self.__name__ = __name__
         self.__color__ = __color__
         self.__checkers__ = __checkers__ if __checkers__ is not None else []
+        self.__bar_checkers__ = 0  # Inicializa la cantidad de fichas en la barra
+        self.__home_checkers__ = 0  # Inicializa la cantidad de fichas en casa
 
     def get_name(self):
         """
@@ -32,7 +34,7 @@ class Player:
             self.__checkers__.append(checker)
         else:
             # Si se usa sin argumentos, mantiene compatibilidad con lógica previa (si aplica)
-            if hasattr(self, '__bar_checkers__'):
+            if hasattr(self, "__bar_checkers__"):
                 self.__bar_checkers__ += 1
 
     def remove_bar_checker(self):

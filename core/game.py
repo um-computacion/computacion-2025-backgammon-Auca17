@@ -1,6 +1,7 @@
 from core.board import Board
 from core.player import Player
 
+
 class Game:
     """
     Clase principal que gestiona el flujo del juego de Backgammon.
@@ -18,8 +19,8 @@ class Game:
             player2 = Player("Player2", "black", [])
         self.__players__ = [player1, player2]
         self.__current_turn__ = 0  # Índice del jugador actual
-        self.__history__ = []      # Historial de movimientos
-        self.__winner__ = None    # Ganador de la partida
+        self.__history__ = []  # Historial de movimientos
+        self.__winner__ = None  # Ganador de la partida
         self.__board__ = Board()  # Tablero del juego
         # Inicializa checkers_off si no existe en Player
         for p in self.__players__:
