@@ -1,0 +1,4 @@
+#  Siempre sigue los principios SOLID
+#  Incluir docstrings y comentarios claros en el código generado
+#  Proporciona una explicación detallada para cada prompt y documenta tanto el prompt como la respuesta generada dentro de los archivos prompts-desarrollo.md, prompts/prompts-documentacion.md o prompts/prompts-testing.md. Usa únicamente estos archivos para la documentación de prompts.
+#  Por cada prompt debe quedar registrado:Modelo / herramienta usada (nombre y versión si corresponde),El texto exacto del prompt (sin reescrituras subjetivas),Instrucciones del sistema (si las hubo),Respuesta/resultado completo devuelto por la IA, Indicar si la salida fue usada sin cambios, usada con modificaciones (mostrar lasmodificaciones) o descartada,Referencia a los archivos finales que incorporaron contenido generado por IA (ej:core/board.py)
