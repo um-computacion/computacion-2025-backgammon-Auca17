@@ -5,6 +5,27 @@ Todas las modificaciones notables de este proyecto serán documentadas en este a
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.7.0] - 2025-09-20
+
+### Added (Nuevas características en 0.7.0)
+
+- Estructuración del directorio `tests/` con archivos individuales por módulo:
+  - `test_board.py`
+  - `test_dice.py`
+  - `test_exceptions.py`
+  - `test_game.py`
+  - `test_player.py`
+- Preparación de la base para futuras pruebas unitarias detalladas en cada componente principal del juego.
+- Merge del branch `Task-15-estructura-de-tests-y-revision` a `main`.
+
+### Changed (Cambios en 0.7.0)
+
+- Eliminación progresiva del uso de *smoke tests* genéricos, reemplazados por estructura modular.
+- Revisión de nombres de archivos y consistencia de formato en la carpeta `tests/`.
+- Ajustes menores de estilo y comentarios en los nuevos archivos de prueba (sin cambios funcionales).
+
+---
+
 ## [0.6.0] - 2025-09-14
 
 ### Added (Nuevas características en 0.6.0)
