@@ -5,6 +5,89 @@ Todas las modificaciones notables de este proyecto serán documentadas en este a
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [0.9.0] - 2025-10-01
+
+### Added (Nuevas características en 0.9.0)
+
+- **CLI (Command Line Interface):**
+  - Nuevo archivo `cli/cli.py` que permite ejecutar partidas completas desde la consola.
+  - Flujo interactivo para ingresar movimientos (`from_position to_position`) y salir del juego con `quit`.
+  - Integración con la clase `Game` para mostrar el estado del tablero y el turno del jugador actual.
+
+- **Core Game Logic:**
+  - Implementación final de las clases principales del juego:
+    - **`Board`**: ahora incluye lógica completa para mover fichas (`move_checker`), capturar, liberar y detectar bloqueos.
+    - **`Checker`**: fichas con atributos privados (`__color__`, `__position__`, `__is_captured__`), y métodos para moverse o ser enviadas al “bar”.
+    - **`Dice`**: sistema de dados con métodos `roll()`, `get_values()` y `is_double()` para gestionar tiradas reales y dobles.
+    - **`Player`**: jugador con control de fichas, bar, home y lista de movimientos.
+    - **`Game`**: clase principal que gestiona el flujo de turnos, validaciones, estados de partida y ganador.
+  - Creación del módulo `exceptions.py` con excepciones específicas para el juego (`InvalidMoveException`, `NoAvailableMovesException`, etc.).
+
+- **Testing Framework:**
+  - Integración de `pytest` y creación de tests modulares por componente:
+    - `test_board.py`
+    - `test_checker.py`
+    - `test_dice.py`
+    - `test_game.py`
+    - `test_player.py`
+  - Tests diseñados con estructura unitaria clara, validando tanto inicialización como comportamiento dinámico (movimientos, turnos, capturas).
+  - Implementación del archivo `test_smoke_unittest.py` para pruebas de integración generales.
+
+- **Prompts Documentation:**
+  - Expansión del archivo `prompts-testing.md` con documentación detallada del flujo IA y estructura de generación de código.
+  - Nuevas secciones para trazabilidad de prompts, resultados de generación y registro de versiones de código IA.
+
+---
+
+### Changed (Cambios en 0.9.0)
+
+- Refactorización completa de los módulos del core para estandarizar nombres, encapsular atributos y limpiar imports.
+- Eliminación de código redundante previo y sustitución por clases funcionales finales.
+- Revisión de métodos y docstrings para unificar estilo y claridad.
+- Integración entre `core/` y `cli/` consolidada, con flujo estable y ejecución sin errores.
+- Estandarización de las rutas de pruebas para el *coverage* de GitHub Actions.
+
+---
+
+### Fixed (Correcciones en 0.9.0)
+
+- Resolución de conflictos de *coverage* que impedían el merge en CI/CD.
+- Corrección de atributos no inicializados en `Player` y `Board`.
+- Ajuste de errores lógicos en la detección de movimientos válidos y condiciones de victoria.
+- Normalización de variables privadas con doble subrayado para evitar conflictos entre clases.
+
+---
+
+## [0.8.0] - 2025-09-30
+
+### Changed (Cambios en 0.8.0)
+
+- Reescritura completa de la estructura base del código en los módulos principales:
+  - **`core/board.py`**:
+    - Rediseño de la clase `Board` para incluir atributos más claros y privados:
+      - `__points__`: lista de 24 posiciones del tablero.
+      - `__captured__`: registro de fichas capturadas por color.
+      - `__home__`: fichas que ya salieron del tablero.
+    - Método `_setup_initial_position()` reorganizado con inicialización más explícita y coherente.
+  - **`core/dice.py`**:
+    - Sustitución de la función suelta `get_dice()` por una clase **`Dice`** completamente encapsulada.
+    - Implementación de métodos:
+      - `roll()`: simula el lanzamiento de los dados.
+      - `get_values()`: devuelve los resultados actuales.
+      - `is_double()`: detecta lanzamientos dobles.
+  - **`core/player.py`**:
+    - Actualización de la clase `Player` para adecuarla a la nueva estructura de `Dice` y `Board`.
+    - Corrección de métodos y docstrings para mayor claridad y consistencia.
+
+### Removed (Eliminado en 0.8.0)
+
+- Código anterior de generación de dados y estructura del tablero basado en funciones sueltas.
+- Comentarios y trazas de rutas locales de desarrollo (`C:\Users\Rufda...`), reemplazados por imports relativos limpios.
+
+---
+
+**Nota:** Esta versión marca una mejora significativa en la organización del código base, preparando el proyecto para la futura implementación de la lógica de movimientos y validaciones del juego.
+
 ## [0.7.0] - 2025-09-20
 
 ### Added (Nuevas características en 0.7.0)
