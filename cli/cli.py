@@ -19,15 +19,27 @@ def main():
     print("Escribe 'salir' para terminar.")
 
     while not __game__.is_over():
+        print("\n" + "="*50)
         __current_player__ = __game__.get_current_player()
-        print(f"\nTurno de {__current_player__.get_name()}. Tirada de dados: {__game__.get_dice_values()}")
+        print(f"Turno de {__current_player__.get_name()} ({'O' if __current_player__.__color__ == 'white' else 'X'}).")
+        print(f"Tirada de dados: {__game__.get_dice_values()}")
+        
         __game__.display_board()
 
-        if not __game__.get_dice_values():
+        __possible_moves__ = __game__.get_possible_moves()
+        if not __possible_moves__:
+            print("No tienes movimientos posibles. El turno pasa al siguiente jugador.")
             __game__.switch_turn()
             continue
 
-        __move__ = input("Ingresa tu movimiento: ").strip()
+        print("Movimientos posibles:", ", ".join(__possible_moves__))
+
+        # Si no quedan dados, el turno debería cambiar. make_move se encarga de esto.
+        if not __game__.get_dice_values():
+            # No es necesario cambiar de turno aquí, make_move lo gestiona
+            continue
+
+        __move__ = input("Ingresa tu movimiento ('desde hasta', ej. '18 23'): ").strip()
         if __move__.lower() == "salir":
             print("Juego terminado.")
             break

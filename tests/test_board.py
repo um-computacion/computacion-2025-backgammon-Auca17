@@ -26,6 +26,16 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(self.board.__points_status__[0]["count"], __initial_count__ - 1)
         self.assertEqual(self.board.__points_status__[1]["count"], 1)
 
+    def test_get_2d_representation(self):
+        """
+        Verifica que la representación 2D del tablero se genera correctamente.
+        """
+        __representation__ = self.board.get_2d_representation()
+        self.assertIsInstance(__representation__, str)
+        self.assertIn("| BAR |", __representation__)
+        self.assertIn("12 11 10  9  8  7", __representation__)
+        self.assertIn("13 14 15 16 17 18", __representation__)
+
 
 if __name__ == "__main__":
     unittest.main()

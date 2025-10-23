@@ -1,5 +1,6 @@
 from core.checker import Checker
 
+
 class Board:
     """
     Representa el tablero de Backgammon.
@@ -52,7 +53,7 @@ class Board:
             and self.__points__[__to_point__][-1].__color__ != __color__
         ):
             raise ValueError("No se puede mover a un punto bloqueado")
-
+        
         checker = self.__points__[__from_point__].pop()
         
         if (
@@ -154,6 +155,72 @@ class Board:
             int: El número de fichas en el punto.
         """
         return len(self.__points__[__index__])
+
+    def get_2d_representation(self):
+        """
+        Genera una representación en cadena de texto en 2D del tablero de Backgammon.
+        La representación muestra los puntos, las fichas ('O' para blancas, 'X' para negras),
+        la barra para fichas capturadas, y el contador de fichas fuera del tablero.
+        """
+
+        def _get_point_string(point, row):
+            """Devuelve la representación de 3 caracteres para una fila en un punto."""
+            # Fila virtual para contadores de fichas > 5
+            if row == 5:
+                if len(point) > 5:
+                    return f"x{len(point)}".ljust(3)
+                return "   "
+            # Filas de fichas visibles
+            if len(point) > row:
+                checker = 'O' if point[row].__color__ == 'white' else 'X'
+                return f" {checker} "
+            return "   "
+
+        # Encabezados de números de puntos
+        top_header = " ".join([f"{i:>2}" for i in range(12, 6, -1)])
+        bottom_header = " ".join([f"{i:>2}" for i in range(13, 19)])
+        top_footer = " ".join([f"{i:>2}" for i in range(6, 0, -1)])
+        bottom_footer = " ".join([f"{i:>2}" for i in range(19, 25)])
+
+        board_str = f"\n{top_header} | BAR | {top_footer}\n"
+        board_str += "+--------------------+-----+--------------------+\n"
+
+        # Filas de la mitad superior (incluyendo contadores)
+        for i in range(6):  # 0-4 para fichas, 5 para contadores
+            line = ""
+            for p in range(11, 5, -1):
+                line += _get_point_string(self.__points__[p], i)
+            line += "|     |"
+            for p in range(5, -1, -1):
+                line += _get_point_string(self.__points__[p], i)
+            board_str += line + "\n"
+
+        # Barra central con conteo de fichas capturadas
+        white_captured = len(self.__captured__['white'])
+        black_captured = len(self.__captured__['black'])
+        bar_display = f"W:{white_captured} B:{black_captured}"
+        board_str += f"                     |{bar_display.center(5)}|                     \n"
+
+        # Filas de la mitad inferior (incluyendo contadores)
+        for i in range(5, -1, -1):  # 5 para contadores, 4-0 para fichas
+            line = ""
+            for p in range(12, 18):
+                line += _get_point_string(self.__points__[p], i)
+            line += "|     |"
+            for p in range(18, 24):
+                line += _get_point_string(self.__points__[p], i)
+            board_str += line + "\n"
+
+        # Pie de página
+        board_str += "+--------------------+-----+--------------------+\n"
+        board_str += f"{bottom_header} |     | {bottom_footer}\n"
+
+        # Conteo de fichas en casa
+        white_home = len(self.__home__['white'])
+        black_home = len(self.__home__['black'])
+        board_str += f"\nFichas en casa - Blancas: {white_home}, Negras: {black_home}\n"
+
+        return board_str
 
     @property
     def __points_status__(self):

@@ -5,6 +5,55 @@ Todas las modificaciones notables de este proyecto serán documentadas en este a
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.0.0] - 2025-10-22
+
+### Added (Cambios en 1.0.0)
+
+- **Implementación completa del CLI** para Backgammon:
+  - Nuevo archivo `cli/cli.py` con interfaz de línea de comandos funcional.
+  - Permite iniciar partidas, lanzar dados, mover fichas, mostrar el tablero y finalizar el juego.
+  - Mensajes y docstrings traducidos completamente al español.
+  - Control de flujo de turnos, detección de finalización y visualización dinámica del estado del tablero.
+- **Reestructuración y ampliación del núcleo (`core/`):**
+  - `Game`: control total del flujo del juego, inicio de partida, cambio de turno, lanzamiento de dados, validación de movimientos y detección del ganador.
+  - `Board`: administración de los puntos, fichas capturadas y posiciones iniciales estándar; manejo de errores con excepciones descriptivas.
+  - `Checker`: representación de cada ficha, con su color, posición y estado de captura.
+  - `Player`: ampliado con atributos para fichas en barra y en casa; nuevos métodos para añadir, eliminar y contar fichas.
+  - `Dice`: encapsulación del comportamiento de los dados y sus valores; integración con `unittest.mock` para testeo.
+- **Sistema completo de pruebas unitarias (`tests/`):**
+  - `test_board.py`: verificación de inicialización del tablero y movimiento de fichas.
+  - `test_dice.py`: validación de los valores de los dados, comportamiento con `mock` y detección de dobles.
+  - `test_game.py`: pruebas de flujo general del juego, cambios de turno, validaciones de movimiento, condiciones de victoria y reingresos.
+  - `test_player.py`: validación de inicialización de jugadores y manipulación de fichas en la lista, barra y casa.
+  - `test_exceptions.py`: cobertura de excepciones (`IndexError`, `ValueError`) en movimientos inválidos.
+- **Documentación interna (docstrings) unificada y en español**:
+  - Cada clase y método ahora posee descripción, argumentos y retorno claramente definidos.
+  - Estandarización de estilo y prefijos privados (`__atributo__`).
+- **Compatibilidad total entre módulos y pruebas.**
+  - Todos los componentes (`core/`, `cli/`, `tests/`) funcionan integradamente.
+  - Se establece la base para futuras extensiones del juego (interfaz gráfica, red, etc.).
+
+### Fixed (Correcciones en 1.0.0)
+
+- Corrección de inconsistencias de nombres entre atributos y métodos (`_color__`, `from_pos`, `to_pos`, `_player__`, etc.).
+- Solución de errores en la inicialización del juego:
+  - Los jugadores ahora se crean correctamente por defecto si no se especifican instancias.
+  - El turno inicial y los dados se determinan correctamente al comenzar la partida.
+- Arreglo de validaciones de movimiento:
+  - Control de puntos fuera del rango (0–23) mediante `IndexError`.
+  - Captura correcta de fichas rivales únicas y actualización de las listas de fichas capturadas.
+  - Validaciones completas para reingreso desde la barra (`enter_from_captured`) y extracción (`bear_off`).
+- Corrección de errores en la clase `Player`:
+  - Inicialización correcta de contadores de fichas en barra y casa.
+  - Métodos `add_checker`, `remove_checker`, `add_bar_checker`, `remove_bar_checker` actualizados para mantener coherencia interna.
+- Ajuste del método `display_board()` en `Game` para mostrar el tablero de manera legible en CLI.
+- Traducción y corrección de todos los tests:
+  - Nombres de variables, asserts y docstrings adaptados al nuevo formato en español.
+  - Uso correcto de `mock.patch` para simular tiradas de dados.
+- Eliminación de imports relativos erróneos y normalización del árbol de dependencias internas.
+
+---
+
 ## [0.9.1] - 2025-10-06
 
 ### Added (Cambios en 0.9.1)

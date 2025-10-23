@@ -62,6 +62,7 @@ class TestGame(unittest.TestCase):
         self.__game__.__dice_values__ = [3, 4]
         __from_pos__ = 0 if __player__.__color__ == 'white' else 23
         __to_pos__ = __from_pos__ + (3 if __player__.__color__ == 'white' else -3)
+            
         self.assertTrue(self.__game__.make_move(__from_pos__, __to_pos__))
         self.assertNotIn(3, self.__game__.__dice_values__)
 
@@ -123,6 +124,35 @@ class TestGame(unittest.TestCase):
             self.__game__.__board__.get_home(__player__.__color__).append(Checker(__player__.__color__))
         self.__game__.check_winner()
         self.assertEqual(self.__game__.get_winner(), __player__)
+
+    def test_get_possible_moves_no_moves(self):
+        """
+        Verifica que se devuelve una lista vacía cuando no hay movimientos posibles.
+        """
+        self.__game__.start()
+        self.__player__ = self.__game__.get_current_player()
+        
+        # Bloquear todos los movimientos posibles
+        for i in range(6):
+            color_oponente = 'black' if self.__player__.__color__ == 'white' else 'white'
+            # Asumiendo que el jugador blanco está en el punto 0
+            # Bloquear los 6 puntos siguientes
+            if self.__player__.__color__ == 'white':
+                self.__game__.__board__.__points__[i+1] = [Checker(color_oponente)] * 2
+        
+        self.__game__.__dice_values__ = [1, 2, 3, 4, 5, 6]
+        
+        # Vaciar otros puntos para asegurar que solo el punto 0 tenga fichas
+        for i in range(1, 24):
+            if i > 6 or i == 0:
+                self.__game__.__board__.__points__[i] = []
+        
+        # Colocar una ficha blanca en el punto 0
+        if self.__player__.__color__ == 'white':
+            self.__game__.__board__.__points__[0] = [Checker('white')]
+
+        __possible_moves__ = self.__game__.get_possible_moves()
+        self.assertEqual(len(__possible_moves__), 0)
 
 
 if __name__ == "__main__":

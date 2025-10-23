@@ -103,6 +103,49 @@ class Game:
         """
         return self.__winner__
 
+    def get_possible_moves(self):
+        """
+        Calcula y devuelve una lista de todos los movimientos posibles para el jugador actual.
+        """
+        __possible_moves__ = []
+        __player__ = self.get_current_player()
+        __dice__ = self.get_dice_values()
+
+        if self.__board__.get_captured(__player__.__color__):
+            for __die__ in set(__dice__):
+                try:
+                    __to_pos__ = __die__ - 1 if __player__.__color__ == 'white' else 24 - __die__
+                    if self._validate_reentry(__player__, __to_pos__):
+                        __possible_moves__.append(f"Barra a {__to_pos__}")
+                except ValueError:
+                    continue
+        elif self._can_bear_off(__player__):
+            for __from_pos__ in range(24):
+                if self.__board__.get_point_count(__from_pos__) > 0 and self.__board__.get_point(__from_pos__)[-1].__color__ == __player__.__color__:
+                    for __die__ in set(__dice__):
+                        try:
+                            if self._validate_bear_off(__player__, __from_pos__):
+                                __to_pos__ = 24 if __player__.__color__ == 'white' else -1
+                                __possible_moves__.append(f"{__from_pos__} a {__to_pos__}")
+                        except ValueError:
+                            continue
+        else:
+            for __from_pos__ in range(24):
+                if self.__board__.get_point_count(__from_pos__) > 0 and self.__board__.get_point(__from_pos__)[-1].__color__ == __player__.__color__:
+                    for __die__ in set(__dice__):
+                        try:
+                            __direction__ = 1 if __player__.__color__ == 'white' else -1
+                            __to_pos__ = __from_pos__ + __die__ * __direction__
+                            if 0 <= __to_pos__ < 24:
+                                # Lanza una excepción si el movimiento no es válido
+                                self._validate_move(__player__, __from_pos__, __to_pos__)
+                                __possible_moves__.append(f"{__from_pos__} a {__to_pos__}")
+                        except (ValueError, IndexError):
+                            # Captura errores de validación o puntos fuera de los límites
+                            continue
+        
+        return __possible_moves__
+
     def get_dice_values(self):
         """
         Devuelve los valores actuales de los dados.
@@ -111,9 +154,9 @@ class Game:
 
     def display_board(self):
         """
-        Muestra el estado actual del tablero.
+        Muestra el estado actual del tablero en una representación 2D.
         """
-        print("Tablero: " + " ".join(str(x["count"]) for x in self.__board__.__points_status__))
+        print(self.__board__.get_2d_representation())
 
     def _validate_reentry(self, __player__, __to_pos__):
         """
