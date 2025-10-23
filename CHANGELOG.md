@@ -5,6 +5,57 @@ Todas las modificaciones notables de este proyecto serán documentadas en este a
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.1.0] - 2025-10-23
+
+### Added (Cambios en 1.1.0)
+
+- **Representación 2D del tablero de Backgammon:**
+  - Nueva función `get_2d_representation()` en `core/board.py` que genera una vista textual del tablero con todos los puntos, fichas visibles, barra de capturas y fichas fuera de casa.
+  - Muestra el estado completo en consola incluyendo:
+    - Fichas blancas (‘O’) y negras (‘X’).
+    - Contadores superiores e inferiores numerados (1–24).
+    - Fichas capturadas y fichas “en casa”.
+  - Integración con `Game.display_board()` para mostrar automáticamente la versión 2D del tablero durante la ejecución del CLI.
+
+- **Sistema de movimientos posibles dinámicos según tirada de dados:**
+  - Nuevo método `get_possible_moves()` en `core/game.py`.
+  - Calcula todas las jugadas válidas disponibles para el jugador actual basadas en:
+    - Valores obtenidos en los dados.
+    - Posiciones de fichas del jugador.
+    - Reingresos desde la barra y movimientos de “bear off”.
+  - Integra validaciones de reingreso (`validate_reentry`) y extracción (`validate_bear_off`) dentro del flujo principal del juego.
+  - Devuelve una lista descriptiva con formato humano (por ejemplo: `["Barra a 5", "6 a 10"]`).
+
+- **Actualización del CLI (`cli/cli.py`):**
+  - Muestra el tablero en formato 2D cada turno.
+  - Presenta los movimientos posibles en texto antes de que el jugador ingrese su jugada.
+  - Incluye control automático de turnos cuando no hay movimientos válidos disponibles.
+  - Traducción completa de los mensajes al español, coherente con la interfaz anterior.
+
+- **Nuevas pruebas unitarias (`tests/`):**
+  - `test_board.py`: agrega `test_get_2d_representation()` para verificar que el tablero 2D se genere correctamente y contenga todos los encabezados y barras esperadas.
+  - `test_game.py`: agrega `test_get_possible_moves_no_moves()` para validar el comportamiento cuando un jugador no tiene jugadas disponibles.
+  - Validaciones adicionales sobre `make_move()` y `get_possible_moves()` para asegurar coherencia entre jugadas, tiradas y estados del tablero.
+
+### Changed (Modificaciones en 1.1.0)
+
+- `Game.display_board()` ahora imprime directamente la representación generada por `Board.get_2d_representation()`.
+- `Board.move_checker()` optimizado para manejo de errores y extracción controlada de fichas.
+- `cli.main()` reorganizado:
+  - Agregada gestión de listas de movimientos posibles antes de la solicitud de entrada.
+  - Eliminadas comprobaciones redundantes de `get_dice_values()` en favor de `get_possible_moves()`.
+- Estructura de los mensajes del CLI reformulada para mayor claridad en la interacción con el jugador.
+
+### Fixed (Correcciones en 1.1.0)
+
+- Solucionado un bug en la lógica de cambio de turno cuando un jugador no tiene movimientos válidos.
+- Corrección de la impresión de dados en CLI, que ahora refleja exactamente el estado interno de `Game`.
+- Ajustes menores en la función `move_checker()` para evitar errores al intentar mover desde un punto vacío.
+- Corregida la validación de “puntos bloqueados” que arrojaba `ValueError` de forma prematura.
+- Se estandarizó la indentación y formato del código según la guía de estilo Black.
+
+---
+
 ## [1.0.0] - 2025-10-22
 
 ### Added (Cambios en 1.0.0)
