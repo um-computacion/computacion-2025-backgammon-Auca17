@@ -1,26 +1,39 @@
-# c:\Users\Rufda\Desktop\Python\computacion-2025-backgammon-Auca17\test_exceptions.py
 import unittest
-from core.game import Game as BackgammonGame  # Relative import from parent directory
+from core.game import Game
+from core.player import Player
 
 
 class TestBackgammonExceptions(unittest.TestCase):
     def setUp(self):
-        self.game = BackgammonGame()
+        self.__player1__ = Player("Alice", "white")
+        self.__player2__ = Player("Bob", "black")
+        self.__game__ = Game(self.__player1__, self.__player2__)
+        self.__game__.start()
 
     def test_invalid_move_exception(self):
-        # Test for invalid move, e.g., moving a piece to an occupied point
+        """
+        Verifica que un movimiento inválido lanza un ValueError.
+        """
+        self.__game__.__dice_values__ = [1, 2]
+        # Intenta mover desde un punto vacío
         with self.assertRaises(ValueError):
-            self.game.make_move(1, 2)  # Example invalid move
+            self.__game__.make_move(2, 3)
 
     def test_out_of_bounds_exception(self):
-        # Test for move beyond board limits
+        """
+        Verifica que un movimiento fuera de los límites del tablero lanza un IndexError.
+        """
+        self.__game__.__dice_values__ = [1, 2]
         with self.assertRaises(IndexError):
-            self.game.make_move(25, 1)  # Point 25 doesn't exist
+            self.__game__.make_move(25, 1)
 
     def test_insufficient_dice_exception(self):
-        # Test for move not matching dice roll
+        """
+        Verifica que un movimiento que no coincide con el dado lanza un ValueError.
+        """
+        self.__game__.__dice_values__ = [1, 2]
         with self.assertRaises(ValueError):
-            self.game.make_move(1, 6)  # If dice rolled 1 and 2, say
+            self.__game__.make_move(0, 5)
 
 
 if __name__ == "__main__":

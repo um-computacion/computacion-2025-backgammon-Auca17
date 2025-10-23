@@ -1,42 +1,54 @@
-from core.game import Game  # Assuming Game class exists in game.py
-from core.player import Player  # Assuming Player class exists in player.py
+"""
+Módulo principal para la interfaz de línea de comandos del juego Backgammon.
+"""
+from core.game import Game
+from core.player import Player
 
 
 def main():
-    # Initialize game and players
-    player1 = Player("Player 1", __color__="white")
-    player2 = Player("Player 2", __color__="black")
-    game = Game(player1, player2)
+    """
+    La función principal para el juego de Backgammon en CLI.
+    """
+    __player1__ = Player("Jugador 1", "white")
+    __player2__ = Player("Jugador 2", "black")
+    __game__ = Game(__player1__, __player2__)
+    __game__.start()
 
-    print("Welcome to Backgammon CLI!")
-    print(
-        "Players take turns entering moves in the format: 'from_position to_position'"
-    )
-    print("Type 'quit' to exit.")
+    print("¡Bienvenido a Backgammon CLI!")
+    print("Los jugadores se turnan para ingresar movimientos en el formato: 'desde hasta'")
+    print("Escribe 'salir' para terminar.")
 
-    while not game.is_over():
-        current_player = game.get_current_player()
-        print(f"\n{current_player.name}'s turn.")
-        game.display_board()  # Assuming Game has a display_board method
+    while not __game__.is_over():
+        __current_player__ = __game__.get_current_player()
+        print(f"\nTurno de {__current_player__.get_name()}. Tirada de dados: {__game__.get_dice_values()}")
+        __game__.display_board()
 
-        move = input("Enter your move: ").strip()
-        if move.lower() == "quit":
-            print("Game exited.")
+        if not __game__.get_dice_values():
+            __game__.switch_turn()
+            continue
+
+        __move__ = input("Ingresa tu movimiento: ").strip()
+        if __move__.lower() == "salir":
+            print("Juego terminado.")
             break
 
         try:
-            # Parse move, e.g., "1 4" for from 1 to 4
-            from_pos, to_pos = map(int, move.split())
-            if game.make_move(current_player, from_pos, to_pos):
-                print("Move successful.")
+            __from_pos__, __to_pos__ = map(int, __move__.split())
+            if __game__.make_move(__from_pos__, __to_pos__):
+                print("Movimiento exitoso.")
             else:
-                print("Invalid move. Try again.")
+                print("Movimiento inválido. Inténtalo de nuevo.")
         except ValueError:
-            print("Invalid input format. Use 'from_position to_position'.")
+            print("Formato de entrada inválido. Usa 'desde hasta'.")
+        except IndexError as e:
+            print(f"Error: {e}")
 
-    if game.is_over():
-        winner = game.get_winner()
-        print(f"\nGame over! {winner.name} wins!")
+    if __game__.is_over():
+        __winner__ = __game__.get_winner()
+        if __winner__:
+            print(f"\n¡Juego terminado! ¡{__winner__.get_name()} gana!")
+        else:
+            print("\n¡Juego terminado!")
 
 
 if __name__ == "__main__":

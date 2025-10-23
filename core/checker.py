@@ -1,40 +1,44 @@
 class Checker:
     """
-    Attributes:
-        __color__ (str): Color o identificador del jugador propietario.
-        __position__ (int or str): Posición actual en el tablero (punto, 'bar', 'borne').
-        __is_captured__ (bool): Indica si la ficha está capturada.
+    Representa una ficha de Backgammon.
+
+    Atributos:
+        __color__ (str): El color de la ficha.
+        __position__ (int o str): La posición actual de la ficha en el tablero.
+        __is_captured__ (bool): Un indicador de si la ficha ha sido capturada.
     """
 
-    def __init__(self, color):
+    def __init__(self, __color__):
         """
-        Inicializa una ficha con color.
+        Inicializa una ficha con un color.
 
         Args:
-            color (str): Color del jugador.
+            __color__ (str): El color de la ficha.
         """
-        if color not in ("white", "black"):
-            raise ValueError("Color must be 'white' or 'black'")
-        self.__color__ = color
+        if __color__ not in ("white", "black"):
+            raise ValueError("El color debe ser 'white' o 'black'")
+        self.__color__ = __color__
         self.__position__ = None
         self.__is_captured__ = False
 
-    def move_to(self, new_position):
+    def move_to(self, __new_position__):
         """
         Mueve la ficha a una nueva posición.
 
         Args:
-            new_position (int or str): Nueva posición.
+            __new_position__ (int o str): La nueva posición.
         """
-        self.__position__ = new_position
+        self.__position__ = __new_position__
 
     def capture(self):
         """
-        Captura la ficha y la envía al 'bar'.
+        Captura la ficha y la envía a la barra.
         """
         self.__is_captured__ = True
         self.__position__ = "bar"
 
     def __repr__(self):
-        # Representación textual de la ficha, útil para depuración
+        """
+        Devuelve una representación de la ficha en formato de texto.
+        """
         return f"Checker({self.__color__})"

@@ -1,82 +1,80 @@
 class Player:
     """
-    Representa un jugador de Backgammon.
+    Representa a un jugador de Backgammon.
+
+    Atributos:
+        __name__ (str): El nombre del jugador.
+        __color__ (str): El color de las fichas del jugador.
+        __checkers__ (list): Una lista de las fichas del jugador.
+        __bar_checkers__ (int): El número de fichas en la barra.
+        __home_checkers__ (int): El número de fichas en el cuadrante de casa.
     """
 
     def __init__(self, __name__, __color__, __checkers__=None):
         """
-        Inicializa un jugador con nombre, color y una lista opcional de fichas.
-        :param name: Nombre del jugador.
-        :param color: Color de las fichas del jugador.
-        :param checkers: Lista de fichas del jugador (opcional).
+        Inicializa un jugador con un nombre, color y una lista opcional de fichas.
+
+        Args:
+            __name__ (str): El nombre del jugador.
+            __color__ (str): El color de las fichas del jugador.
+            __checkers__ (list, opcional): Una lista de las fichas del jugador. Por defecto es None.
         """
         self.__name__ = __name__
         self.__color__ = __color__
         self.__checkers__ = __checkers__ if __checkers__ is not None else []
-        self.__bar_checkers__ = 0  # Inicializa la cantidad de fichas en la barra
-        self.__home_checkers__ = 0  # Inicializa la cantidad de fichas en casa
+        self.__bar_checkers__ = 0
+        self.__home_checkers__ = 0
 
     def get_name(self):
         """
         Devuelve el nombre del jugador.
-        Es útil para mostrar información en la interfaz o en mensajes del juego.
         """
         return self.__name__
 
-    def add_bar_checker(self, checker=None):
+    def add_bar_checker(self, __checker__=None):
         """
-        Incrementa la cantidad de fichas en la barra (fuera del tablero).
-        Si se proporciona un argumento, agrega la ficha a la lista de fichas del jugador.
-        Se utiliza cuando una ficha es capturada por el oponente.
-        :param checker: Ficha a agregar (opcional).
+        Incrementa el número de fichas en la barra.
         """
-        if checker is not None:
-            self.__checkers__.append(checker)
+        if __checker__ is not None:
+            self.__checkers__.append(__checker__)
         else:
-            # Si se usa sin argumentos, mantiene compatibilidad con lógica previa (si aplica)
             if hasattr(self, "__bar_checkers__"):
                 self.__bar_checkers__ += 1
 
     def remove_bar_checker(self):
         """
-        Decrementa la cantidad de fichas en la barra.
-        Se utiliza cuando el jugador reingresa una ficha al tablero.
+        Decrementa el número de fichas en la barra.
         """
         if self.__bar_checkers__ > 0:
             self.__bar_checkers__ -= 1
 
     def add_home_checker(self):
         """
-        Incrementa la cantidad de fichas en casa (fuera del tablero, ya ganadas).
-        Se utiliza cuando el jugador logra sacar una ficha del tablero.
+        Incrementa el número de fichas en el cuadrante de casa.
         """
         self.__home_checkers__ += 1
 
     def get_bar_checkers(self):
         """
-        Devuelve la cantidad de fichas en la barra.
-        Permite a otras clases (como Game) verificar si el jugador tiene fichas fuera.
+        Devuelve el número de fichas en la barra.
         """
         return self.__bar_checkers__
 
     def get_home_checkers(self):
         """
-        Devuelve la cantidad de fichas en casa.
-        Permite verificar si el jugador está cerca de ganar.
+        Devuelve el número de fichas en el cuadrante de casa.
         """
         return self.__home_checkers__
 
     def add_checker(self, __checker__):
         """
-        Agrega una ficha a la lista de fichas del jugador.
-        :param checker: Ficha a agregar.
+        Añade una ficha a la lista de fichas del jugador.
         """
         self.__checkers__.append(__checker__)
 
     def remove_checker(self, __checker__):
         """
-        Remueve una ficha de la lista de fichas del jugador si está presente.
-        :param checker: Ficha a remover.
+        Elimina una ficha de la lista de fichas del jugador si existe.
         """
         if __checker__ in self.__checkers__:
             self.__checkers__.remove(__checker__)
@@ -84,7 +82,6 @@ class Player:
     @property
     def checkers(self):
         """
-        Permite acceso público de solo lectura a la lista de fichas del jugador.
-        Es útil para pruebas y para otras clases que necesiten consultar las fichas.
+        Proporciona acceso de solo lectura a la lista de fichas del jugador.
         """
         return self.__checkers__
