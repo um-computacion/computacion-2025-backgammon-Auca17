@@ -37,15 +37,9 @@ class Game:
 
     def start(self):
         """
-        Inicia el juego y determina el primer turno lanzando los dados.
+        Realiza la primera tirada de dados para el jugador inicial.
         """
-        while True:
-            self.__dice__.roll()
-            __values__ = self.__dice__.get_values()
-            if __values__[0] != __values__[1]:
-                self.__current_turn__ = 0 if __values__[0] > __values__[1] else 1
-                self.__dice_values__ = list(__values__)
-                break
+        self.roll_dice()
 
     def switch_turn(self):
         """

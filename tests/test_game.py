@@ -47,19 +47,19 @@ class TestGame(unittest.TestCase):
         self.assertEqual(self.__game__.__current_turn__, __initial_turn__)
 
     @patch("core.dice.Dice.roll")
-    def test_start_game_sets_turn_and_dice(self, __mock_roll__):
+    def test_start_rolls_dice(self, __mock_roll__):
         """
-        Verifica que el método start establece el primer turno y los dados.
+        Verifica que el método start realiza la primera tirada de dados.
         """
+        # Simulamos que los dados sacan (5, 2) y que no es un doble
         self.__game__.__dice__.get_values = lambda: (5, 2)
-        self.__game__.start()
-        self.assertEqual(self.__game__.get_current_player(), self.__player1__)
-        self.assertEqual(self.__game__.__dice_values__, [5, 2])
+        self.__game__.__dice__.is_double = lambda: False
 
-        self.__game__.__dice__.get_values = lambda: (2, 5)
+        # Llamamos a start
         self.__game__.start()
-        self.assertEqual(self.__game__.get_current_player(), self.__player2__)
-        self.assertEqual(self.__game__.__dice_values__, [2, 5])
+
+        # Verificamos que los valores de los dados se han establecido
+        self.assertEqual(self.__game__.__dice_values__, [5, 2])
 
     def test_make_move_valid(self):
         """
@@ -70,7 +70,6 @@ class TestGame(unittest.TestCase):
         self.__game__.__dice_values__ = [3, 4]
         __from_pos__ = 0 if __player__.__color__ == "white" else 23
         __to_pos__ = __from_pos__ + (3 if __player__.__color__ == "white" else -3)
-
         self.assertTrue(self.__game__.make_move(__from_pos__, __to_pos__))
         self.assertNotIn(3, self.__game__.__dice_values__)
 
@@ -146,7 +145,6 @@ class TestGame(unittest.TestCase):
         # Forzar el turno del jugador blanco para hacer el test determinista
         self.__game__.__current_turn__ = 0
         self.__player__ = self.__game__.get_current_player()
-
         # Bloquear todos los movimientos posibles
         for i in range(6):
             color_oponente = (
@@ -158,7 +156,6 @@ class TestGame(unittest.TestCase):
                 self.__game__.__board__.__points__[i + 1] = [
                     Checker(color_oponente)
                 ] * 2
-
         self.__game__.__dice_values__ = [1, 2, 3, 4, 5, 6]
 
         # Vaciar otros puntos para asegurar que solo el punto 0 tenga fichas
