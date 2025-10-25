@@ -10,9 +10,7 @@ class TestBoard(unittest.TestCase):
         """
         Verifica que el tablero se inicializa con las posiciones de inicio correctas.
         """
-        self.assertEqual(
-            len(self.board.__points_status__), 24
-        )
+        self.assertEqual(len(self.board.__points_status__), 24)
 
     def test_move_checker(self):
         """
@@ -20,10 +18,10 @@ class TestBoard(unittest.TestCase):
         """
         __initial_count__ = self.board.__points_status__[0]["count"]
         # El color correcto para el punto 0 inicial es 'white'
-        self.board.move_checker(
-            "white", 0, 1
+        self.board.move_checker("white", 0, 1)
+        self.assertEqual(
+            self.board.__points_status__[0]["count"], __initial_count__ - 1
         )
-        self.assertEqual(self.board.__points_status__[0]["count"], __initial_count__ - 1)
         self.assertEqual(self.board.__points_status__[1]["count"], 1)
 
     def test_get_2d_representation(self):

@@ -1,13 +1,22 @@
 import unittest
 from core.game import Game
 from core.player import Player
+from core.board import Board
+from core.dice import Dice
 
 
 class TestBackgammonExceptions(unittest.TestCase):
     def setUp(self):
         self.__player1__ = Player("Alice", "white")
         self.__player2__ = Player("Bob", "black")
-        self.__game__ = Game(self.__player1__, self.__player2__)
+        self.__board__ = Board()
+        self.__dice__ = Dice()
+        self.__game__ = Game(
+            player1=self.__player1__,
+            player2=self.__player2__,
+            board=self.__board__,
+            dice=self.__dice__,
+        )
         self.__game__.start()
 
     def test_invalid_move_exception(self):

@@ -1,29 +1,45 @@
 """
 Módulo principal para la interfaz de línea de comandos del juego Backgammon.
 """
+
 from core.game import Game
 from core.player import Player
+from core.board import Board
+from core.dice import Dice
 
 
 def main():
     """
     La función principal para el juego de Backgammon en CLI.
     """
+    # Crear dependencias
+    __board__ = Board()
+    __dice__ = Dice()
+
+    # Crear jugadores
     __player1__ = Player("Jugador 1", "white")
     __player2__ = Player("Jugador 2", "black")
-    __game__ = Game(__player1__, __player2__)
+
+    # Inyectar dependencias en el juego
+    __game__ = Game(
+        player1=__player1__, player2=__player2__, board=__board__, dice=__dice__
+    )
     __game__.start()
 
     print("¡Bienvenido a Backgammon CLI!")
-    print("Los jugadores se turnan para ingresar movimientos en el formato: 'desde hasta'")
+    print(
+        "Los jugadores se turnan para ingresar movimientos en el formato: 'desde hasta'"
+    )
     print("Escribe 'salir' para terminar.")
 
     while not __game__.is_over():
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         __current_player__ = __game__.get_current_player()
-        print(f"Turno de {__current_player__.get_name()} ({'O' if __current_player__.__color__ == 'white' else 'X'}).")
+        print(
+            f"Turno de {__current_player__.get_name()} ({'O' if __current_player__.__color__ == 'white' else 'X'})."
+        )
         print(f"Tirada de dados: {__game__.get_dice_values()}")
-        
+
         __game__.display_board()
 
         __possible_moves__ = __game__.get_possible_moves()

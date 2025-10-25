@@ -4,6 +4,7 @@ from core.game import Game
 from core.player import Player
 from core.board import Board
 from core.checker import Checker
+from core.dice import Dice
 
 
 class TestGame(unittest.TestCase):
@@ -17,7 +18,14 @@ class TestGame(unittest.TestCase):
         """
         self.__player1__ = Player("Alice", "white")
         self.__player2__ = Player("Bob", "black")
-        self.__game__ = Game(self.__player1__, self.__player2__)
+        self.__board__ = Board()
+        self.__dice__ = Dice()
+        self.__game__ = Game(
+            player1=self.__player1__,
+            player2=self.__player2__,
+            board=self.__board__,
+            dice=self.__dice__,
+        )
 
     def test_initialization(self):
         """
@@ -38,7 +46,7 @@ class TestGame(unittest.TestCase):
         self.__game__.switch_turn()
         self.assertEqual(self.__game__.__current_turn__, __initial_turn__)
 
-    @patch('core.dice.Dice.roll')
+    @patch("core.dice.Dice.roll")
     def test_start_game_sets_turn_and_dice(self, __mock_roll__):
         """
         Verifica que el método start establece el primer turno y los dados.
@@ -60,9 +68,9 @@ class TestGame(unittest.TestCase):
         self.__game__.start()
         __player__ = self.__game__.get_current_player()
         self.__game__.__dice_values__ = [3, 4]
-        __from_pos__ = 0 if __player__.__color__ == 'white' else 23
-        __to_pos__ = __from_pos__ + (3 if __player__.__color__ == 'white' else -3)
-            
+        __from_pos__ = 0 if __player__.__color__ == "white" else 23
+        __to_pos__ = __from_pos__ + (3 if __player__.__color__ == "white" else -3)
+
         self.assertTrue(self.__game__.make_move(__from_pos__, __to_pos__))
         self.assertNotIn(3, self.__game__.__dice_values__)
 
@@ -82,8 +90,10 @@ class TestGame(unittest.TestCase):
         self.__game__.start()
         __player__ = self.__game__.get_current_player()
         self.__game__.__dice_values__ = [3, 4]
-        self.__game__.__board__.get_captured(__player__.__color__).append(Checker(__player__.__color__))
-        __to_pos__ = 2 if __player__.__color__ == 'white' else 20
+        self.__game__.__board__.get_captured(__player__.__color__).append(
+            Checker(__player__.__color__)
+        )
+        __to_pos__ = 2 if __player__.__color__ == "white" else 20
         self.assertTrue(self.__game__.make_move(0, __to_pos__))
 
     def test_reentry_white_bug_fix(self):
@@ -94,7 +104,9 @@ class TestGame(unittest.TestCase):
         __player__ = self.__player1__
         self.__game__.__current_turn__ = 0
         self.__game__.__dice_values__ = [3, 4]
-        self.__game__.__board__.get_captured(__player__.__color__).append(Checker(__player__.__color__))
+        self.__game__.__board__.get_captured(__player__.__color__).append(
+            Checker(__player__.__color__)
+        )
         self.assertTrue(self.__game__.make_move(0, 2))
 
     def test_bear_off_valid(self):
@@ -107,7 +119,7 @@ class TestGame(unittest.TestCase):
         # Prepara el tablero para sacar fichas
         for i in range(24):
             self.__game__.__board__.__points__[i] = []
-        if __player__.__color__ == 'white':
+        if __player__.__color__ == "white":
             self.__game__.__board__.__points__[20] = [Checker(__player__.__color__)] * 2
             self.assertTrue(self.__game__.make_move(20, 24))
         else:
@@ -121,7 +133,9 @@ class TestGame(unittest.TestCase):
         self.__game__.start()
         __player__ = self.__game__.get_current_player()
         for i in range(15):
-            self.__game__.__board__.get_home(__player__.__color__).append(Checker(__player__.__color__))
+            self.__game__.__board__.get_home(__player__.__color__).append(
+                Checker(__player__.__color__)
+            )
         self.__game__.check_winner()
         self.assertEqual(self.__game__.get_winner(), __player__)
 
@@ -129,27 +143,32 @@ class TestGame(unittest.TestCase):
         """
         Verifica que se devuelve una lista vacía cuando no hay movimientos posibles.
         """
-        self.__game__.start()
+        # Forzar el turno del jugador blanco para hacer el test determinista
+        self.__game__.__current_turn__ = 0
         self.__player__ = self.__game__.get_current_player()
-        
+
         # Bloquear todos los movimientos posibles
         for i in range(6):
-            color_oponente = 'black' if self.__player__.__color__ == 'white' else 'white'
+            color_oponente = (
+                "black" if self.__player__.__color__ == "white" else "white"
+            )
             # Asumiendo que el jugador blanco está en el punto 0
             # Bloquear los 6 puntos siguientes
-            if self.__player__.__color__ == 'white':
-                self.__game__.__board__.__points__[i+1] = [Checker(color_oponente)] * 2
-        
+            if self.__player__.__color__ == "white":
+                self.__game__.__board__.__points__[i + 1] = [
+                    Checker(color_oponente)
+                ] * 2
+
         self.__game__.__dice_values__ = [1, 2, 3, 4, 5, 6]
-        
+
         # Vaciar otros puntos para asegurar que solo el punto 0 tenga fichas
         for i in range(1, 24):
             if i > 6 or i == 0:
                 self.__game__.__board__.__points__[i] = []
-        
+
         # Colocar una ficha blanca en el punto 0
-        if self.__player__.__color__ == 'white':
-            self.__game__.__board__.__points__[0] = [Checker('white')]
+        if self.__player__.__color__ == "white":
+            self.__game__.__board__.__points__[0] = [Checker("white")]
 
         __possible_moves__ = self.__game__.get_possible_moves()
         self.assertEqual(len(__possible_moves__), 0)

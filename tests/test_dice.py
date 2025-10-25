@@ -1,7 +1,9 @@
 import unittest
-from unittest.mock import patch 
+from unittest.mock import patch
 from core.dice import Dice
-#Sino pongo ,from unittest.mock import patch, no me deja ejecutar los @patch
+
+# Sino pongo ,from unittest.mock import patch, no me deja ejecutar los @patch
+
 
 class TestDice(unittest.TestCase):
     def setUp(self):

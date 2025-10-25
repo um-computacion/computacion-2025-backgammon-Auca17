@@ -5,6 +5,7 @@ class Dice:
     """
     Representa un par de dados para el juego de Backgammon.
     """
+
     def __init__(self):
         self.__value1__ = None
         self.__value2__ = None

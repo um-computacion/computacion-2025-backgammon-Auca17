@@ -53,16 +53,16 @@ class Board:
             and self.__points__[__to_point__][-1].__color__ != __color__
         ):
             raise ValueError("No se puede mover a un punto bloqueado")
-        
+
         checker = self.__points__[__from_point__].pop()
-        
+
         if (
             len(self.__points__[__to_point__]) == 1
             and self.__points__[__to_point__][-1].__color__ != __color__
         ):
             captured = self.__points__[__to_point__].pop()
             self.__captured__[captured.__color__].append(captured)
-        
+
         self.__points__[__to_point__].append(checker)
 
     def bear_off(self, __color__, __from_point__):
@@ -96,16 +96,16 @@ class Board:
             and self.__points__[__to_point__][-1].__color__ != __color__
         ):
             raise ValueError("No se puede ingresar a un punto bloqueado")
-        
+
         checker = self.__captured__[__color__].pop()
-        
+
         if (
             len(self.__points__[__to_point__]) == 1
             and self.__points__[__to_point__][-1].__color__ != __color__
         ):
             captured = self.__points__[__to_point__].pop()
             self.__captured__[captured.__color__].append(captured)
-        
+
         self.__points__[__to_point__].append(checker)
 
     def get_point(self, __index__):
@@ -172,7 +172,7 @@ class Board:
                 return "   "
             # Filas de fichas visibles
             if len(point) > row:
-                checker = 'O' if point[row].__color__ == 'white' else 'X'
+                checker = "O" if point[row].__color__ == "white" else "X"
                 return f" {checker} "
             return "   "
 
@@ -196,10 +196,12 @@ class Board:
             board_str += line + "\n"
 
         # Barra central con conteo de fichas capturadas
-        white_captured = len(self.__captured__['white'])
-        black_captured = len(self.__captured__['black'])
+        white_captured = len(self.__captured__["white"])
+        black_captured = len(self.__captured__["black"])
         bar_display = f"W:{white_captured} B:{black_captured}"
-        board_str += f"                     |{bar_display.center(5)}|                     \n"
+        board_str += (
+            f"                     |{bar_display.center(5)}|                     \n"
+        )
 
         # Filas de la mitad inferior (incluyendo contadores)
         for i in range(5, -1, -1):  # 5 para contadores, 4-0 para fichas
@@ -216,8 +218,8 @@ class Board:
         board_str += f"{bottom_header} |     | {bottom_footer}\n"
 
         # Conteo de fichas en casa
-        white_home = len(self.__home__['white'])
-        black_home = len(self.__home__['black'])
+        white_home = len(self.__home__["white"])
+        black_home = len(self.__home__["black"])
         board_str += f"\nFichas en casa - Blancas: {white_home}, Negras: {black_home}\n"
 
         return board_str
