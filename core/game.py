@@ -72,7 +72,10 @@ class Game:
         """
         Reinicia el juego para una nueva partida.
         """
-        self.__init__(self.__players__[0], self.__players__[1])
+        # Corrección imprescindible: el constructor necesita el tablero y los dados.
+        self.__init__(
+            self.__players__[0], self.__players__[1], self.__board__, self.__dice__
+        )
 
     def get_current_player(self):
         """
@@ -271,9 +274,9 @@ class Game:
         is_bear_off = __to_pos__ == 24 or __to_pos__ == -1
 
         if is_bear_off:
-            return self._execute_bear_off(__player__, __from_pos__)
+            self._execute_bear_off(__player__, __from_pos__)
         else:
-            return self._execute_normal_move(__player__, __from_pos__, __to_pos__)
+            self._execute_normal_move(__player__, __from_pos__, __to_pos__)
 
     def _execute_bear_off(self, __player__, __from_pos__):
         """Ejecuta el movimiento de sacar una ficha (bear off)."""
@@ -287,8 +290,6 @@ class Game:
             self.check_winner()
             if not self.__dice_values__ and not self.is_over():
                 self.switch_turn()
-            return True
-        return False
 
     def _execute_normal_move(self, __player__, __from_pos__, __to_pos__):
         """Ejecuta un movimiento normal o de reingreso."""
@@ -310,5 +311,3 @@ class Game:
             self.check_winner()
             if not self.__dice_values__ and not self.is_over():
                 self.switch_turn()
-            return True
-        return False
