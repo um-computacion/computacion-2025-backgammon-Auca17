@@ -1,3 +1,7 @@
+"""
+Este módulo contiene pruebas para verificar el manejo de excepciones y errores.
+"""
+
 import unittest
 from core.game import Game
 from core.player import Player
@@ -6,7 +10,14 @@ from core.dice import Dice
 
 
 class TestBackgammonExceptions(unittest.TestCase):
+    """
+    Clase de pruebas unitarias para el manejo de excepciones.
+    """
+
     def setUp(self):
+        """
+        Configura el entorno de prueba antes de cada test.
+        """
         self.__player1__ = Player("Alice", "white")
         self.__player2__ = Player("Bob", "black")
         self.__board__ = Board()

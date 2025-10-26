@@ -1,3 +1,7 @@
+"""
+Este módulo contiene las pruebas unitarias para la clase Board.
+"""
+
 import unittest
 from core.board import Board
 
@@ -86,6 +90,7 @@ class TestBoard(unittest.TestCase):
         self.board.get_point(23).pop()
         self.board.get_point(23).pop()
         self.board.move_checker("white", 18, 23)
+
         self.board.bear_off("white", 23)
         self.assertEqual(len(self.board.get_home("white")), 1)
         self.assertEqual(self.board.get_point_count(23), 0)
@@ -129,6 +134,32 @@ class TestBoard(unittest.TestCase):
         """
         with self.assertRaises(ValueError):
             self.board.enter_from_captured("white", 20)
+
+    def test_get_point(self):
+        """
+        Verifica que get_point devuelve la lista correcta de fichas para un punto.
+        Precondición: El tablero está en su estado inicial.
+        Resultado: El punto 0 debe contener 2 fichas blancas.
+        """
+        point_content = self.board.get_point(0)
+        self.assertEqual(len(point_content), 2)
+        self.assertEqual(point_content[0].__color__, "white")
+
+    def test_get_2d_representation_with_captured_checkers(self):
+        """
+        Verifica que la representación 2D muestra correctamente las fichas capturadas.
+        Precondición: Se captura una ficha de cada color.
+        Resultado: La representación de la barra debe mostrar 'W:1 B:1'.
+        """
+        # Capturamos una ficha blanca
+        self.board.get_point(0).pop()
+        self.board.move_checker("black", 12, 0)
+        # Capturamos una ficha negra
+        self.board.get_point(23).pop()
+        self.board.move_checker("white", 11, 23)
+
+        representation = self.board.get_2d_representation()
+        self.assertIn("W:1 B:1", representation)
 
 
 if __name__ == "__main__":

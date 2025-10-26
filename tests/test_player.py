@@ -1,5 +1,10 @@
+"""
+Este módulo contiene las pruebas unitarias para la clase Player.
+"""
+
 import unittest
 from core.player import Player
+from core.checker import Checker
 
 
 class TestPlayer(unittest.TestCase):
@@ -64,6 +69,44 @@ class TestPlayer(unittest.TestCase):
         player.add_home_checker()
         player.add_home_checker()
         self.assertEqual(player.get_home_checkers(), 2)
+
+    def test_add_checker(self):
+        """
+        Verifica que se puede agregar una ficha a la lista de fichas del jugador.
+        Precondición: El jugador tiene una lista de fichas vacía.
+        Resultado: La ficha se añade y la lista contiene 1 elemento.
+        """
+        player = Player("Carol", "black")
+        checker = Checker("black")
+        player.add_checker(checker)
+        self.assertIn(checker, player.checkers)
+        self.assertEqual(len(player.checkers), 1)
+
+    def test_remove_existing_checker(self):
+        """
+        Verifica que una ficha existente se puede eliminar de la lista.
+        Precondición: El jugador tiene una ficha en su lista.
+        Resultado: La ficha se elimina y la lista queda vacía.
+        """
+        player = Player("Carol", "black")
+        checker = Checker("black")
+        player.add_checker(checker)
+        player.remove_checker(checker)
+        self.assertNotIn(checker, player.checkers)
+
+    def test_remove_non_existing_checker(self):
+        """
+        Verifica que intentar eliminar una ficha no existente no causa errores.
+        Precondición: El jugador tiene una ficha y se intenta eliminar otra.
+        Resultado: La lista de fichas no cambia.
+        """
+        player = Player("Carol", "black")
+        checker1 = Checker("black")
+        checker2 = Checker("black")
+        player.add_checker(checker1)
+        player.remove_checker(checker2)
+        self.assertIn(checker1, player.checkers)
+        self.assertEqual(len(player.checkers), 1)
 
 
 if __name__ == "__main__":
