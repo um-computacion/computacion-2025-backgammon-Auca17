@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import patch
 from core.game import Game
 from core.player import Player
 from core.board import Board
@@ -46,8 +45,7 @@ class TestGame(unittest.TestCase):
         self.__game__.switch_turn()
         self.assertEqual(self.__game__.__current_turn__, __initial_turn__)
 
-    @patch("core.dice.Dice.roll")
-    def test_start_rolls_dice(self, __mock_roll__):
+    def test_start_rolls_dice(self):
         """
         Verifica que el método start realiza la primera tirada de dados.
         """
@@ -169,6 +167,97 @@ class TestGame(unittest.TestCase):
 
         __possible_moves__ = self.__game__.get_possible_moves()
         self.assertEqual(len(__possible_moves__), 0)
+
+    def test_roll_dice_double(self):
+        """
+        Verifica que una tirada de dobles genera cuatro movimientos.
+        Precondición: El dado se simula para que saque (3, 3).
+        Resultado: La lista de valores de dados debe ser [3, 3, 3, 3].
+        """
+        self.__game__.__dice__.get_values = lambda: (3, 3)
+        self.__game__.__dice__.is_double = lambda: True
+        self.__game__.roll_dice()
+        self.assertEqual(self.__game__.get_dice_values(), [3, 3, 3, 3])
+
+    def test_can_bear_off_true(self):
+        """
+        Verifica que _can_bear_off devuelve True cuando todas las fichas están en casa.
+        Precondición: Se mueven todas las fichas del jugador blanco a su cuadrante de casa.
+        Resultado: La función debe devolver True.
+        """
+        player = self.__player1__  # White player
+        # Limpiar el tablero
+        for i in range(24):
+            self.__game__.__board__.__points__[i] = []
+        # Colocar todas las fichas en el cuadrante de casa
+        self.__game__.__board__.__points__[18] = [Checker("white")] * 15
+        self.assertTrue(self.__game__._can_bear_off(player))
+
+    def test_can_bear_off_false(self):
+        """
+        Verifica que _can_bear_off devuelve False si alguna ficha está fuera de casa.
+        Precondición: Una ficha del jugador blanco se deja fuera del cuadrante de casa.
+        Resultado: La función debe devolver False.
+        """
+        player = self.__player1__  # White player
+        # Dejar una ficha en el punto 0, fuera del cuadrante de casa
+        self.assertFalse(self.__game__._can_bear_off(player))
+
+    def test_is_over_after_win(self):
+        """
+        Verifica que is_over() devuelve True después de que un jugador gana.
+        Precondición: Se establece una condición de victoria para el jugador 1.
+        Resultado: is_over() debe ser True.
+        """
+        player = self.__player1__
+        for _ in range(15):
+            self.__game__.__board__.get_home(player.__color__).append(Checker(player.__color__))
+        self.__game__.check_winner()
+        self.assertTrue(self.__game__.is_over())
+        self.assertEqual(self.__game__.get_winner(), player)
+
+    def test_get_possible_moves_from_bar(self):
+        """
+        Verifica que get_possible_moves devuelve solo movimientos de reingreso si hay fichas en la barra.
+        """
+        player = self.__player1__  # White player
+        self.__game__.__current_turn__ = 0  # Asegurar que es el turno del jugador blanco
+        self.__game__.__board__.get_captured(player.__color__).append(Checker(player.__color__))
+        self.__game__.__dice_values__ = [2, 5]
+
+        # El jugador blanco puede reingresar en los puntos 1 (dado 2) y 4 (dado 5)
+        # Suponiendo que esos puntos no están bloqueados
+        possible_moves = self.__game__.get_possible_moves()
+        self.assertIn("Barra a 1", possible_moves)
+        self.assertIn("Barra a 4", possible_moves)
+        self.assertEqual(len(possible_moves), 2)
+
+    def test_get_possible_moves_for_bear_off(self):
+        """
+        Verifica que get_possible_moves devuelve movimientos de bear off cuando es posible.
+        """
+        player = self.__player1__ # White player
+        self.__game__.__current_turn__ = 0
+        self.__game__.__dice_values__ = [3, 4]
+        # Limpiar el tablero y colocar fichas en posición de bear off
+        for i in range(24):
+            self.__game__.__board__.__points__[i] = []
+        self.__game__.__board__.__points__[20] = [Checker("white")] # Mover con dado 4
+        self.__game__.__board__.__points__[21] = [Checker("white")] # Mover con dado 3
+
+        possible_moves = self.__game__.get_possible_moves()
+        self.assertIn("20 a 24", possible_moves)
+        self.assertIn("21 a 24", possible_moves)
+
+    def test_validate_move_invalid_dice(self):
+        """
+        Verifica que _validate_move lanza un ValueError si la distancia no coincide con los dados.
+        """
+        player = self.__player1__
+        self.__game__.__dice_values__ = [1, 2]
+        # Intentar mover 3 puntos (no disponible en los dados)
+        with self.assertRaises(ValueError):
+            self.__game__._validate_move(player, 0, 3)
 
 
 if __name__ == "__main__":
