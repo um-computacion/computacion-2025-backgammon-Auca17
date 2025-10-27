@@ -213,9 +213,13 @@ def can_bear_off(player, game_state):
         return False  # No se puede hacer bear-off con fichas en la barra.
 
     home_board_indices = range(0, 6) if player == PLAYER_WHITE else range(18, 24)
+    opponent = get_opponent(player)
     checkers_in_home = 0
 
     for i in home_board_indices:
+        # Si hay una ficha del oponente en el cuadrante, no se puede retirar.
+        if board[i] and board[i][0] == opponent:
+            return False
         if board[i] and board[i][0] == player:
             checkers_in_home += len(board[i])
 
@@ -357,10 +361,6 @@ def apply_move(start_point, end_point, player, game_state):
 
 def draw_brick_background(surface):
     """Dibuja un fondo de pared de ladrillos de estilo medieval."""
-    # Si no hay superficie, no se dibuja (útil para tests)
-    if surface is None:
-        return
-
     brick_width = 80
     brick_height = 40
     mortar_thickness = 4
@@ -445,9 +445,6 @@ def draw_decorative_banner(surface):
     """
     Dibuja una guirnalda decorativa de banderines en la parte superior.
     """
-    # Si no hay superficie, no se dibuja (útil para tests)
-    if surface is None:
-        return
     # --- Parámetros de la guirnalda ---
     y_start = 20  # Subimos un poco la guirnalda
     sag = 30  # Caída de la cuerda en el centro (positiva para ir hacia abajo)
@@ -621,42 +618,42 @@ def draw_checkers(surface, game_state):
 
 def draw_menu(surface, game_state):
     """
-    Dibuja el menú principal o solo actualiza el estado de los botones si
-    la superficie es None (para los tests).
+    Dibuja el menú principal. Si 'surface' es None, solo actualiza
+    el estado del juego (ej. 'buttons') sin renderizar.
     """
-    # La lógica para definir los botones se ejecuta siempre.
     button_rect = pygame.Rect(SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT / 2 + 50, 300, 60)
     game_state["buttons"]["vs_player"] = button_rect
 
-    # Las operaciones de dibujado solo se ejecutan si hay una superficie.
-    if surface:
-        draw_brick_background(surface)
-        draw_decorative_banner(surface)
+    if surface is None:
+        return  # Modo de prueba: solo registrar componentes, no dibujar.
 
-        # Título
-        title_text = font_title.render("Backgammon", True, COLOR_TEXT_DARK)
-        surface.blit(
-            title_text,
-            (SCREEN_WIDTH / 2 - title_text.get_width() / 2, SCREEN_HEIGHT / 3),
-        )
+    draw_brick_background(surface)
+    draw_decorative_banner(surface)
 
-        # Botón
-        pygame.draw.rect(surface, COLOR_WHITE, button_rect, border_radius=15)
-        pygame.draw.rect(surface, COLOR_TEXT_DARK, button_rect, 2, border_radius=15)
-        button_text = font_hud_bold.render("Jugador vs Jugador", True, COLOR_TEXT_DARK)
-        surface.blit(
-            button_text,
-            (
-                button_rect.centerx - button_text.get_width() / 2,
-                button_rect.centery - button_text.get_height() / 2,
-            ),
-        )
+    # Título
+    title_text = font_title.render("Backgammon", True, COLOR_TEXT_DARK)
+    surface.blit(
+        title_text, (SCREEN_WIDTH / 2 - title_text.get_width() / 2, SCREEN_HEIGHT / 3)
+    )
+
+    # Botón con fondo blanco y borde negro para mejor contraste
+    pygame.draw.rect(surface, COLOR_WHITE, button_rect, border_radius=15)
+    pygame.draw.rect(surface, COLOR_TEXT_DARK, button_rect, 2, border_radius=15)
+
+    button_text = font_hud_bold.render("Jugador vs Jugador", True, COLOR_TEXT_DARK)
+    surface.blit(
+        button_text,
+        (
+            button_rect.centerx - button_text.get_width() / 2,
+            button_rect.centery - button_text.get_height() / 2,
+        ),
+    )
 
 
 def draw_name_input(surface, game_state):
     """
-    Dibuja la pantalla de entrada de nombres o solo actualiza el estado
-    de los botones/cajas si la superficie es None (para los tests).
+    Dibuja la pantalla de entrada de nombres. Si 'surface' es None,
+    solo actualiza el estado del juego (cajas, botones) sin renderizar.
     """
     panel_rect = pygame.Rect(SCREEN_WIDTH / 2 - 250, 260, 500, 350)
     p1_box = pygame.Rect(
@@ -673,70 +670,72 @@ def draw_name_input(surface, game_state):
     game_state["input_boxes"][PLAYER_BLACK] = p2_box
     game_state["buttons"]["start_game"] = start_button
 
-    if surface:
-        draw_brick_background(surface)
-        draw_decorative_banner(surface)
+    if surface is None:
+        return  # Modo de prueba
 
-        title = font_title.render("Configuración de Partida", True, COLOR_TEXT_DARK)
-        surface.blit(title, (SCREEN_WIDTH / 2 - title.get_width() / 2, 160))
+    draw_brick_background(surface)
+    draw_decorative_banner(surface)
 
-        p1_label = font_hud_bold.render("Jugador 1 (Blancas)", True, COLOR_TEXT_DARK)
-        surface.blit(p1_label, (panel_rect.left + 30, panel_rect.top + 30))
-        pygame.draw.rect(surface, COLOR_WHITE, p1_box, border_radius=10)
-        border_color = (
-            COLOR_BUTTON_PRIMARY
-            if game_state["active_input"] == PLAYER_WHITE
-            else COLOR_HUD_BG
-        )
-        pygame.draw.rect(surface, border_color, p1_box, 2, border_radius=10)
-        p1_text = font_hud_bold.render(
-            game_state["player_names"][PLAYER_WHITE], True, COLOR_TEXT_DARK
-        )
+    title = font_title.render("Configuración de Partida", True, COLOR_TEXT_DARK)
+    surface.blit(title, (SCREEN_WIDTH / 2 - title.get_width() / 2, 160))
+
+    # --- Input para Jugador 1 ---
+    p1_label = font_hud_bold.render("Jugador 1 (Blancas)", True, COLOR_TEXT_DARK)
+    surface.blit(p1_label, (panel_rect.left + 30, panel_rect.top + 30))
+    pygame.draw.rect(surface, COLOR_WHITE, p1_box, border_radius=10)
+    border_color = (
+        COLOR_BUTTON_PRIMARY
+        if game_state["active_input"] == PLAYER_WHITE
+        else COLOR_HUD_BG
+    )
+    pygame.draw.rect(surface, border_color, p1_box, 2, border_radius=10)
+    p1_text = font_hud_bold.render(
+        game_state["player_names"][PLAYER_WHITE], True, COLOR_TEXT_DARK
+    )
+    surface.blit(p1_text, (p1_box.x + 15, p1_box.centery - p1_text.get_height() / 2))
+
+    # --- Input para Jugador 2 ---
+    p2_label = font_hud_bold.render("Jugador 2 (Negras)", True, COLOR_TEXT_DARK)
+    surface.blit(p2_label, (panel_rect.left + 30, panel_rect.top + 130))
+    pygame.draw.rect(surface, COLOR_WHITE, p2_box, border_radius=10)
+    border_color_p2 = (
+        COLOR_BUTTON_PRIMARY
+        if game_state["active_input"] == PLAYER_BLACK
+        else COLOR_HUD_BG
+    )
+    pygame.draw.rect(surface, border_color_p2, p2_box, 2, border_radius=10)
+    p2_text = font_hud_bold.render(
+        game_state["player_names"][PLAYER_BLACK], True, COLOR_TEXT_DARK
+    )
+    surface.blit(p2_text, (p2_box.x + 15, p2_box.centery - p2_text.get_height() / 2))
+
+    # --- Texto informativo de caracteres ---
+    char_info_text = font_small_bold.render(
+        "Mínimo 2, máximo 10 caracteres.", True, COLOR_TEXT_DARK
+    )
+    surface.blit(char_info_text, (p2_box.left, p2_box.bottom + 10))
+
+    # --- Botón de Comenzar ---
+
+    # Botón con fondo blanco y borde negro para mejor contraste
+    pygame.draw.rect(surface, COLOR_WHITE, start_button, border_radius=15)
+    pygame.draw.rect(surface, COLOR_TEXT_DARK, start_button, 2, border_radius=15)
+    start_text = font_hud_bold.render("Comenzar Partida", True, COLOR_TEXT_DARK)
+    surface.blit(
+        start_text,
+        (
+            start_button.centerx - start_text.get_width() / 2,
+            start_button.centery - start_text.get_height() / 2,
+        ),
+    )
+
+    # --- Mensaje de error ---
+    if "caracteres" in game_state["message"]:
+        error_text = font_message.render(game_state["message"], True, COLOR_POINT_A)
         surface.blit(
-            p1_text, (p1_box.x + 15, p1_box.centery - p1_text.get_height() / 2)
+            error_text,
+            (SCREEN_WIDTH / 2 - error_text.get_width() / 2, panel_rect.bottom + 20),
         )
-
-        p2_label = font_hud_bold.render("Jugador 2 (Negras)", True, COLOR_TEXT_DARK)
-        surface.blit(p2_label, (panel_rect.left + 30, panel_rect.top + 130))
-        pygame.draw.rect(surface, COLOR_WHITE, p2_box, border_radius=10)
-        border_color_p2 = (
-            COLOR_BUTTON_PRIMARY
-            if game_state["active_input"] == PLAYER_BLACK
-            else COLOR_HUD_BG
-        )
-        pygame.draw.rect(surface, border_color_p2, p2_box, 2, border_radius=10)
-        p2_text = font_hud_bold.render(
-            game_state["player_names"][PLAYER_BLACK], True, COLOR_TEXT_DARK
-        )
-        surface.blit(
-            p2_text, (p2_box.x + 15, p2_box.centery - p2_text.get_height() / 2)
-        )
-
-        char_info_text = font_small_bold.render(
-            "Mínimo 2, máximo 10 caracteres.", True, COLOR_TEXT_DARK
-        )
-        surface.blit(char_info_text, (p2_box.left, p2_box.bottom + 10))
-
-        pygame.draw.rect(surface, COLOR_WHITE, start_button, border_radius=15)
-        pygame.draw.rect(surface, COLOR_TEXT_DARK, start_button, 2, border_radius=15)
-        start_text = font_hud_bold.render("Comenzar Partida", True, COLOR_TEXT_DARK)
-        surface.blit(
-            start_text,
-            (
-                start_button.centerx - start_text.get_width() / 2,
-                start_button.centery - start_text.get_height() / 2,
-            ),
-        )
-
-        if "caracteres" in game_state["message"]:
-            error_text = font_message.render(game_state["message"], True, COLOR_POINT_A)
-            surface.blit(
-                error_text,
-                (
-                    SCREEN_WIDTH / 2 - error_text.get_width() / 2,
-                    panel_rect.bottom + 20,
-                ),
-            )
 
 
 def draw_dice(surface, value, x, y, size=50):
@@ -784,15 +783,20 @@ def draw_dice(surface, value, x, y, size=50):
 
 
 def draw_initial_roll(surface, game_state):
-    """Dibuja la pantalla de la tirada inicial con un diseño moderno."""
-    draw_brick_background(surface)
-    draw_decorative_banner(surface)  # <- Añadido
+    """
+    Dibuja la tirada inicial. Si 'surface' es None, no renderiza,
+    permitiendo que la lógica se ejecute en modo de prueba.
+    """
+    if surface is None:
+        return  # Modo de prueba
 
-    # Título (posición Y ajustada)
+    draw_brick_background(surface)
+    draw_decorative_banner(surface)
+
     title = font_title.render("Tirada Inicial", True, COLOR_TEXT_DARK)
     surface.blit(title, (SCREEN_WIDTH / 2 - title.get_width() / 2, 160))
 
-    if game_state["first_roll_data"]["rolled"]:
+    if game_state["first_roll_data"].get("rolled", False):
         p1_name = game_state["player_names"][PLAYER_WHITE]
         p2_name = game_state["player_names"][PLAYER_BLACK]
         p1_roll = game_state["first_roll_data"][PLAYER_WHITE]
@@ -996,11 +1000,10 @@ def get_point_from_mouse(pos):
 
 
 def handle_menu_events(event, game_data):
-    """Maneja los eventos específicos de la fase del menú."""
+    """Maneja los eventos en la pantalla del menú principal."""
     if event.type == pygame.MOUSEBUTTONDOWN:
-        # El botón se define en draw_menu, así que necesitamos asegurarnos
-        # de que existe antes de comprobar la colisión.
-        if "vs_player" in game_data["buttons"] and game_data["buttons"][
+        # Se comprueba si 'vs_player' existe antes de acceder a él.
+        if "vs_player" in game_data.get("buttons", {}) and game_data["buttons"][
             "vs_player"
         ].collidepoint(event.pos):
             game_data["game_phase"] = "NAME_INPUT"
@@ -1008,10 +1011,10 @@ def handle_menu_events(event, game_data):
 
 
 def handle_name_input_events(event, game_data):
-    """Maneja los eventos para la fase de entrada de nombres."""
+    """Maneja los eventos en la pantalla de entrada de nombres."""
     if event.type == pygame.MOUSEBUTTONDOWN:
-        # Comprueba si se ha pulsado el botón de "Comenzar"
-        if "start_game" in game_data["buttons"] and game_data["buttons"][
+        # Comprobar clic en el botón de "Comenzar Partida"
+        if "start_game" in game_data.get("buttons", {}) and game_data["buttons"][
             "start_game"
         ].collidepoint(event.pos):
             p1_name = game_data["player_names"][PLAYER_WHITE].strip()
@@ -1022,36 +1025,40 @@ def handle_name_input_events(event, game_data):
                 while w_roll == b_roll:
                     w_roll, b_roll = roll_dice()
                 game_data["first_roll_data"].update(
-                    {"rolled": True, PLAYER_WHITE: w_roll, PLAYER_BLACK: b_roll}
+                    {PLAYER_WHITE: w_roll, PLAYER_BLACK: b_roll, "rolled": True}
                 )
             else:
                 game_data["message"] = (
                     "Los nombres deben tener entre 2 y 10 caracteres."
                 )
 
-        # Comprueba si se ha activado una de las cajas de texto
-        for player, box in game_data["input_boxes"].items():
+        # Activar una de las cajas de texto
+        for player, box in game_data.get("input_boxes", {}).items():
             if box.collidepoint(event.pos):
                 game_data["active_input"] = player
+                return game_data  # Devolver estado actualizado
 
-    # Maneja la entrada de teclado para el jugador activo
-    if event.type == pygame.KEYDOWN and game_data["active_input"]:
+    # Manejo de la entrada de teclado
+    if event.type == pygame.KEYDOWN and game_data.get("active_input"):
         player = game_data["active_input"]
+        current_name = game_data["player_names"].get(player, "")
+
         if event.key == pygame.K_BACKSPACE:
-            game_data["player_names"][player] = game_data["player_names"][player][:-1]
-        elif len(game_data["player_names"][player]) < 10:
-            # Asegurarse de que el input es texto imprimible
+            game_data["player_names"][player] = current_name[:-1]
+        elif len(current_name) < 10:
+            # Asegurarse de que el caracter es imprimible y no una tecla de control
             if event.unicode.isprintable():
                 game_data["player_names"][player] += event.unicode
     return game_data
 
 
 def handle_start_roll_events(event, game_data, legal_moves):
-    """Maneja los eventos para la fase de la tirada inicial."""
+    """Maneja los eventos en la pantalla de la tirada inicial."""
     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
         w_roll = game_data["first_roll_data"][PLAYER_WHITE]
         b_roll = game_data["first_roll_data"][PLAYER_BLACK]
         winner = PLAYER_WHITE if w_roll > b_roll else PLAYER_BLACK
+        winner_name = game_data["player_names"].get(winner, "Jugador")
 
         game_data.update(
             {
@@ -1059,11 +1066,37 @@ def handle_start_roll_events(event, game_data, legal_moves):
                 "dice": [w_roll, b_roll],
                 "moves_remaining": [w_roll, b_roll],
                 "game_phase": "PLAY",
-                "message": f"Mueven {game_data['player_names'][winner]}",
+                "message": f"Mueven {winner_name}",
             }
         )
-        legal_moves = get_legal_moves(winner, game_data["dice"], game_data)
+        # Limpia y actualiza los movimientos legales para el jugador que empieza
+        legal_moves.clear()
+        legal_moves.update(
+            get_legal_moves(winner, game_data["dice"], game_data)
+        )
     return game_data, legal_moves
+
+
+def check_for_win(game_data):
+    """
+    Comprueba si algún jugador ha ganado la partida.
+    Devuelve el estado del juego actualizado si hay un ganador.
+    """
+    if game_data["off"][PLAYER_WHITE] == 15:
+        game_data.update(
+            {
+                "message": f"¡Gana {game_data['player_names'][PLAYER_WHITE]}!",
+                "game_phase": "GAME_OVER",
+            }
+        )
+    elif game_data["off"][PLAYER_BLACK] == 15:
+        game_data.update(
+            {
+                "message": f"¡Gana {game_data['player_names'][PLAYER_BLACK]}!",
+                "game_phase": "GAME_OVER",
+            }
+        )
+    return game_data
 
 
 def main_loop():
@@ -1126,20 +1159,7 @@ def main_loop():
             draw_hud(screen, game_data)
 
             # Comprobar victoria
-            if game_data["off"][PLAYER_WHITE] == 15:
-                game_data.update(
-                    {
-                        "message": f"¡Gana {game_data['player_names'][PLAYER_WHITE]}!",
-                        "game_phase": "GAME_OVER",
-                    }
-                )
-            elif game_data["off"][PLAYER_BLACK] == 15:
-                game_data.update(
-                    {
-                        "message": f"¡Gana {game_data['player_names'][PLAYER_BLACK]}!",
-                        "game_phase": "GAME_OVER",
-                    }
-                )
+            game_data = check_for_win(game_data)
 
         pygame.display.flip()
         clock.tick(60)
@@ -1149,10 +1169,7 @@ def main_loop():
 
 
 def handle_play_events(event, game_data, legal_moves):
-    """
-    Maneja los eventos durante la fase de juego principal y devuelve el
-    estado actualizado.
-    """
+    """Maneja los eventos durante la fase de juego principal."""
     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
         if not game_data["dice"]:
             d1, d2 = roll_dice()
@@ -1163,8 +1180,9 @@ def handle_play_events(event, game_data, legal_moves):
                 game_data["moves_remaining"] = [d1, d2]
 
             player = game_data["current_player"]
-            legal_moves = get_legal_moves(
-                player, game_data["moves_remaining"], game_data
+            legal_moves.clear()
+            legal_moves.update(
+                get_legal_moves(player, game_data["moves_remaining"], game_data)
             )
 
             if not legal_moves:
@@ -1188,6 +1206,7 @@ def handle_play_events(event, game_data, legal_moves):
             end = clicked_point
 
             if end in legal_moves.get(start, []):
+                # Calcular dado usado
                 die_used = -1
                 if start == "BAR":
                     die_used = (25 - end) if player == "W" else end
@@ -1204,27 +1223,25 @@ def handle_play_events(event, game_data, legal_moves):
                 else:
                     die_used = abs(end - start)
 
-                if die_used != -1 and die_used in game_data["moves_remaining"]:
-                    game_data = apply_move(start, end, player, game_data)
-                    game_data["moves_remaining"].remove(die_used)
-                    game_data["selected_point"] = None
+                # Aplicar movimiento
+                game_data = apply_move(start, end, player, game_data)
+                game_data["moves_remaining"].remove(die_used)
+                game_data["selected_point"] = None
 
-                    legal_moves = get_legal_moves(
-                        player, game_data["moves_remaining"], game_data
-                    )
+                # Recalcular y cambiar turno si es necesario
+                legal_moves.clear()
+                legal_moves.update(
+                    get_legal_moves(player, game_data["moves_remaining"], game_data)
+                )
 
-                    if not game_data["moves_remaining"] or not legal_moves:
-                        game_data["current_player"] = get_opponent(player)
-                        game_data["dice"] = []
-                        game_data["moves_remaining"] = []
-                        legal_moves.clear()
-                else:
-                    game_data["selected_point"] = None
-                    game_data["message"] = "Error de dado. Intenta de nuevo."
+                if not game_data["moves_remaining"] or not legal_moves:
+                    game_data["current_player"] = get_opponent(player)
+                    game_data["dice"] = []
+                    game_data["moves_remaining"] = []
+                    legal_moves.clear()
             else:
                 game_data["selected_point"] = None
                 game_data["message"] = "Movimiento no válido."
-
     return game_data, legal_moves
 
 
