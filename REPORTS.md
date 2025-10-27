@@ -1,6 +1,7 @@
 # Automated Reports
 
 ## Coverage Report
+
 ```text
 Name               Stmts   Miss  Cover   Missing
 ------------------------------------------------
@@ -16,6 +17,7 @@ TOTAL                314     10    97%
 ```
 
 ## Pylint Report
+
 ```text
 ************* Module cli.cli
 cli/cli.py:94:0: C0301: Line too long (116/100) (line-too-long)
