@@ -137,9 +137,13 @@ def setup_initial_state():
         'current_player': None,       # Se decide con la primera tirada
         'dice': [],                   # ej: [4, 5]
         'moves_remaining': [],        # Movimientos disponibles según los dados
-        'selected_point': None,       # Punto de origen seleccionado
-        'message': "Tiren para ver quién empieza.",
-        'game_phase': 'START_ROLL',   # Fases: START_ROLL, PLAY, GAME_OVER
+        'selected_point': None,
+        'message': "Bienvenido a Backgammon",
+        'game_phase': 'MENU', # Fases: MENU, NAME_INPUT, START_ROLL, PLAY, GAME_OVER
+        'player_names': {PLAYER_WHITE: "", PLAYER_BLACK: ""},
+        'active_input': None,
+        'input_boxes': {},
+        'buttons': {},
         'first_roll_data': {PLAYER_WHITE: 0, PLAYER_BLACK: 0, 'rolled': False},
     }
     return game_state
@@ -378,6 +382,77 @@ def draw_checkers(surface, game_state):
         y_pos = BOARD_MARGIN + checker_radius + i * int(checker_radius * 1.5)
         pygame.draw.circle(surface, COLOR_BLACK, (off_x, y_pos), checker_radius, 5)
 
+def draw_menu(surface, game_state):
+    """Dibuja el menú principal."""
+    surface.fill(COLOR_BOARD)
+    title_text = font_message.render("Backgammon", True, COLOR_BLACK)
+    surface.blit(title_text, (SCREEN_WIDTH / 2 - title_text.get_width() / 2, SCREEN_HEIGHT / 3))
+
+    # Botón
+    button_rect = pygame.Rect(SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT / 2, 300, 60)
+    game_state['buttons']['vs_player'] = button_rect
+    pygame.draw.rect(surface, COLOR_HUD_BG, button_rect)
+    button_text = font_hud.render("Jugador vs Jugador", True, COLOR_HUD_TEXT)
+    surface.blit(button_text, (button_rect.centerx - button_text.get_width() / 2, button_rect.centery - button_text.get_height() / 2))
+
+def draw_name_input(surface, game_state):
+    """Dibuja la pantalla de entrada de nombres."""
+    surface.fill(COLOR_BOARD)
+    
+    # Título
+    title = font_message.render("Introduzcan sus nombres", True, COLOR_BLACK)
+    surface.blit(title, (SCREEN_WIDTH/2 - title.get_width()/2, 100))
+
+    # Input para Jugador 1
+    p1_label = font_hud.render("Jugador 1 (Blancas):", True, COLOR_BLACK)
+    surface.blit(p1_label, (200, 200))
+    p1_box = pygame.Rect(450, 195, 300, 40)
+    game_state['input_boxes'][PLAYER_WHITE] = p1_box
+    pygame.draw.rect(surface, COLOR_WHITE, p1_box)
+    pygame.draw.rect(surface, COLOR_BLACK if game_state['active_input'] == PLAYER_WHITE else COLOR_HUD_BG, p1_box, 2)
+    p1_text = font_hud.render(game_state['player_names'][PLAYER_WHITE], True, COLOR_BLACK)
+    surface.blit(p1_text, (p1_box.x + 10, p1_box.y + 5))
+
+    # Input para Jugador 2
+    p2_label = font_hud.render("Jugador 2 (Negras):", True, COLOR_BLACK)
+    surface.blit(p2_label, (200, 300))
+    p2_box = pygame.Rect(450, 295, 300, 40)
+    game_state['input_boxes'][PLAYER_BLACK] = p2_box
+    pygame.draw.rect(surface, COLOR_WHITE, p2_box)
+    pygame.draw.rect(surface, COLOR_BLACK if game_state['active_input'] == PLAYER_BLACK else COLOR_HUD_BG, p2_box, 2)
+    p2_text = font_hud.render(game_state['player_names'][PLAYER_BLACK], True, COLOR_BLACK)
+    surface.blit(p2_text, (p2_box.x + 10, p2_box.y + 5))
+
+    # Botón de Comenzar
+    start_button = pygame.Rect(SCREEN_WIDTH / 2 - 150, 450, 300, 60)
+    game_state['buttons']['start_game'] = start_button
+    pygame.draw.rect(surface, COLOR_HUD_BG, start_button)
+    start_text = font_hud.render("Comenzar Partida", True, COLOR_HUD_TEXT)
+    surface.blit(start_text, (start_button.centerx - start_text.get_width() / 2, start_button.centery - start_text.get_height() / 2))
+
+def draw_initial_roll(surface, game_state):
+    """Dibuja la pantalla de la tirada inicial."""
+    surface.fill(COLOR_BOARD)
+    title = font_message.render("Tirada inicial de dados", True, COLOR_BLACK)
+    surface.blit(title, (SCREEN_WIDTH/2 - title.get_width()/2, 150))
+
+    if game_state['first_roll_data']['rolled']:
+        p1_name = game_state['player_names'][PLAYER_WHITE]
+        p2_name = game_state['player_names'][PLAYER_BLACK]
+        p1_roll = game_state['first_roll_data'][PLAYER_WHITE]
+        p2_roll = game_state['first_roll_data'][PLAYER_BLACK]
+
+        p1_text = font_hud.render(f"{p1_name} (Blancas) tira: {p1_roll}", True, COLOR_BLACK)
+        surface.blit(p1_text, (SCREEN_WIDTH/2 - p1_text.get_width()/2, 250))
+        p2_text = font_hud.render(f"{p2_name} (Negras) tira: {p2_roll}", True, COLOR_BLACK)
+        surface.blit(p2_text, (SCREEN_WIDTH/2 - p2_text.get_width()/2, 300))
+
+        winner = PLAYER_WHITE if p1_roll > p2_roll else PLAYER_BLACK
+        winner_name = game_state['player_names'][winner]
+        msg = f"Gana {winner_name}. Presiona ESPACIO para comenzar."
+        msg_render = font_hud.render(msg, True, COLOR_POINT_A)
+        surface.blit(msg_render, (SCREEN_WIDTH/2 - msg_render.get_width()/2, 400))
+
 
 def draw_hud(surface, game_state):
     """
@@ -397,7 +472,9 @@ def draw_hud(surface, game_state):
 
     # Turno del jugador
     if player:
-        player_text = f"Turno: {'Blancas' if player == PLAYER_WHITE else 'Negras'}"
+        player_name = game_state['player_names'][player]
+        player_color = 'Blancas' if player == PLAYER_WHITE else 'Negras'
+        player_text = f"Turno: {player_name} - {player_color}"
         player_render = font_hud.render(player_text, True, COLOR_HUD_TEXT)
         surface.blit(player_render, (BOARD_MARGIN, hud_rect.y + 10))
 
@@ -447,18 +524,25 @@ def draw_highlights(surface, game_state, legal_moves):
 
 def get_point_from_mouse(pos):
     """
-    Convierte las coordenadas del ratón en un número de punto del tablero (1-24).
-    Devuelve el número del punto o None si no se hizo clic en un punto válido.
+    Convierte las coordenadas del ratón en un número de punto del tablero (1-24),
+    'BAR' para la barra, o 'OFF' para la zona de bear-off.
+    Devuelve la zona clickeada o None si no es una zona válida.
     """
     x, y = pos
-    
-    # Clic en la barra
+
+    # Detección de clic en la zona de bear-off (a la derecha del tablero)
+    off_rect_w = pygame.Rect(SCREEN_WIDTH - BOARD_MARGIN - 50, BOARD_MARGIN, 50, SCREEN_HEIGHT / 2 - BOARD_MARGIN)
+    off_rect_b = pygame.Rect(SCREEN_WIDTH - BOARD_MARGIN - 50, SCREEN_HEIGHT / 2, 50, SCREEN_HEIGHT / 2 - BOARD_MARGIN)
+    if off_rect_w.collidepoint(x, y) or off_rect_b.collidepoint(x, y):
+        return 'OFF'
+
+    # Detección de clic en la barra central
     bar_x_start = BOARD_MARGIN + 6 * POINT_WIDTH
     bar_x_end = bar_x_start + BAR_WIDTH
     if bar_x_start < x < bar_x_end:
         return 'BAR'
 
-    # Clic en los puntos superiores (13-24)
+    # Detección de clic en los puntos superiores (13-24)
     for i in range(13, 25):
         x_base = point_positions[i][0][0]
         rect = pygame.Rect(x_base, BOARD_MARGIN, POINT_WIDTH, POINT_HEIGHT)
@@ -489,129 +573,160 @@ def main_loop():
             if event.type == pygame.QUIT:
                 running = False
 
-            # --- Reinicio de la partida ---
+            # --- Lógica de Fases del Juego ---
+            phase = game_data['game_phase']
+
+            # --- Reinicio de la partida (tecla R) ---
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 game_data = setup_initial_state()
                 legal_moves = {}
                 print("Partida reiniciada.")
                 continue
 
-            # --- Tirada de Dados (Barra Espaciadora) ---
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                # Tirada inicial para decidir quién empieza
-                if game_data['game_phase'] == 'START_ROLL' and not game_data['first_roll_data']['rolled']:
-                    w_roll, b_roll = roll_dice()
-                    while w_roll == b_roll: # Re-roll en caso de empate
-                         w_roll, b_roll = roll_dice()
+            # --- Fase: MENÚ ---
+            if phase == 'MENU':
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if game_data['buttons']['vs_player'].collidepoint(event.pos):
+                        game_data['game_phase'] = 'NAME_INPUT'
+
+            # --- Fase: ENTRADA DE NOMBRES ---
+            elif phase == 'NAME_INPUT':
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if game_data['buttons']['start_game'].collidepoint(event.pos):
+                        p1_name = game_data['player_names'][PLAYER_WHITE].strip()
+                        p2_name = game_data['player_names'][PLAYER_BLACK].strip()
+                        if len(p1_name) >= 2 and len(p2_name) >= 2:
+                            game_data['game_phase'] = 'START_ROLL'
+                            # Realizar la tirada inicial automáticamente
+                            w_roll, b_roll = roll_dice()
+                            while w_roll == b_roll: w_roll, b_roll = roll_dice()
+                            game_data['first_roll_data'].update({PLAYER_WHITE: w_roll, PLAYER_BLACK: b_roll, 'rolled': True})
                     
-                    game_data['first_roll_data'][PLAYER_WHITE] = w_roll
-                    game_data['first_roll_data'][PLAYER_BLACK] = b_roll
-                    game_data['first_roll_data']['rolled'] = True
-                    
+                    # Activar caja de texto
+                    for player, box in game_data['input_boxes'].items():
+                        if box.collidepoint(event.pos):
+                            game_data['active_input'] = player
+                
+                # Manejo de teclado para nombres
+                if event.type == pygame.KEYDOWN and game_data['active_input']:
+                    player = game_data['active_input']
+                    if event.key == pygame.K_BACKSPACE:
+                        game_data['player_names'][player] = game_data['player_names'][player][:-1]
+                    elif len(game_data['player_names'][player]) < 10:
+                        game_data['player_names'][player] += event.unicode
+
+            # --- Fase: TIRADA INICIAL ---
+            elif phase == 'START_ROLL':
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    w_roll = game_data['first_roll_data'][PLAYER_WHITE]
+                    b_roll = game_data['first_roll_data'][PLAYER_BLACK]
                     winner = PLAYER_WHITE if w_roll > b_roll else PLAYER_BLACK
-                    game_data['current_player'] = winner
-                    game_data['dice'] = [w_roll, b_roll]
-                    game_data['moves_remaining'] = list(game_data['dice'])
-                    game_data['game_phase'] = 'PLAY'
-                    game_data['message'] = f"Ganan {'Blancas' if winner == 'W' else 'Negras'}. Mueven {w_roll}-{b_roll}"
+                    
+                    game_data.update({
+                        'current_player': winner,
+                        'dice': [w_roll, b_roll],
+                        'moves_remaining': [w_roll, b_roll],
+                        'game_phase': 'PLAY',
+                        'message': f"Mueven {game_data['player_names'][winner]}"
+                    })
                     legal_moves = get_legal_moves(winner, game_data['dice'], game_data)
 
-                # Tirada normal al inicio de un turno
-                elif game_data['game_phase'] == 'PLAY' and not game_data['dice']:
-                    d1, d2 = roll_dice()
-                    game_data['dice'] = [d1, d2]
-                    if d1 == d2: # Dobles
-                        game_data['moves_remaining'] = [d1] * 4
-                    else:
-                        game_data['moves_remaining'] = [d1, d2]
-                    
-                    player = game_data['current_player']
-                    game_data['message'] = f"Turno de {'Blancas' if player == 'W' else 'Negras'}"
-                    legal_moves = get_legal_moves(player, game_data['moves_remaining'], game_data)
+            # --- Fase: JUGANDO ---
+            elif phase == 'PLAY':
+                handle_play_events(event, game_data, legal_moves)
 
-                    # Si no hay movimientos legales, se cede el turno
-                    if not legal_moves:
-                        game_data['message'] = "No hay movimientos. Cedes el turno."
-                        # Se podría añadir un delay aquí
-                        game_data['dice'] = []
-                        game_data['moves_remaining'] = []
-                        game_data['current_player'] = get_opponent(player)
+        # --- Dibujado según la Fase ---
+        if game_data['game_phase'] == 'MENU':
+            draw_menu(screen, game_data)
+        elif game_data['game_phase'] == 'NAME_INPUT':
+            draw_name_input(screen, game_data)
+        elif game_data['game_phase'] == 'START_ROLL':
+            draw_initial_roll(screen, game_data)
+        elif game_data['game_phase'] in ['PLAY', 'GAME_OVER']:
+            draw_board(screen)
+            draw_checkers(screen, game_data)
+            if game_data['game_phase'] == 'PLAY':
+                draw_highlights(screen, game_data, legal_moves)
+            draw_hud(screen, game_data)
 
+            # Comprobar victoria
+            if game_data['off'][PLAYER_WHITE] == 15:
+                game_data.update({'message': f"¡Gana {game_data['player_names'][PLAYER_WHITE]}!", 'game_phase': 'GAME_OVER'})
+            elif game_data['off'][PLAYER_BLACK] == 15:
+                game_data.update({'message': f"¡Gana {game_data['player_names'][PLAYER_BLACK]}!", 'game_phase': 'GAME_OVER'})
 
-            # --- Manejo de Clics del Ratón ---
-            if event.type == pygame.MOUSEBUTTONDOWN and game_data['game_phase'] == 'PLAY':
-                player = game_data['current_player']
-                if not player or not game_data['moves_remaining']:
-                    continue
-
-                clicked_point = get_point_from_mouse(event.pos)
-                
-                # 1. Seleccionar origen
-                if game_data['selected_point'] is None:
-                    if clicked_point in legal_moves:
-                        game_data['selected_point'] = clicked_point
-                        # Aquí se podría añadir lógica para resaltar destinos
-                
-                # 2. Seleccionar destino y mover
-                else:
-                    start = game_data['selected_point']
-                    end = clicked_point
-                    
-                    if end in legal_moves.get(start, []):
-                        # Calcular qué dado se usó
-                        die_used = -1
-                        if start == 'BAR':
-                            die_used = (25 - end) if player == PLAYER_WHITE else end
-                        elif end == 'OFF':
-                            exact_die = start if player == PLAYER_WHITE else (25 - start)
-                            if exact_die in game_data['moves_remaining']:
-                                die_used = exact_die
-                            else: # Regla de excedente
-                                die_used = max(d for d in game_data['moves_remaining'] if d > exact_die)
-                        else:
-                            die_used = abs(end - start)
-
-                        # Aplicar movimiento
-                        game_data = apply_move(start, end, player, game_data)
-                        
-                        # Actualizar estado
-                        game_data['moves_remaining'].remove(die_used)
-                        game_data['selected_point'] = None
-                        
-                        # Recalcular movimientos y comprobar si el turno debe terminar
-                        legal_moves = get_legal_moves(player, game_data['moves_remaining'], game_data)
-                        
-                        if not game_data['moves_remaining'] or not legal_moves:
-                            game_data['current_player'] = get_opponent(player)
-                            game_data['dice'] = []
-                            game_data['moves_remaining'] = []
-                            game_data['message'] = f"Turno de {'Blancas' if get_opponent(player) == 'W' else 'Negras'}"
-                            legal_moves = {}
-
-                    else: # Clic inválido
-                        game_data['selected_point'] = None
-                        game_data['message'] = "Movimiento no válido."
-
-
-        # --- Comprobar Victoria ---
-        if game_data['off'][PLAYER_WHITE] == 15:
-            game_data['message'] = "¡Ganan las Blancas!"
-            game_data['game_phase'] = 'GAME_OVER'
-        elif game_data['off'][PLAYER_BLACK] == 15:
-            game_data['message'] = "¡Ganan las Negras!"
-            game_data['game_phase'] = 'GAME_OVER'
-
-        # --- Lógica de Dibujo ---
-        draw_board(screen)
-        draw_checkers(screen, game_data)
-        if game_data['game_phase'] == 'PLAY':
-             draw_highlights(screen, game_data, legal_moves)
-        draw_hud(screen, game_data)
         pygame.display.flip()
         clock.tick(60)
 
     pygame.quit()
     sys.exit()
+
+def handle_play_events(event, game_data, legal_moves):
+    """Maneja los eventos durante la fase de juego principal."""
+    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+        if not game_data['dice']:
+            d1, d2 = roll_dice()
+            game_data['dice'] = [d1, d2]
+            if d1 == d2:
+                game_data['moves_remaining'] = [d1] * 4
+            else:
+                game_data['moves_remaining'] = [d1, d2]
+            
+            player = game_data['current_player']
+            legal_moves.clear()
+            legal_moves.update(get_legal_moves(player, game_data['moves_remaining'], game_data))
+
+            if not legal_moves:
+                game_data['message'] = "No hay movimientos. Cedes el turno."
+                game_data['dice'] = []
+                game_data['moves_remaining'] = []
+                game_data['current_player'] = get_opponent(player)
+
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        player = game_data['current_player']
+        if not player or not game_data['moves_remaining']:
+            return
+
+        clicked_point = get_point_from_mouse(event.pos)
+        
+        if game_data['selected_point'] is None:
+            if clicked_point in legal_moves:
+                game_data['selected_point'] = clicked_point
+        else:
+            start = game_data['selected_point']
+            end = clicked_point
+            
+            if end in legal_moves.get(start, []):
+                # Calcular dado usado
+                die_used = -1
+                if start == 'BAR': die_used = (25 - end) if player == 'W' else end
+                elif end == 'OFF':
+                    exact_die = start if player == 'W' else (25 - start)
+                    if exact_die in game_data['moves_remaining']:
+                        die_used = exact_die
+                    else:
+                        overshoot_dice = [d for d in game_data['moves_remaining'] if d > exact_die]
+                        if overshoot_dice: die_used = min(overshoot_dice)
+                else:
+                    die_used = abs(end - start)
+
+                # Aplicar movimiento
+                game_data = apply_move(start, end, player, game_data)
+                game_data['moves_remaining'].remove(die_used)
+                game_data['selected_point'] = None
+                
+                # Recalcular y cambiar turno si es necesario
+                legal_moves.clear()
+                legal_moves.update(get_legal_moves(player, game_data['moves_remaining'], game_data))
+                
+                if not game_data['moves_remaining'] or not legal_moves:
+                    game_data['current_player'] = get_opponent(player)
+                    game_data['dice'] = []
+                    game_data['moves_remaining'] = []
+                    legal_moves.clear()
+            else:
+                game_data['selected_point'] = None
+                game_data['message'] = "Movimiento no válido."
 
 
 if __name__ == "__main__":
