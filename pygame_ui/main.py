@@ -68,15 +68,19 @@ COLOR_HUD_BG = (100, 100, 100)
 COLOR_HUD_TEXT = (240, 240, 240)
 COLOR_MENU_BG = (245, 245, 245)
 COLOR_BUTTON_PRIMARY = (85, 85, 85)
-COLOR_TEXT_DARK = (50, 50, 50)
+COLOR_TEXT_DARK = (0, 0, 0) # Negro para máximo contraste
+COLOR_BRICK = (140, 140, 140) # Un tono de gris para el ladrillo
+COLOR_MORTAR = (184, 173, 173) # Un gris claro para las juntas
 
 
 # Fuentes
 font_title = pygame.font.SysFont("Arial", 48, bold=True)
 font_hud = pygame.font.SysFont("Arial", 24)
+font_hud_bold = pygame.font.SysFont("Arial", 24, bold=True)
 font_message = pygame.font.SysFont("Arial", 28, bold=True)
 font_point_num = pygame.font.SysFont("Arial", 18, bold=True)
 font_small = pygame.font.SysFont("Arial", 16)
+font_small_bold = pygame.font.SysFont("Arial", 16, bold=True)
 
 
 # Geometría del tablero
@@ -323,6 +327,27 @@ def apply_move(start_point, end_point, player, game_state):
 
 # --- 4. Funciones de Dibujo (Renderizado) ----------------------------------
 
+def draw_brick_background(surface):
+    """Dibuja un fondo de pared de ladrillos de estilo medieval."""
+    brick_width = 80
+    brick_height = 40
+    mortar_thickness = 4
+
+    # Rellena todo el fondo con el color del mortero
+    surface.fill(COLOR_MORTAR)
+
+    for y in range(0, SCREEN_HEIGHT, brick_height):
+        # Desplaza cada segunda fila para crear el patrón de ladrillo
+        offset = (y // brick_height) % 2 * (brick_width // 2)
+        for x in range(-offset, SCREEN_WIDTH, brick_width):
+            brick_rect = pygame.Rect(
+                x + mortar_thickness // 2,
+                y + mortar_thickness // 2,
+                brick_width - mortar_thickness,
+                brick_height - mortar_thickness
+            )
+            pygame.draw.rect(surface, COLOR_BRICK, brick_rect, border_radius=4)
+
 def draw_board(surface):
     """
     Dibuja el tablero de Backgammon, incluyendo los puntos (triángulos) y la barra.
@@ -447,7 +472,7 @@ def draw_checkers(surface, game_state):
 
 def draw_menu(surface, game_state):
     """Dibuja el menú principal con un estilo moderno y minimalista."""
-    surface.fill(COLOR_MENU_BG)
+    draw_brick_background(surface)
     
     # Título
     title_text = font_title.render("Backgammon", True, COLOR_TEXT_DARK)
@@ -457,14 +482,16 @@ def draw_menu(surface, game_state):
     button_rect = pygame.Rect(SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT / 2, 300, 60)
     game_state['buttons']['vs_player'] = button_rect
     
-    pygame.draw.rect(surface, COLOR_BUTTON_PRIMARY, button_rect, border_radius=15)
-    
-    button_text = font_hud.render("Jugador vs Jugador", True, COLOR_WHITE)
+    # Botón con fondo blanco y borde negro para mejor contraste
+    pygame.draw.rect(surface, COLOR_WHITE, button_rect, border_radius=15)
+    pygame.draw.rect(surface, COLOR_TEXT_DARK, button_rect, 2, border_radius=15)
+
+    button_text = font_hud_bold.render("Jugador vs Jugador", True, COLOR_TEXT_DARK)
     surface.blit(button_text, (button_rect.centerx - button_text.get_width() / 2, button_rect.centery - button_text.get_height() / 2))
 
 def draw_name_input(surface, game_state):
     """Dibuja la pantalla de entrada de nombres con un estilo moderno."""
-    surface.fill(COLOR_MENU_BG)
+    draw_brick_background(surface)
     
     # Título
     title = font_title.render("Configuración de Partida", True, COLOR_TEXT_DARK)
@@ -474,41 +501,44 @@ def draw_name_input(surface, game_state):
     panel_rect = pygame.Rect(SCREEN_WIDTH / 2 - 250, 220, 500, 350)
     
     # --- Input para Jugador 1 ---
-    p1_label = font_hud.render("Jugador 1 (Blancas)", True, COLOR_TEXT_DARK)
+    p1_label = font_hud_bold.render("Jugador 1 (Blancas)", True, COLOR_TEXT_DARK)
     surface.blit(p1_label, (panel_rect.left + 30, panel_rect.top + 30))
     p1_box = pygame.Rect(panel_rect.left + 30, panel_rect.top + 65, panel_rect.width - 60, 45)
     game_state['input_boxes'][PLAYER_WHITE] = p1_box
     pygame.draw.rect(surface, COLOR_WHITE, p1_box, border_radius=10)
     border_color = COLOR_BUTTON_PRIMARY if game_state['active_input'] == PLAYER_WHITE else COLOR_HUD_BG
     pygame.draw.rect(surface, border_color, p1_box, 2, border_radius=10)
-    p1_text = font_hud.render(game_state['player_names'][PLAYER_WHITE], True, COLOR_TEXT_DARK)
+    p1_text = font_hud_bold.render(game_state['player_names'][PLAYER_WHITE], True, COLOR_TEXT_DARK)
     surface.blit(p1_text, (p1_box.x + 15, p1_box.centery - p1_text.get_height() / 2))
 
     # --- Input para Jugador 2 ---
-    p2_label = font_hud.render("Jugador 2 (Negras)", True, COLOR_TEXT_DARK)
+    p2_label = font_hud_bold.render("Jugador 2 (Negras)", True, COLOR_TEXT_DARK)
     surface.blit(p2_label, (panel_rect.left + 30, panel_rect.top + 130))
     p2_box = pygame.Rect(panel_rect.left + 30, panel_rect.top + 165, panel_rect.width - 60, 45)
     game_state['input_boxes'][PLAYER_BLACK] = p2_box
     pygame.draw.rect(surface, COLOR_WHITE, p2_box, border_radius=10)
     border_color_p2 = COLOR_BUTTON_PRIMARY if game_state['active_input'] == PLAYER_BLACK else COLOR_HUD_BG
     pygame.draw.rect(surface, border_color_p2, p2_box, 2, border_radius=10)
-    p2_text = font_hud.render(game_state['player_names'][PLAYER_BLACK], True, COLOR_TEXT_DARK)
+    p2_text = font_hud_bold.render(game_state['player_names'][PLAYER_BLACK], True, COLOR_TEXT_DARK)
     surface.blit(p2_text, (p2_box.x + 15, p2_box.centery - p2_text.get_height() / 2))
 
     # --- Texto informativo de caracteres ---
-    char_info_text = font_small.render("Mínimo 2, máximo 10 caracteres.", True, COLOR_HUD_BG)
+    char_info_text = font_small_bold.render("Mínimo 2, máximo 10 caracteres.", True, COLOR_TEXT_DARK)
     surface.blit(char_info_text, (p2_box.left, p2_box.bottom + 10))
 
     # --- Botón de Comenzar ---
     start_button = pygame.Rect(panel_rect.centerx - 150, panel_rect.bottom - 80, 300, 60)
     game_state['buttons']['start_game'] = start_button
-    pygame.draw.rect(surface, COLOR_BUTTON_PRIMARY, start_button, border_radius=15)
-    start_text = font_hud.render("Comenzar Partida", True, COLOR_WHITE)
+
+    # Botón con fondo blanco y borde negro para mejor contraste
+    pygame.draw.rect(surface, COLOR_WHITE, start_button, border_radius=15)
+    pygame.draw.rect(surface, COLOR_TEXT_DARK, start_button, 2, border_radius=15)
+    start_text = font_hud_bold.render("Comenzar Partida", True, COLOR_TEXT_DARK)
     surface.blit(start_text, (start_button.centerx - start_text.get_width() / 2, start_button.centery - start_text.get_height() / 2))
 
     # --- Mensaje de error ---
     if "caracteres" in game_state['message']:
-        error_text = font_hud.render(game_state['message'], True, COLOR_POINT_A)
+        error_text = font_message.render(game_state['message'], True, COLOR_POINT_A)
         surface.blit(error_text, (SCREEN_WIDTH / 2 - error_text.get_width() / 2, panel_rect.bottom + 20))
 
 def draw_dice(surface, value, x, y, size=50):
@@ -536,7 +566,7 @@ def draw_dice(surface, value, x, y, size=50):
 
 def draw_initial_roll(surface, game_state):
     """Dibuja la pantalla de la tirada inicial con un diseño moderno."""
-    surface.fill(COLOR_MENU_BG)
+    draw_brick_background(surface)
     
     # Título
     title = font_title.render("Tirada Inicial", True, COLOR_TEXT_DARK)
@@ -565,11 +595,11 @@ def draw_initial_roll(surface, game_state):
         winner_name = game_state['player_names'][winner]
         
         msg_win = f"Gana la tirada: {winner_name}"
-        msg_render_win = font_message.render(msg_win, True, COLOR_BUTTON_PRIMARY)
+        msg_render_win = font_message.render(msg_win, True, COLOR_TEXT_DARK)
         surface.blit(msg_render_win, (SCREEN_WIDTH / 2 - msg_render_win.get_width() / 2, 500))
         
         msg_continue = "Presiona ESPACIO para comenzar"
-        msg_render_continue = font_hud.render(msg_continue, True, COLOR_HUD_BG)
+        msg_render_continue = font_hud_bold.render(msg_continue, True, COLOR_TEXT_DARK)
         surface.blit(msg_render_continue, (SCREEN_WIDTH / 2 - msg_render_continue.get_width() / 2, 550))
 
 
@@ -760,7 +790,7 @@ def main_loop():
                         'dice': [w_roll, b_roll],
                         'moves_remaining': [w_roll, b_roll],
                         'game_phase': 'PLAY',
-                        'message': f"Mueven {game_data['player_names'][winner]}"
+                        'message': f"Mueve {game_data['player_names'][winner]}"
                     })
                     legal_moves = get_legal_moves(winner, game_data['dice'], game_data)
 
