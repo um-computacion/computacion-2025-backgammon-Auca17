@@ -66,11 +66,18 @@ COLOR_BLACK = (20, 20, 20)
 COLOR_HIGHLIGHT = (255, 255, 0, 100)  # Amarillo semitransparente para resaltar
 COLOR_HUD_BG = (100, 100, 100)
 COLOR_HUD_TEXT = (240, 240, 240)
+COLOR_MENU_BG = (245, 245, 245)
+COLOR_BUTTON_PRIMARY = (85, 85, 85)
+COLOR_TEXT_DARK = (50, 50, 50)
+
 
 # Fuentes
+font_title = pygame.font.SysFont("Arial", 48, bold=True)
 font_hud = pygame.font.SysFont("Arial", 24)
 font_message = pygame.font.SysFont("Arial", 28, bold=True)
 font_point_num = pygame.font.SysFont("Arial", 18, bold=True)
+font_small = pygame.font.SysFont("Arial", 16)
+
 
 # Geometría del tablero
 HUD_TOP_MARGIN = 10
@@ -439,99 +446,131 @@ def draw_checkers(surface, game_state):
 
 
 def draw_menu(surface, game_state):
-    """Dibuja el menú principal."""
-    surface.fill(COLOR_BOARD)
-    title_text = font_message.render("Backgammon", True, COLOR_BLACK)
-    surface.blit(title_text, (SCREEN_WIDTH / 2 - title_text.get_width() / 2, SCREEN_HEIGHT / 3))
+    """Dibuja el menú principal con un estilo moderno y minimalista."""
+    surface.fill(COLOR_MENU_BG)
+    
+    # Título
+    title_text = font_title.render("Backgammon", True, COLOR_TEXT_DARK)
+    surface.blit(title_text, (SCREEN_WIDTH / 2 - title_text.get_width() / 2, SCREEN_HEIGHT / 3 - 50))
 
-    # Botón
+    # Botón con bordes redondeados
     button_rect = pygame.Rect(SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT / 2, 300, 60)
     game_state['buttons']['vs_player'] = button_rect
-    pygame.draw.rect(surface, COLOR_HUD_BG, button_rect)
-    button_text = font_hud.render("Jugador vs Jugador", True, COLOR_HUD_TEXT)
+    
+    pygame.draw.rect(surface, COLOR_BUTTON_PRIMARY, button_rect, border_radius=15)
+    
+    button_text = font_hud.render("Jugador vs Jugador", True, COLOR_WHITE)
     surface.blit(button_text, (button_rect.centerx - button_text.get_width() / 2, button_rect.centery - button_text.get_height() / 2))
 
 def draw_name_input(surface, game_state):
-    """Dibuja la pantalla de entrada de nombres."""
-    surface.fill(COLOR_BOARD)
+    """Dibuja la pantalla de entrada de nombres con un estilo moderno."""
+    surface.fill(COLOR_MENU_BG)
     
     # Título
-    title = font_message.render("Introduzcan sus nombres", True, COLOR_BLACK)
-    surface.blit(title, (SCREEN_WIDTH/2 - title.get_width()/2, 100))
+    title = font_title.render("Configuración de Partida", True, COLOR_TEXT_DARK)
+    surface.blit(title, (SCREEN_WIDTH / 2 - title.get_width() / 2, 120))
 
-    # Input para Jugador 1
-    p1_label = font_hud.render("Jugador 1 (Blancas):", True, COLOR_BLACK)
-    surface.blit(p1_label, (200, 200))
-    p1_box = pygame.Rect(450, 195, 300, 40)
+    # --- Panel Central ---
+    panel_rect = pygame.Rect(SCREEN_WIDTH / 2 - 250, 220, 500, 350)
+    
+    # --- Input para Jugador 1 ---
+    p1_label = font_hud.render("Jugador 1 (Blancas)", True, COLOR_TEXT_DARK)
+    surface.blit(p1_label, (panel_rect.left + 30, panel_rect.top + 30))
+    p1_box = pygame.Rect(panel_rect.left + 30, panel_rect.top + 65, panel_rect.width - 60, 45)
     game_state['input_boxes'][PLAYER_WHITE] = p1_box
-    pygame.draw.rect(surface, COLOR_WHITE, p1_box)
-    pygame.draw.rect(surface, COLOR_BLACK if game_state['active_input'] == PLAYER_WHITE else COLOR_HUD_BG, p1_box, 2)
-    p1_text = font_hud.render(game_state['player_names'][PLAYER_WHITE], True, COLOR_BLACK)
-    surface.blit(p1_text, (p1_box.x + 10, p1_box.y + 5))
+    pygame.draw.rect(surface, COLOR_WHITE, p1_box, border_radius=10)
+    border_color = COLOR_BUTTON_PRIMARY if game_state['active_input'] == PLAYER_WHITE else COLOR_HUD_BG
+    pygame.draw.rect(surface, border_color, p1_box, 2, border_radius=10)
+    p1_text = font_hud.render(game_state['player_names'][PLAYER_WHITE], True, COLOR_TEXT_DARK)
+    surface.blit(p1_text, (p1_box.x + 15, p1_box.centery - p1_text.get_height() / 2))
 
-    # Input para Jugador 2
-    p2_label = font_hud.render("Jugador 2 (Negras):", True, COLOR_BLACK)
-    surface.blit(p2_label, (200, 300))
-    p2_box = pygame.Rect(450, 295, 300, 40)
+    # --- Input para Jugador 2 ---
+    p2_label = font_hud.render("Jugador 2 (Negras)", True, COLOR_TEXT_DARK)
+    surface.blit(p2_label, (panel_rect.left + 30, panel_rect.top + 130))
+    p2_box = pygame.Rect(panel_rect.left + 30, panel_rect.top + 165, panel_rect.width - 60, 45)
     game_state['input_boxes'][PLAYER_BLACK] = p2_box
-    pygame.draw.rect(surface, COLOR_WHITE, p2_box)
-    pygame.draw.rect(surface, COLOR_BLACK if game_state['active_input'] == PLAYER_BLACK else COLOR_HUD_BG, p2_box, 2)
-    p2_text = font_hud.render(game_state['player_names'][PLAYER_BLACK], True, COLOR_BLACK)
-    surface.blit(p2_text, (p2_box.x + 10, p2_box.y + 5))
+    pygame.draw.rect(surface, COLOR_WHITE, p2_box, border_radius=10)
+    border_color_p2 = COLOR_BUTTON_PRIMARY if game_state['active_input'] == PLAYER_BLACK else COLOR_HUD_BG
+    pygame.draw.rect(surface, border_color_p2, p2_box, 2, border_radius=10)
+    p2_text = font_hud.render(game_state['player_names'][PLAYER_BLACK], True, COLOR_TEXT_DARK)
+    surface.blit(p2_text, (p2_box.x + 15, p2_box.centery - p2_text.get_height() / 2))
 
-    # Botón de Comenzar
-    start_button = pygame.Rect(SCREEN_WIDTH / 2 - 150, 450, 300, 60)
+    # --- Texto informativo de caracteres ---
+    char_info_text = font_small.render("Mínimo 2, máximo 10 caracteres.", True, COLOR_HUD_BG)
+    surface.blit(char_info_text, (p2_box.left, p2_box.bottom + 10))
+
+    # --- Botón de Comenzar ---
+    start_button = pygame.Rect(panel_rect.centerx - 150, panel_rect.bottom - 80, 300, 60)
     game_state['buttons']['start_game'] = start_button
-    pygame.draw.rect(surface, COLOR_HUD_BG, start_button)
-    start_text = font_hud.render("Comenzar Partida", True, COLOR_HUD_TEXT)
+    pygame.draw.rect(surface, COLOR_BUTTON_PRIMARY, start_button, border_radius=15)
+    start_text = font_hud.render("Comenzar Partida", True, COLOR_WHITE)
     surface.blit(start_text, (start_button.centerx - start_text.get_width() / 2, start_button.centery - start_text.get_height() / 2))
 
-    # Mensaje de error
+    # --- Mensaje de error ---
     if "caracteres" in game_state['message']:
         error_text = font_hud.render(game_state['message'], True, COLOR_POINT_A)
-        surface.blit(error_text, (SCREEN_WIDTH/2 - error_text.get_width()/2, 520))
+        surface.blit(error_text, (SCREEN_WIDTH / 2 - error_text.get_width() / 2, panel_rect.bottom + 20))
 
-def draw_dice(surface, value, x, y):
-    """Dibuja un único dado gráfico."""
-    dice_rect = pygame.Rect(x, y, 50, 50)
-    pygame.draw.rect(surface, COLOR_WHITE, dice_rect, border_radius=5)
-    dot_radius = 5
-    positions = {
-        1: [(25, 25)],
-        2: [(15, 15), (35, 35)],
-        3: [(15, 15), (25, 25), (35, 35)],
-        4: [(15, 15), (35, 15), (15, 35), (35, 35)],
-        5: [(15, 15), (35, 15), (25, 25), (15, 35), (35, 35)],
-        6: [(15, 15), (35, 15), (15, 25), (35, 25), (15, 35), (35, 35)],
+def draw_dice(surface, value, x, y, size=50):
+    """Dibuja un único dado gráfico de tamaño variable."""
+    dice_rect = pygame.Rect(x, y, size, size)
+    pygame.draw.rect(surface, COLOR_WHITE, dice_rect, border_radius=int(size * 0.1))
+    
+    dot_radius = int(size * 0.1)
+    
+    # Las posiciones de los puntos se calculan en base al tamaño del dado
+    # Usamos fracciones del tamaño para que escale correctamente.
+    s = size # Abreviatura para claridad
+    pos_map = {
+        1: [(s * 0.5, s * 0.5)],
+        2: [(s * 0.25, s * 0.25), (s * 0.75, s * 0.75)],
+        3: [(s * 0.25, s * 0.25), (s * 0.5, s * 0.5), (s * 0.75, s * 0.75)],
+        4: [(s * 0.25, s * 0.25), (s * 0.75, s * 0.25), (s * 0.25, s * 0.75), (s * 0.75, s * 0.75)],
+        5: [(s * 0.25, s * 0.25), (s * 0.75, s * 0.25), (s * 0.5, s * 0.5), (s * 0.25, s * 0.75), (s * 0.75, s * 0.75)],
+        6: [(s * 0.25, s * 0.25), (s * 0.75, s * 0.25), (s * 0.25, s * 0.5), (s * 0.75, s * 0.5), (s * 0.25, s * 0.75), (s * 0.75, s * 0.75)],
     }
-    for pos in positions.get(value, []):
-        pygame.draw.circle(surface, COLOR_BLACK, (x + pos[0], y + pos[1]), dot_radius)
+
+    if value in pos_map:
+        for pos_x_ratio, pos_y_ratio in pos_map[value]:
+            pygame.draw.circle(surface, COLOR_BLACK, (x + pos_x_ratio, y + pos_y_ratio), dot_radius)
 
 def draw_initial_roll(surface, game_state):
-    """Dibuja la pantalla de la tirada inicial."""
-    surface.fill(COLOR_BOARD)
-    title = font_message.render("Tirada inicial de dados", True, COLOR_BLACK)
-    surface.blit(title, (SCREEN_WIDTH/2 - title.get_width()/2, 150))
+    """Dibuja la pantalla de la tirada inicial con un diseño moderno."""
+    surface.fill(COLOR_MENU_BG)
+    
+    # Título
+    title = font_title.render("Tirada Inicial", True, COLOR_TEXT_DARK)
+    surface.blit(title, (SCREEN_WIDTH / 2 - title.get_width() / 2, 120))
 
     if game_state['first_roll_data']['rolled']:
         p1_name = game_state['player_names'][PLAYER_WHITE]
         p2_name = game_state['player_names'][PLAYER_BLACK]
         p1_roll = game_state['first_roll_data'][PLAYER_WHITE]
         p2_roll = game_state['first_roll_data'][PLAYER_BLACK]
-
-        p1_text = font_hud.render(f"{p1_name} (Blancas)", True, COLOR_BLACK)
-        surface.blit(p1_text, (SCREEN_WIDTH/2 - 150 - p1_text.get_width()/2, 250))
-        draw_dice(surface, p1_roll, SCREEN_WIDTH/2 - 150 - 25, 280)
-
-        p2_text = font_hud.render(f"{p2_name} (Negras)", True, COLOR_BLACK)
-        surface.blit(p2_text, (SCREEN_WIDTH/2 + 150 - p2_text.get_width()/2, 250))
-        draw_dice(surface, p2_roll, SCREEN_WIDTH/2 + 150 - 25, 280)
         
+        # --- Panel Jugador 1 (Izquierda) ---
+        p1_panel_x = SCREEN_WIDTH / 4 - 100
+        p1_text = font_message.render(f"{p1_name} (Blancas)", True, COLOR_TEXT_DARK)
+        surface.blit(p1_text, (p1_panel_x + 100 - p1_text.get_width() / 2, 280))
+        draw_dice(surface, p1_roll, p1_panel_x + 50, 330, size=100)
+
+        # --- Panel Jugador 2 (Derecha) ---
+        p2_panel_x = SCREEN_WIDTH * 3 / 4 - 100
+        p2_text = font_message.render(f"{p2_name} (Negras)", True, COLOR_TEXT_DARK)
+        surface.blit(p2_text, (p2_panel_x + 100 - p2_text.get_width() / 2, 280))
+        draw_dice(surface, p2_roll, p2_panel_x + 50, 330, size=100)
+        
+        # --- Mensaje del Ganador ---
         winner = PLAYER_WHITE if p1_roll > p2_roll else PLAYER_BLACK
         winner_name = game_state['player_names'][winner]
-        msg = f"Gana {winner_name}. Presiona ESPACIO para comenzar."
-        msg_render = font_hud.render(msg, True, COLOR_POINT_A)
-        surface.blit(msg_render, (SCREEN_WIDTH/2 - msg_render.get_width()/2, 400))
+        
+        msg_win = f"Gana la tirada: {winner_name}"
+        msg_render_win = font_message.render(msg_win, True, COLOR_BUTTON_PRIMARY)
+        surface.blit(msg_render_win, (SCREEN_WIDTH / 2 - msg_render_win.get_width() / 2, 500))
+        
+        msg_continue = "Presiona ESPACIO para comenzar"
+        msg_render_continue = font_hud.render(msg_continue, True, COLOR_HUD_BG)
+        surface.blit(msg_render_continue, (SCREEN_WIDTH / 2 - msg_render_continue.get_width() / 2, 550))
 
 
 def draw_hud(surface, game_state):
