@@ -52,8 +52,8 @@ import random
 pygame.init()
 
 # Dimensiones de la ventana
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 700
+SCREEN_WIDTH = 1024
+SCREEN_HEIGHT = 768
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Backgammon")
 
@@ -70,30 +70,44 @@ COLOR_HUD_TEXT = (240, 240, 240)
 # Fuentes
 font_hud = pygame.font.SysFont("Arial", 24)
 font_message = pygame.font.SysFont("Arial", 28, bold=True)
-font_point_num = pygame.font.SysFont("Arial", 16)
+font_point_num = pygame.font.SysFont("Arial", 18, bold=True)
 
 # Geometría del tablero
-BOARD_MARGIN = 30
-BAR_WIDTH = 60
-POINT_WIDTH = (SCREEN_WIDTH - 2 * BOARD_MARGIN - BAR_WIDTH) / 12
-POINT_HEIGHT = SCREEN_HEIGHT * 0.4
+HUD_TOP_MARGIN = 10
+HUD_HEIGHT = 60
+BOARD_MARGIN_X = 20
+BOARD_MARGIN_Y = 30
+BEAR_OFF_WIDTH = 60
+BOARD_BEAR_OFF_GAP = 20  # Espacio entre el tablero y la zona de bear-off
+BAR_WIDTH = 70
+
+BOARD_TOP_Y = HUD_TOP_MARGIN + HUD_HEIGHT
+BOARD_BOTTOM_Y = SCREEN_HEIGHT - BOARD_MARGIN_Y
+BOARD_PLAY_HEIGHT = BOARD_BOTTOM_Y - BOARD_TOP_Y
+
+# El ancho total del tablero de juego
+GAME_AREA_WIDTH = SCREEN_WIDTH - 2 * BOARD_MARGIN_X - BEAR_OFF_WIDTH - BOARD_BEAR_OFF_GAP
+POINT_WIDTH = (GAME_AREA_WIDTH - BAR_WIDTH) / 12
+POINT_HEIGHT = BOARD_PLAY_HEIGHT * 0.4  # Triángulos más cortos para dar espacio a los números
 
 # Posiciones de los puntos (triángulos)
-# Los puntos se numeran del 1 al 24. El movimiento de las blancas es 24 -> 1,
-# y el de las negras es 1 -> 24.
 point_positions = {}
 for i in range(12):
-    # Puntos de abajo (1 a 12)
-    x_base = BOARD_MARGIN + i * POINT_WIDTH
+    x_base = BOARD_MARGIN_X + i * POINT_WIDTH
     if i >= 6:
-        x_base += BAR_WIDTH  # Salto de la barra
-    point_positions[12 - i] = [(x_base, SCREEN_HEIGHT - BOARD_MARGIN),
-                               (x_base + POINT_WIDTH, SCREEN_HEIGHT - BOARD_MARGIN),
-                               (x_base + POINT_WIDTH / 2, SCREEN_HEIGHT - BOARD_MARGIN - POINT_HEIGHT)]
+        x_base += BAR_WIDTH
+    # Puntos de abajo (1 a 12)
+    point_positions[12 - i] = [
+        (x_base, BOARD_BOTTOM_Y),
+        (x_base + POINT_WIDTH, BOARD_BOTTOM_Y),
+        (x_base + POINT_WIDTH / 2, BOARD_BOTTOM_Y - POINT_HEIGHT)
+    ]
     # Puntos de arriba (24 a 13)
-    point_positions[13 + i] = [(x_base, BOARD_MARGIN),
-                               (x_base + POINT_WIDTH, BOARD_MARGIN),
-                               (x_base + POINT_WIDTH / 2, BOARD_MARGIN + POINT_HEIGHT)]
+    point_positions[13 + i] = [
+        (x_base, BOARD_TOP_Y),
+        (x_base + POINT_WIDTH, BOARD_TOP_Y),
+        (x_base + POINT_WIDTH / 2, BOARD_TOP_Y + POINT_HEIGHT)
+    ]
 
 # --- 2. Modelo de Datos (Estado del Juego) ---------------------------------
 
@@ -316,16 +330,38 @@ def draw_board(surface):
         pygame.draw.polygon(surface, color, point_positions[i])
 
     # Dibuja la barra central
-    bar_x = BOARD_MARGIN + 6 * POINT_WIDTH
-    pygame.draw.rect(surface, COLOR_HUD_BG, (bar_x, BOARD_MARGIN, BAR_WIDTH, SCREEN_HEIGHT - 2 * BOARD_MARGIN))
-    
+    bar_x = BOARD_MARGIN_X + 6 * POINT_WIDTH
+    pygame.draw.rect(surface, (0,0,0,50), (bar_x, BOARD_TOP_Y, BAR_WIDTH, BOARD_PLAY_HEIGHT))
+
     # Dibuja los números de los puntos
     for i in range(1, 25):
-        text = font_point_num.render(str(i), True, COLOR_HUD_TEXT)
+        text = font_point_num.render(str(i), True, COLOR_BLACK)
         x_pos = point_positions[i][2][0] - text.get_width() / 2
-        y_pos = BOARD_MARGIN + POINT_HEIGHT + 10 if i > 12 else SCREEN_HEIGHT - BOARD_MARGIN - POINT_HEIGHT - 30
+        
+        # Centra los números en el espacio creado en medio del tablero
+        y_center = BOARD_TOP_Y + BOARD_PLAY_HEIGHT / 2
+        text_height = text.get_height()
+        padding = 30 # Aumentado para que los números no se solapen con la barra de mensajes
+
+        if i > 12: # Puntos de arriba (13-24), números justo encima de la línea central
+            y_pos = y_center - padding - text_height
+        else: # Puntos de abajo (1-12), números justo debajo de la línea central
+            y_pos = y_center + padding
         surface.blit(text, (x_pos, y_pos))
 
+def draw_checker(surface, body_color, center, radius):
+    """Dibuja una ficha de color sólido con un borde para un look más limpio."""
+    border_width = 3
+    
+    if body_color == COLOR_WHITE:
+        border_color = (180, 180, 180) # Gris claro
+    else: # COLOR_BLACK
+        border_color = (70, 70, 70)   # Gris oscuro
+
+    # Dibuja el cuerpo de la ficha
+    pygame.draw.circle(surface, body_color, center, radius)
+    # Dibuja el borde encima
+    pygame.draw.circle(surface, border_color, center, radius, border_width)
 
 def draw_checkers(surface, game_state):
     """
@@ -334,7 +370,7 @@ def draw_checkers(surface, game_state):
     board = game_state['board']
     bar = game_state['bar']
     off = game_state['off']
-    checker_radius = int(POINT_WIDTH * 0.4)
+    checker_radius = int(POINT_WIDTH * 0.38) # Fichas ligeramente más pequeñas
 
     # Dibuja las fichas en los puntos
     for point_idx, checkers in enumerate(board):
@@ -345,42 +381,62 @@ def draw_checkers(surface, game_state):
             color = COLOR_WHITE if checker_color == PLAYER_WHITE else COLOR_BLACK
             
             if point_num <= 12: # Puntos de abajo
-                y_pos = SCREEN_HEIGHT - BOARD_MARGIN - checker_radius - (i * 2 * checker_radius)
+                y_pos = BOARD_BOTTOM_Y - checker_radius - (i * (checker_radius * 2))
             else: # Puntos de arriba
-                y_pos = BOARD_MARGIN + checker_radius + (i * 2 * checker_radius)
-            
+                y_pos = BOARD_TOP_Y + checker_radius + (i * (checker_radius * 2))
+
             # Si hay más de 5 fichas, se muestra un contador
-            if i >= 4 and len(checkers) > 5:
-                y_pos_last = SCREEN_HEIGHT - BOARD_MARGIN - checker_radius - (4 * 2 * checker_radius) if point_num <= 12 else BOARD_MARGIN + checker_radius + (4 * 2 * checker_radius)
-                pygame.draw.circle(surface, color, (x_center, y_pos_last), checker_radius)
-                pygame.draw.circle(surface, (0,0,0) if color == COLOR_WHITE else (255,255,255), (x_center, y_pos_last), checker_radius, 2)
-                
-                count_text = font_hud.render(f"x{len(checkers)}", True, COLOR_HIGHLIGHT)
-                surface.blit(count_text, (x_center - count_text.get_width()/2, y_pos_last - count_text.get_height()/2))
-                break 
-            
-            pygame.draw.circle(surface, color, (x_center, y_pos), checker_radius)
-            pygame.draw.circle(surface, (0,0,0) if color == COLOR_WHITE else (255,255,255), (x_center, y_pos), checker_radius, 2)
+            if i >= 5: # A partir de la 6ta ficha
+                y_pos_last = BOARD_BOTTOM_Y - checker_radius - (4 * (checker_radius*2)) if point_num <= 12 else BOARD_TOP_Y + checker_radius + (4 * (checker_radius*2))
+                # Dibuja la 5ta ficha
+                draw_checker(surface, color, (x_center, y_pos_last), checker_radius)
+                # Dibuja el contador encima
+                count_text = font_hud.render(f"x{len(checkers)}", True, COLOR_HIGHLIGHT if color == COLOR_BLACK else COLOR_BLACK)
+                surface.blit(count_text, (x_center - count_text.get_width() / 2, y_pos_last - count_text.get_height() / 2))
+                break
+
+            draw_checker(surface, color, (x_center, y_pos), checker_radius)
 
     # Dibuja las fichas en la barra
-    bar_x = BOARD_MARGIN + 6 * POINT_WIDTH + BAR_WIDTH / 2
+    bar_x = BOARD_MARGIN_X + 6 * POINT_WIDTH + BAR_WIDTH / 2
     for i in range(bar[PLAYER_WHITE]):
-        y_pos = SCREEN_HEIGHT / 2 + 100 + i * (2 * checker_radius)
-        pygame.draw.circle(surface, COLOR_WHITE, (bar_x, y_pos), checker_radius)
-        pygame.draw.circle(surface, COLOR_BLACK, (bar_x, y_pos), checker_radius, 2)
+        y_pos = BOARD_BOTTOM_Y - checker_radius - (i * (checker_radius * 2))
+        draw_checker(surface, COLOR_WHITE, (bar_x, y_pos), checker_radius)
     for i in range(bar[PLAYER_BLACK]):
-        y_pos = SCREEN_HEIGHT / 2 - 100 - i * (2 * checker_radius)
-        pygame.draw.circle(surface, COLOR_BLACK, (bar_x, y_pos), checker_radius)
-        pygame.draw.circle(surface, COLOR_WHITE, (bar_x, y_pos), checker_radius, 2)
+        y_pos = BOARD_TOP_Y + checker_radius + (i * (checker_radius * 2))
+        draw_checker(surface, COLOR_BLACK, (bar_x, y_pos), checker_radius)
 
-    # Dibuja las fichas retiradas (off)
-    off_x = SCREEN_WIDTH - BOARD_MARGIN + checker_radius / 2
-    for i in range(off[PLAYER_WHITE]):
-        y_pos = SCREEN_HEIGHT - BOARD_MARGIN - checker_radius - i * int(checker_radius * 1.5)
-        pygame.draw.circle(surface, COLOR_WHITE, (off_x, y_pos), checker_radius, 5)
-    for i in range(off[PLAYER_BLACK]):
-        y_pos = BOARD_MARGIN + checker_radius + i * int(checker_radius * 1.5)
-        pygame.draw.circle(surface, COLOR_BLACK, (off_x, y_pos), checker_radius, 5)
+    # Dibuja los contadores de bear-off en la nueva columna derecha
+    off_area_x = SCREEN_WIDTH - BOARD_MARGIN_X - BEAR_OFF_WIDTH + 5
+    off_area_h = BOARD_PLAY_HEIGHT / 2 - 20
+    checker_radius_off = int((BEAR_OFF_WIDTH - 10) * 0.3) # Radio para la ficha pequeña
+
+    # --- Área para Negras (arriba) ---
+    off_area_b = pygame.Rect(off_area_x, BOARD_TOP_Y, BEAR_OFF_WIDTH - 10, off_area_h)
+    pygame.draw.rect(surface, COLOR_HUD_BG, off_area_b, border_radius=8)
+    
+    # Renderizar y posicionar número
+    off_text_b = font_message.render(str(off[PLAYER_BLACK]), True, COLOR_WHITE)
+    text_b_center_y = off_area_b.y + off_area_b.height * 0.35
+    surface.blit(off_text_b, (off_area_b.centerx - off_text_b.get_width()/2, text_b_center_y - off_text_b.get_height()/2))
+    
+    # Posicionar ficha indicadora
+    checker_b_center = (off_area_b.centerx, off_area_b.y + off_area_b.height * 0.75)
+    draw_checker(surface, COLOR_BLACK, checker_b_center, checker_radius_off)
+
+    # --- Área para Blancas (abajo) ---
+    off_area_w = pygame.Rect(off_area_x, BOARD_TOP_Y + BOARD_PLAY_HEIGHT / 2 + 10, BEAR_OFF_WIDTH - 10, off_area_h)
+    pygame.draw.rect(surface, COLOR_HUD_BG, off_area_w, border_radius=8)
+    
+    # Renderizar y posicionar número
+    off_text_w = font_message.render(str(off[PLAYER_WHITE]), True, COLOR_WHITE)
+    text_w_center_y = off_area_w.y + off_area_w.height * 0.35
+    surface.blit(off_text_w, (off_area_w.centerx - off_text_w.get_width()/2, text_w_center_y - off_text_w.get_height()/2))
+    
+    # Posicionar ficha indicadora
+    checker_w_center = (off_area_w.centerx, off_area_w.y + off_area_w.height * 0.75)
+    draw_checker(surface, COLOR_WHITE, checker_w_center, checker_radius_off)
+
 
 def draw_menu(surface, game_state):
     """Dibuja el menú principal."""
@@ -430,6 +486,27 @@ def draw_name_input(surface, game_state):
     start_text = font_hud.render("Comenzar Partida", True, COLOR_HUD_TEXT)
     surface.blit(start_text, (start_button.centerx - start_text.get_width() / 2, start_button.centery - start_text.get_height() / 2))
 
+    # Mensaje de error
+    if "caracteres" in game_state['message']:
+        error_text = font_hud.render(game_state['message'], True, COLOR_POINT_A)
+        surface.blit(error_text, (SCREEN_WIDTH/2 - error_text.get_width()/2, 520))
+
+def draw_dice(surface, value, x, y):
+    """Dibuja un único dado gráfico."""
+    dice_rect = pygame.Rect(x, y, 50, 50)
+    pygame.draw.rect(surface, COLOR_WHITE, dice_rect, border_radius=5)
+    dot_radius = 5
+    positions = {
+        1: [(25, 25)],
+        2: [(15, 15), (35, 35)],
+        3: [(15, 15), (25, 25), (35, 35)],
+        4: [(15, 15), (35, 15), (15, 35), (35, 35)],
+        5: [(15, 15), (35, 15), (25, 25), (15, 35), (35, 35)],
+        6: [(15, 15), (35, 15), (15, 25), (35, 25), (15, 35), (35, 35)],
+    }
+    for pos in positions.get(value, []):
+        pygame.draw.circle(surface, COLOR_BLACK, (x + pos[0], y + pos[1]), dot_radius)
+
 def draw_initial_roll(surface, game_state):
     """Dibuja la pantalla de la tirada inicial."""
     surface.fill(COLOR_BOARD)
@@ -442,11 +519,14 @@ def draw_initial_roll(surface, game_state):
         p1_roll = game_state['first_roll_data'][PLAYER_WHITE]
         p2_roll = game_state['first_roll_data'][PLAYER_BLACK]
 
-        p1_text = font_hud.render(f"{p1_name} (Blancas) tira: {p1_roll}", True, COLOR_BLACK)
-        surface.blit(p1_text, (SCREEN_WIDTH/2 - p1_text.get_width()/2, 250))
-        p2_text = font_hud.render(f"{p2_name} (Negras) tira: {p2_roll}", True, COLOR_BLACK)
-        surface.blit(p2_text, (SCREEN_WIDTH/2 - p2_text.get_width()/2, 300))
+        p1_text = font_hud.render(f"{p1_name} (Blancas)", True, COLOR_BLACK)
+        surface.blit(p1_text, (SCREEN_WIDTH/2 - 150 - p1_text.get_width()/2, 250))
+        draw_dice(surface, p1_roll, SCREEN_WIDTH/2 - 150 - 25, 280)
 
+        p2_text = font_hud.render(f"{p2_name} (Negras)", True, COLOR_BLACK)
+        surface.blit(p2_text, (SCREEN_WIDTH/2 + 150 - p2_text.get_width()/2, 250))
+        draw_dice(surface, p2_roll, SCREEN_WIDTH/2 + 150 - 25, 280)
+        
         winner = PLAYER_WHITE if p1_roll > p2_roll else PLAYER_BLACK
         winner_name = game_state['player_names'][winner]
         msg = f"Gana {winner_name}. Presiona ESPACIO para comenzar."
@@ -455,40 +535,49 @@ def draw_initial_roll(surface, game_state):
 
 
 def draw_hud(surface, game_state):
-    """
-    Dibuja el panel de información (HUD) con el estado actual del juego.
-    """
-    player = game_state['current_player']
-    dice = game_state['dice']
-    moves = game_state['moves_remaining']
-    message = game_state['message']
-
-    hud_rect = pygame.Rect(0, SCREEN_HEIGHT / 2 - 50, SCREEN_WIDTH, 100)
+    """Dibuja el nuevo HUD superior y la barra de mensajes central."""
+    # --- Barra de Información Superior ---
+    hud_rect = pygame.Rect(0, HUD_TOP_MARGIN, SCREEN_WIDTH, HUD_HEIGHT)
     pygame.draw.rect(surface, COLOR_HUD_BG, hud_rect)
     
-    # Mensaje central
-    msg_render = font_message.render(message, True, COLOR_HUD_TEXT)
-    surface.blit(msg_render, (SCREEN_WIDTH/2 - msg_render.get_width()/2, hud_rect.centery - msg_render.get_height()/2))
-
-    # Turno del jugador
+    player = game_state['current_player']
     if player:
+        # Turno del jugador (izquierda)
         player_name = game_state['player_names'][player]
         player_color = 'Blancas' if player == PLAYER_WHITE else 'Negras'
-        player_text = f"Turno: {player_name} - {player_color}"
-        player_render = font_hud.render(player_text, True, COLOR_HUD_TEXT)
-        surface.blit(player_render, (BOARD_MARGIN, hud_rect.y + 10))
+        turn_text = f"Turno: {player_name} - {player_color}"
+        turn_render = font_hud.render(turn_text, True, COLOR_HUD_TEXT)
+        surface.blit(turn_render, (BOARD_MARGIN_X, HUD_TOP_MARGIN + HUD_HEIGHT / 2 - turn_render.get_height() / 2))
 
-    # Dados
-    if dice:
-        dice_text = f"Dados: {dice}"
-        dice_render = font_hud.render(dice_text, True, COLOR_HUD_TEXT)
-        surface.blit(dice_render, (BOARD_MARGIN, hud_rect.y + 40))
-        
-    # Movimientos restantes
-    if moves:
-        moves_text = f"Movimientos: {moves}"
-        moves_render = font_hud.render(moves_text, True, COLOR_HUD_TEXT)
-        surface.blit(moves_render, (BOARD_MARGIN, hud_rect.y + 70))
+        # Dados y Movimientos (derecha)
+        if game_state['dice']:
+            dice_text = f"Dados: {game_state['dice']}"
+            moves_text = f"Movimientos: {game_state['moves_remaining']}"
+            dice_render = font_hud.render(dice_text, True, COLOR_HUD_TEXT)
+            moves_render = font_hud.render(moves_text, True, COLOR_HUD_TEXT)
+            
+            # Ancho máximo basado en el texto más largo posible (movimientos de dobles)
+            max_text_width = font_hud.size("Movimientos: [6, 6, 6, 6]")[0]
+            
+            # Centrado vertical con espaciado
+            v_padding = 2
+            total_text_height = dice_render.get_height() + moves_render.get_height() + v_padding
+            y_start = HUD_TOP_MARGIN + (HUD_HEIGHT - total_text_height) / 2
+            
+            # Alineación a la derecha
+            x_pos_dice = SCREEN_WIDTH - BOARD_MARGIN_X - BEAR_OFF_WIDTH - BOARD_BEAR_OFF_GAP - max_text_width
+            x_pos_moves = SCREEN_WIDTH - BOARD_MARGIN_X - BEAR_OFF_WIDTH - BOARD_BEAR_OFF_GAP - max_text_width
+            
+            surface.blit(dice_render, (x_pos_dice, y_start))
+            surface.blit(moves_render, (x_pos_moves, y_start + dice_render.get_height() + v_padding))
+
+    # --- Barra de Mensajes Central ---
+    y_center = BOARD_TOP_Y + BOARD_PLAY_HEIGHT / 2
+    msg_rect = pygame.Rect(BOARD_MARGIN_X, y_center - 20, GAME_AREA_WIDTH, 40)
+    pygame.draw.rect(surface, (*COLOR_HUD_BG, 200), msg_rect, border_radius=5)
+    
+    msg_render = font_hud.render(game_state['message'], True, COLOR_HUD_TEXT)
+    surface.blit(msg_render, (msg_rect.centerx - msg_render.get_width() / 2, msg_rect.centery - msg_render.get_height() / 2))
 
 
 # --- 5. Manejo de Input y Lógica Principal ---------------------------------
@@ -504,9 +593,9 @@ def draw_highlights(surface, game_state, legal_moves):
 
     # Resaltar el punto de origen (o la barra)
     if selected == 'BAR':
-        bar_x = BOARD_MARGIN + 6 * POINT_WIDTH
+        bar_x = BOARD_MARGIN_X + 6 * POINT_WIDTH
         # Dibuja un rectángulo resaltado en la barra
-        pygame.draw.rect(surface, COLOR_HIGHLIGHT, (bar_x, BOARD_MARGIN, BAR_WIDTH, SCREEN_HEIGHT - 2 * BOARD_MARGIN), 5)
+        pygame.draw.rect(surface, COLOR_HIGHLIGHT, (bar_x, BOARD_TOP_Y, BAR_WIDTH, BOARD_PLAY_HEIGHT), 5)
     else:
         # Dibuja un polígono resaltado en el punto seleccionado
         pygame.draw.polygon(surface, COLOR_HIGHLIGHT, point_positions[selected], 5)
@@ -515,12 +604,26 @@ def draw_highlights(surface, game_state, legal_moves):
     if selected in legal_moves:
         for dest in legal_moves[selected]:
             if dest == 'OFF':
-                # Aquí se podría añadir un resaltado para la zona de bear-off
-                off_rect_w = pygame.Rect(SCREEN_WIDTH - BOARD_MARGIN - 50, BOARD_MARGIN, 50, SCREEN_HEIGHT/2 - BOARD_MARGIN)
-                off_rect_b = pygame.Rect(SCREEN_WIDTH - BOARD_MARGIN - 50, SCREEN_HEIGHT/2, 50, SCREEN_HEIGHT/2 - BOARD_MARGIN)
-                pygame.draw.rect(surface, COLOR_HIGHLIGHT, off_rect_w if game_state['current_player'] == PLAYER_WHITE else off_rect_b, 5)
+                off_area_x = SCREEN_WIDTH - BOARD_MARGIN_X - BEAR_OFF_WIDTH
+                off_rect = pygame.Rect(off_area_x, 0, BEAR_OFF_WIDTH, SCREEN_HEIGHT)
+                pygame.draw.rect(surface, COLOR_HIGHLIGHT, off_rect, 5)
             else:
                  pygame.draw.polygon(surface, COLOR_HIGHLIGHT, point_positions[dest], 5)
+
+def is_inside_triangle(pos, triangle_points):
+    """
+    Comprueba si un punto está dentro de un triángulo usando coordenadas baricéntricas.
+    """
+    x, y = pos
+    p0, p1, p2 = triangle_points
+    
+    A = 0.5 * (-p1[1] * p2[0] + p0[1] * (-p1[0] + p2[0]) + p0[0] * (p1[1] - p2[1]) + p1[0] * p2[1])
+    
+    s = 1 / (2 * A) * (p0[1] * p2[0] - p0[0] * p2[1] + (p2[1] - p0[1]) * x + (p0[0] - p2[0]) * y)
+    t = 1 / (2 * A) * (p0[0] * p1[1] - p0[1] * p1[0] + (p0[1] - p1[1]) * x + (p1[0] - p0[0]) * y)
+    
+    return s > 0 and t > 0 and (1 - s - t) > 0
+
 
 def get_point_from_mouse(pos):
     """
@@ -530,30 +633,20 @@ def get_point_from_mouse(pos):
     """
     x, y = pos
 
-    # Detección de clic en la zona de bear-off (a la derecha del tablero)
-    off_rect_w = pygame.Rect(SCREEN_WIDTH - BOARD_MARGIN - 50, BOARD_MARGIN, 50, SCREEN_HEIGHT / 2 - BOARD_MARGIN)
-    off_rect_b = pygame.Rect(SCREEN_WIDTH - BOARD_MARGIN - 50, SCREEN_HEIGHT / 2, 50, SCREEN_HEIGHT / 2 - BOARD_MARGIN)
-    if off_rect_w.collidepoint(x, y) or off_rect_b.collidepoint(x, y):
+    # Detección de clic en la zona de bear-off
+    off_area_x = SCREEN_WIDTH - BOARD_MARGIN_X - BEAR_OFF_WIDTH
+    if x > off_area_x:
         return 'OFF'
 
     # Detección de clic en la barra central
-    bar_x_start = BOARD_MARGIN + 6 * POINT_WIDTH
+    bar_x_start = BOARD_MARGIN_X + 6 * POINT_WIDTH
     bar_x_end = bar_x_start + BAR_WIDTH
     if bar_x_start < x < bar_x_end:
         return 'BAR'
 
-    # Detección de clic en los puntos superiores (13-24)
-    for i in range(13, 25):
-        x_base = point_positions[i][0][0]
-        rect = pygame.Rect(x_base, BOARD_MARGIN, POINT_WIDTH, POINT_HEIGHT)
-        if rect.collidepoint(x, y):
-            return i
-
-    # Clic en los puntos inferiores (1-12)
-    for i in range(1, 13):
-        x_base = point_positions[i][0][0]
-        rect = pygame.Rect(x_base, SCREEN_HEIGHT - BOARD_MARGIN - POINT_HEIGHT, POINT_WIDTH, POINT_HEIGHT)
-        if rect.collidepoint(x, y):
+    # Detección de clic en los puntos
+    for i in range(1, 25):
+        if is_inside_triangle(pos, point_positions[i]):
             return i
             
     return None
@@ -595,12 +688,13 @@ def main_loop():
                     if game_data['buttons']['start_game'].collidepoint(event.pos):
                         p1_name = game_data['player_names'][PLAYER_WHITE].strip()
                         p2_name = game_data['player_names'][PLAYER_BLACK].strip()
-                        if len(p1_name) >= 2 and len(p2_name) >= 2:
+                        if 2 <= len(p1_name) <= 10 and 2 <= len(p2_name) <= 10:
                             game_data['game_phase'] = 'START_ROLL'
-                            # Realizar la tirada inicial automáticamente
                             w_roll, b_roll = roll_dice()
                             while w_roll == b_roll: w_roll, b_roll = roll_dice()
                             game_data['first_roll_data'].update({PLAYER_WHITE: w_roll, PLAYER_BLACK: b_roll, 'rolled': True})
+                        else:
+                            game_data['message'] = "Los nombres deben tener entre 2 y 10 caracteres."
                     
                     # Activar caja de texto
                     for player, box in game_data['input_boxes'].items():
