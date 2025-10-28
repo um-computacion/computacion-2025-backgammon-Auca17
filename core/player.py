@@ -1,3 +1,15 @@
+"""
+Módulo que define la clase Player para representar a los jugadores.
+
+Este módulo contiene la implementación de los jugadores del Backgammon,
+gestionando su nombre, color de fichas y fichas retiradas del tablero.
+
+Classes
+-------
+Player
+    Representa un jugador del juego con sus propiedades y estado
+"""
+
 class Player:
     """
     Representa a un jugador de Backgammon.

@@ -1,3 +1,16 @@
+"""
+Módulo que define la clase Checker para representar las fichas del juego Backgammon.
+
+Este módulo contiene la implementación de las fichas (checkers) que se mueven
+por el tablero durante el juego. Cada ficha tiene un color que identifica
+a qué jugador pertenece.
+
+Classes
+-------
+Checker
+    Representa una ficha individual del juego
+"""
+
 class Checker:
     """
     Representa una ficha de Backgammon.

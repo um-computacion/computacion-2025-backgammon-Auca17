@@ -1,3 +1,16 @@
+"""
+Módulo principal del juego Backgammon.
+
+Este módulo contiene la clase Game que gestiona toda la lógica del juego,
+incluyendo turnos, movimientos, validaciones y condiciones de victoria.
+Coordina la interacción entre el tablero, los jugadores y los dados.
+
+Classes
+-------
+Game
+    Clase principal que controla el flujo del juego Backgammon
+"""
+
 from core.board import Board
 from core.player import Player
 from core.dice import Dice

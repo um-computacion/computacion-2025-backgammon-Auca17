@@ -1,3 +1,16 @@
+"""
+Módulo que define el tablero del juego Backgammon.
+
+Este módulo contiene la clase Board que representa el tablero de juego,
+gestionando las posiciones de las fichas, la barra y las fichas retiradas.
+Implementa la configuración inicial estándar del Backgammon.
+
+Classes
+-------
+Board
+    Representa el tablero de juego con sus 24 puntos y zonas especiales
+"""
+
 from core.checker import Checker
 
 class Board:

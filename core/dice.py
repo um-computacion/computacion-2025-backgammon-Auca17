@@ -1,6 +1,15 @@
+"""
+Módulo que define la clase Dice para los dados del juego.
+
+Este módulo contiene la implementación de los dados utilizados en Backgammon,
+gestionando las tiradas y la detección de dobles.
+
+Classes
+-------
+Dice
+    Representa el par de dados del juego
+"""
 import random
-
-
 class Dice:
     """
     Representa un par de dados para el juego de Backgammon.
