@@ -6,6 +6,49 @@ import unittest
 from core.board import Board
 
 class TestBoard(unittest.TestCase):
+    """
+    Clase de pruebas unitarias para la clase Board.
+    
+    Valida el correcto funcionamiento del tablero de Backgammon, incluyendo
+    la inicialización, movimientos de fichas, capturas, bear-off y reingreso
+    desde la barra.
+    
+    Methods
+    -------
+    setUp()
+        Configura una instancia limpia del tablero antes de cada prueba
+    test_initialization()
+        Verifica la correcta inicialización del tablero con 24 puntos
+    test_move_checker()
+        Verifica que mover fichas actualiza correctamente los conteos
+    test_get_2d_representation()
+        Verifica la generación de la representación visual del tablero
+    test_move_checker_from_empty_point()
+        Verifica que no se puede mover desde un punto vacío
+    test_move_checker_wrong_color()
+        Verifica que no se puede mover fichas del color incorrecto
+    test_move_checker_to_blocked_point()
+        Verifica que no se puede mover a puntos bloqueados por el oponente
+    test_move_checker_out_of_bounds()
+        Verifica que no se permite mover fuera de los límites del tablero
+    test_move_checker_and_capture()
+        Verifica el mecanismo de captura de fichas del oponente
+    test_bear_off_checker_valid()
+        Verifica que las fichas pueden ser retiradas correctamente
+    test_bear_off_checker_invalid()
+        Verifica que no se puede hacer bear-off desde puntos vacíos
+    test_enter_from_captured()
+        Verifica el reingreso de fichas capturadas al tablero
+    test_enter_from_captured_to_blocked_point()
+        Verifica que no se puede reingresar a puntos bloqueados
+    test_enter_from_captured_with_empty_bar()
+        Verifica que no se puede reingresar si no hay fichas en la barra
+    test_get_point()
+        Verifica la obtención correcta de fichas de un punto específico
+    test_get_2d_representation_with_captured_checkers()
+        Verifica la representación visual con fichas capturadas
+    """
+
     def setUp(self):
         self.board = Board()
 
