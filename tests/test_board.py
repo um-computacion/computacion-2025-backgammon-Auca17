@@ -1,60 +1,11 @@
 """
-Módulo de pruebas unitarias para la clase Board.
-
-Este módulo contiene los tests que validan el funcionamiento del tablero
-del juego, incluyendo la configuración inicial, colocación de fichas,
-movimientos y gestión de la barra y bear-off.
-
-Classes
--------
-TestBoard
-    Suite de pruebas para la clase Board
+Este módulo contiene las pruebas unitarias para la clase Board.
 """
 
 import unittest
 from core.board import Board
-from core.checker import Checker
-
 
 class TestBoard(unittest.TestCase):
-    """
-    Clase de pruebas unitarias para la clase Board.
-    
-    Valida que el tablero se inicialice correctamente con la configuración
-    estándar de Backgammon y que todas las operaciones de manipulación
-    de fichas funcionen como se espera.
-    
-    Attributes
-    ----------
-    board : Board
-        Instancia del tablero utilizada en las pruebas
-        
-    Methods
-    -------
-    setUp()
-        Configura el tablero antes de cada prueba
-    test_init()
-        Verifica la inicialización correcta del tablero
-    test_place_checker()
-        Verifica la colocación de fichas en el tablero
-    test_remove_checker()
-        Verifica la remoción de fichas del tablero
-    test_move_checker()
-        Verifica el movimiento de fichas entre posiciones
-    test_get_bar()
-        Verifica la obtención de fichas en la barra
-    test_add_to_bar()
-        Verifica añadir fichas a la barra
-    test_remove_from_bar()
-        Verifica remover fichas de la barra
-    test_get_off()
-        Verifica la obtención de fichas retiradas
-    test_add_to_off()
-        Verifica añadir fichas al bear-off
-    test_display()
-        Verifica que el método display no lance excepciones
-    """
-    
     def setUp(self):
         self.board = Board()
 
@@ -124,22 +75,57 @@ class TestBoard(unittest.TestCase):
         # Preparamos el escenario: movemos una ficha negra a un punto vacío.
         self.board.move_checker("black", 23, 2)
         # Ahora movemos una ficha blanca a ese mismo punto para capturar la negra.
-        self.board.move_checker("white", 11, 2)
-        self.assertEqual(self.board.__points_status__[2]["color"], "white")
-        self.assertEqual(self.board.__points_status__[23]["count"], 0)
+        self.board.move_checker("white", 0, 2)
+
+        self.assertEqual(len(self.board.get_captured("black")), 1)
+        self.assertEqual(self.board.get_point_count(2), 1)
+        self.assertEqual(self.board.get_point(2)[0].__color__, "white")
+
+    def test_bear_off_checker_valid(self):
+        """
+        Verifica que una ficha puede ser retirada del tablero (bear off) correctamente.
+        """
+        # Preparamos el escenario: vaciamos el punto 23 y movemos una ficha blanca allí.
+        self.board.get_point(23).pop()
+        self.board.get_point(23).pop()
+        self.board.move_checker("white", 18, 23)
+
+        self.board.bear_off("white", 23)
+        self.assertEqual(len(self.board.get_home("white")), 1)
+        self.assertEqual(self.board.get_point_count(23), 0)
+
+    def test_bear_off_checker_invalid(self):
+        """
+        Verifica que se lanza un ValueError al intentar hacer bear off desde un punto vacío.
+        """
+        with self.assertRaises(ValueError):
+            self.board.bear_off("white", 2)
 
     def test_enter_from_captured(self):
         """
-        Verifica que se puede reingresar una ficha desde la barra al tablero.
-        Escenario: Una ficha blanca es capturada y se intenta reingresar.
+        Verifica que una ficha capturada puede reingresar al tablero.
         """
-        # Capturamos una ficha blanca
+        # Preparamos el escenario: dejamos una sola ficha blanca en el punto 0 para ser capturada.
         self.board.get_point(0).pop()
         self.board.move_checker("black", 12, 0)
-        # Intentamos reingresar la ficha blanca desde la barra
-        self.board.enter_from_captured("white", 5)
-        self.assertEqual(self.board.__points_status__[5]["color"], "white")
-        self.assertEqual(self.board.__points_status__[5]["count"], 1)
+        self.assertEqual(len(self.board.get_captured("white")), 1)
+
+        # Ahora, la reingresamos en un punto válido (ej. punto 21, que está vacío)
+        self.board.enter_from_captured("white", 21)
+        self.assertEqual(len(self.board.get_captured("white")), 0)
+        self.assertEqual(self.board.get_point_count(21), 1)
+        self.assertEqual(self.board.get_point(21)[0].__color__, "white")
+
+    def test_enter_from_captured_to_blocked_point(self):
+        """
+        Verifica que no se puede reingresar una ficha a un punto bloqueado.
+        """
+        # Preparamos el escenario: capturamos una ficha blanca.
+        self.board.get_point(0).pop()
+        self.board.move_checker("black", 12, 0)
+        # El punto 5 está bloqueado por fichas negras.
+        with self.assertRaises(ValueError):
+            self.board.enter_from_captured("white", 5)
 
     def test_enter_from_captured_with_empty_bar(self):
         """
