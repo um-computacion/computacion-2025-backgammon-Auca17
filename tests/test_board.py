@@ -5,7 +5,6 @@ Este módulo contiene las pruebas unitarias para la clase Board.
 import unittest
 from core.board import Board
 
-
 class TestBoard(unittest.TestCase):
     def setUp(self):
         self.board = Board()
