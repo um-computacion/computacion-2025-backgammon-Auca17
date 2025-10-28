@@ -3,7 +3,7 @@ Este módulo contiene las pruebas unitarias para la interfaz de línea de comand
 """
 
 import unittest
-from unittest.mock import patch, call
+from unittest.mock import patch, call, Mock
 from cli import cli
 
 
@@ -207,6 +207,77 @@ class TestCLI(unittest.TestCase):
             mock_print.call_args_list,
         )
         mock_game_instance.switch_turn.assert_called_once()
+
+    @patch("cli.cli._get_player_names", return_value=("Alice", "Bob"))
+    @patch("cli.cli._decide_first_player", return_value=0)
+    @patch("builtins.input", side_effect=[""])
+    @patch("cli.cli.Game")
+    @patch("builtins.print")
+    def test_main_no_dice_values(
+        self, mock_print, mock_game_cls, mock_input, mock_decide, mock_get_names
+    ):
+        """
+        Verifica el flujo del juego cuando no quedan valores de dados.
+        """
+        mock_game_instance = mock_game_cls.return_value
+        mock_game_instance.is_over.side_effect = [False, True, True]
+        mock_player = Mock()
+        mock_player.get_name.return_value = "Alice"
+        mock_player.__color__ = "white"
+        mock_game_instance.get_current_player.return_value = mock_player
+        mock_game_instance.get_possible_moves.return_value = [(0, 1)]
+        mock_game_instance.get_dice_values.return_value = []  # No hay dados
+
+        cli.main()
+        # Verificamos que el bucle continúa y no pide input de movimiento
+        mock_input.assert_called_once()  # Solo llamado para el "Enter para comenzar"
+
+    @patch("cli.cli._get_player_names", return_value=("Alice", "Bob"))
+    @patch("cli.cli._decide_first_player", return_value=0)
+    @patch("builtins.input", side_effect=["", "0 25"])
+    @patch("cli.cli.Game")
+    @patch("builtins.print")
+    def test_main_index_error_on_move(
+        self, mock_print, mock_game_cls, mock_input, mock_decide, mock_get_names
+    ):
+        """
+        Verifica que se maneja un IndexError lanzado por make_move.
+        """
+        mock_game_instance = mock_game_cls.return_value
+        mock_game_instance.is_over.side_effect = [False, True, True]
+        mock_player = Mock()
+        mock_player.get_name.return_value = "Alice"
+        mock_player.__color__ = "white"
+        mock_game_instance.get_current_player.return_value = mock_player
+        mock_game_instance.get_dice_values.return_value = [1]
+        mock_game_instance.get_possible_moves.return_value = [(0, 1)]
+        mock_game_instance.make_move.side_effect = IndexError(
+            "Movimiento fuera de límites"
+        )
+
+        cli.main()
+
+        self.assertIn(
+            call("Error: Movimiento fuera de límites"), mock_print.call_args_list
+        )
+
+    @patch("cli.cli._get_player_names", return_value=("Alice", "Bob"))
+    @patch("cli.cli._decide_first_player", return_value=0)
+    @patch("builtins.input", side_effect=[""])
+    @patch("cli.cli.Game")
+    @patch("builtins.print")
+    def test_main_game_over_no_winner(
+        self, mock_print, mock_game_cls, mock_input, mock_decide, mock_get_names
+    ):
+        """
+        Verifica que se muestra el mensaje correcto cuando el juego termina sin un ganador.
+        """
+        mock_game_instance = mock_game_cls.return_value
+        mock_game_instance.is_over.side_effect = [True, True]
+        mock_game_instance.get_winner.return_value = None
+
+        cli.main()
+        self.assertIn(call("\n¡Juego terminado!"), mock_print.call_args_list)
 
 
 if __name__ == "__main__":

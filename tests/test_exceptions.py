@@ -59,6 +59,7 @@ class TestBackgammonExceptions(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
+
 from core.exceptions import (
     BackgammonException,
     InvalidMoveException,

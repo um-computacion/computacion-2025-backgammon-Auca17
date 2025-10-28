@@ -99,6 +99,17 @@ class TestPlayer(unittest.TestCase):
         self.player.add_bar_checker()
         self.assertEqual(self.player.get_bar_checkers(), initial_bar_checkers + 1)
 
+    def test_add_bar_checker_with_checker_object(self):
+        """
+        Verifica que una ficha se añade a la lista del jugador cuando se pasa
+        un objeto checker a add_bar_checker.
+        """
+        checker = Checker("white")
+        initial_checker_count = len(self.player.checkers)
+        self.player.add_bar_checker(checker)
+        self.assertEqual(len(self.player.checkers), initial_checker_count + 1)
+        self.assertIn(checker, self.player.checkers)
+
 
 if __name__ == "__main__":
     unittest.main()

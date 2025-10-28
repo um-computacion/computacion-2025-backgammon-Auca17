@@ -486,12 +486,60 @@ class TestGame(unittest.TestCase):
 
         # Movemos una ficha negra para que el punto 23 este libre para las blancas
         self.__game__.__board__.__points__[23] = []
+
         self.__game__.make_move(18, 23)
+
         self.assertEqual(
             self.__game__.__board__.get_point_count(18), initial_count_from - 1
         )
         self.assertEqual(self.__game__.__board__.get_point_count(23), 1)
         self.assertEqual(self.__game__.__dice_values__, [])
+
+    def test_validate_reentry_white_invalid_dice(self):
+        """
+        Verifica que la validación de reingreso falla para el jugador blanco con un dado incorrecto.
+        """
+        player = self.__player1__  # Jugador blanco
+        self.__game__.__dice_values__ = [5, 6]
+        with self.assertRaisesRegex(
+            ValueError, "La distancia del movimiento no coincide con el dado"
+        ):
+            self.__game__._validate_reentry(player, 0)  # Requiere un dado de 1
+
+    def test_validate_move_with_captured_checker(self):
+        """
+        Verifica que _validate_move delega a _validate_reentry si hay fichas en la barra.
+        """
+        player = self.__player1__  # Jugador blanco
+        self.__game__.__current_turn__ = 0
+        self.__game__.__board__.get_captured(player.__color__).append(
+            Checker(player.__color__)
+        )
+        self.__game__.__dice_values__ = [1]
+
+        # Este movimiento debería ser validado por _validate_reentry
+        is_valid = self.__game__._validate_move(player, 0, 0)
+        self.assertTrue(is_valid)
+
+    @patch("core.game.Game.roll_dice")
+    def test_bear_off_consumes_last_die_and_switches_turn(self, mock_roll_dice):
+        """
+        Verifica que hacer bear-off con el último dado cambia el turno.
+        """
+        player = self.__player1__  # Jugador blanco
+        self.__game__.__current_turn__ = 0
+        self.__game__.__dice_values__ = [4]
+        # Preparamos el tablero para un bear-off válido
+        for i in range(24):
+            self.__game__.__board__.__points__[i] = []
+        self.__game__.__board__.__points__[20] = [Checker(player.__color__)] * 15
+
+        initial_turn = self.__game__.__current_turn__
+        self.__game__.make_move(20, 24)
+
+        self.assertEqual(len(self.__game__.__board__.get_home(player.__color__)), 1)
+        self.assertEqual(self.__game__.__dice_values__, [])
+        self.assertNotEqual(self.__game__.__current_turn__, initial_turn)
 
 
 if __name__ == "__main__":
