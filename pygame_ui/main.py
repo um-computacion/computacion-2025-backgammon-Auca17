@@ -43,7 +43,6 @@ Estructura del Archivo:
 """
 
 import pygame
-import sys
 import random
 
 # --- 1. Imports y Constantes -----------------------------------------------
@@ -1071,9 +1070,7 @@ def handle_start_roll_events(event, game_data, legal_moves):
         )
         # Limpia y actualiza los movimientos legales para el jugador que empieza
         legal_moves.clear()
-        legal_moves.update(
-            get_legal_moves(winner, game_data["dice"], game_data)
-        )
+        legal_moves.update(get_legal_moves(winner, game_data["dice"], game_data))
     return game_data, legal_moves
 
 
@@ -1165,11 +1162,49 @@ def main_loop():
         clock.tick(60)
 
     pygame.quit()
-    sys.exit()
 
 
+    
 def handle_play_events(event, game_data, legal_moves):
-    """Maneja los eventos durante la fase de juego principal."""
+    """
+    Maneja los eventos durante la fase de juego principal.
+    
+    Esta función procesa los clics del ratón y pulsaciones de teclas durante
+    la partida activa, gestionando la selección de fichas, validación de movimientos
+    y cambios de turno.
+    
+    Parameters
+    ----------
+    event : pygame.event.Event
+        Evento de Pygame a procesar (KEYDOWN o MOUSEBUTTONDOWN)
+    game_data : dict
+        Estado actual del juego conteniendo:
+        - 'current_player': Jugador en turno
+        - 'dice': Dados lanzados en este turno
+        - 'moves_remaining': Movimientos pendientes
+        - 'selected_point': Punto seleccionado por el jugador
+        - 'message': Mensaje a mostrar al jugador
+        - 'board': Estado del tablero
+        - 'bar': Fichas en la barra
+        - 'off': Fichas retiradas
+    legal_moves : dict
+        Diccionario de movimientos legales disponibles donde:
+        - Las claves son los puntos de origen (1-24, 'BAR')
+        - Los valores son listas de destinos válidos (1-24, 'OFF')
+        
+    Returns
+    -------
+    tuple
+        Tupla (game_data, legal_moves) con el estado actualizado después
+        de procesar el evento
+        
+    Notes
+    -----
+    - Si se presiona ESPACIO, se lanzan los dados
+    - Si no hay movimientos legales, se cede el turno automáticamente
+    - Los clics del ratón seleccionan origen y destino de los movimientos
+    - Se valida cada movimiento contra las reglas del Backgammon
+    """
     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
         if not game_data["dice"]:
             d1, d2 = roll_dice()

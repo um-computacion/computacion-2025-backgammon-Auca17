@@ -1,7 +1,6 @@
 import unittest
 from core.checker import Checker
 
-
 class TestChecker(unittest.TestCase):
     def test_initialization_valid_color(self):
         """

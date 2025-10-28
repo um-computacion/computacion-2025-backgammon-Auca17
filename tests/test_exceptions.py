@@ -1,7 +1,6 @@
 """
 Este módulo contiene pruebas para verificar el manejo de excepciones y errores.
 """
-
 import unittest
 from core.game import Game
 from core.player import Player

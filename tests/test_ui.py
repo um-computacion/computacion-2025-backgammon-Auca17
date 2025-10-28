@@ -9,14 +9,10 @@ paso del tiempo sin necesidad de una interacción manual.
 """
 import unittest
 import unittest.mock
-import sys
-import os
 import pygame
 
-# Añade el directorio raíz del proyecto al sys.path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from pygame_ui import main
+
 
 class TestUI(unittest.TestCase):
     """
@@ -46,13 +42,15 @@ class TestUI(unittest.TestCase):
         # 1. Simular la obtención de las coordenadas del botón
         main.draw_menu(None, self.game_data)
         button_rect = self.game_data["buttons"]["vs_player"]
-        
+
         # 2. Crear un evento de clic simulado en el centro del botón
-        mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': button_rect.center})
-        
+        mock_event = pygame.event.Event(
+            pygame.MOUSEBUTTONDOWN, {"pos": button_rect.center}
+        )
+
         # 3. Procesar el evento
         self.game_data = main.handle_menu_events(mock_event, self.game_data)
-        
+
         # 4. Verificar que la fase del juego ha cambiado
         self.assertEqual(self.game_data["game_phase"], "NAME_INPUT")
 
@@ -63,13 +61,13 @@ class TestUI(unittest.TestCase):
         """
         # 1. Simular la obtención de las coordenadas del botón
         main.draw_menu(None, self.game_data)
-        
+
         # 2. Crear un evento de clic simulado fuera del botón
-        mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': (0, 0)})
-        
+        mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {"pos": (0, 0)})
+
         # 3. Procesar el evento
         self.game_data = main.handle_menu_events(mock_event, self.game_data)
-        
+
         # 4. Verificar que la fase del juego NO ha cambiado
         self.assertEqual(self.game_data["game_phase"], "MENU")
 
@@ -86,7 +84,9 @@ class TestUI(unittest.TestCase):
         button_rect = self.game_data["buttons"]["start_game"]
 
         # 2. Simular clic en el botón de empezar
-        mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': button_rect.center})
+        mock_event = pygame.event.Event(
+            pygame.MOUSEBUTTONDOWN, {"pos": button_rect.center}
+        )
 
         # 3. Procesar el evento
         self.game_data = main.handle_name_input_events(mock_event, self.game_data)
@@ -105,10 +105,12 @@ class TestUI(unittest.TestCase):
         self.game_data["player_names"]["B"] = "Jugador2"
         main.draw_name_input(None, self.game_data)
         button_rect = self.game_data["buttons"]["start_game"]
-        mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': button_rect.center})
+        mock_event = pygame.event.Event(
+            pygame.MOUSEBUTTONDOWN, {"pos": button_rect.center}
+        )
 
         self.game_data = main.handle_name_input_events(mock_event, self.game_data)
-        
+
         self.assertEqual(self.game_data["game_phase"], "NAME_INPUT")
         self.assertIn("caracteres", self.game_data["message"])
 
@@ -119,16 +121,18 @@ class TestUI(unittest.TestCase):
         """
         self.game_data["game_phase"] = "NAME_INPUT"
         main.draw_name_input(None, self.game_data)  # Para definir las cajas
-        
+
         # Simular clic para activar el input del jugador 1
         p1_box = self.game_data["input_boxes"]["W"]
-        mock_click = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': p1_box.center})
+        mock_click = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {"pos": p1_box.center})
         self.game_data = main.handle_name_input_events(mock_click, self.game_data)
-        
+
         # Simular escritura de la letra 'A'
-        mock_key_event = pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_a, 'unicode': 'A'})
+        mock_key_event = pygame.event.Event(
+            pygame.KEYDOWN, {"key": pygame.K_a, "unicode": "A"}
+        )
         self.game_data = main.handle_name_input_events(mock_key_event, self.game_data)
-        
+
         self.assertEqual(self.game_data["player_names"]["W"], "A")
 
     def test_pulsar_espacio_en_start_roll_inicia_partida(self):
@@ -140,11 +144,13 @@ class TestUI(unittest.TestCase):
         self.game_data["game_phase"] = "START_ROLL"
         self.game_data["first_roll_data"] = {"W": 6, "B": 4, "rolled": True}
         self.game_data["player_names"] = {"W": "Jugador1", "B": "Jugador2"}
-        
-        mock_event = pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_SPACE})
-        
-        self.game_data, _ = main.handle_start_roll_events(mock_event, self.game_data, {})
-        
+
+        mock_event = pygame.event.Event(pygame.KEYDOWN, {"key": pygame.K_SPACE})
+
+        self.game_data, _ = main.handle_start_roll_events(
+            mock_event, self.game_data, {}
+        )
+
         self.assertEqual(self.game_data["game_phase"], "PLAY")
         self.assertEqual(self.game_data["current_player"], "W")
         self.assertEqual(self.game_data["dice"], [6, 4])
@@ -159,13 +165,19 @@ class TestUI(unittest.TestCase):
         initial_state = self.game_data.copy()
 
         # Simular clic
-        mock_mouse_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': (100, 100)})
-        self.game_data, _ = main.handle_start_roll_events(mock_mouse_event, self.game_data, {})
+        mock_mouse_event = pygame.event.Event(
+            pygame.MOUSEBUTTONDOWN, {"pos": (100, 100)}
+        )
+        self.game_data, _ = main.handle_start_roll_events(
+            mock_mouse_event, self.game_data, {}
+        )
         self.assertEqual(self.game_data["game_phase"], "START_ROLL")
-        
+
         # Simular otra tecla
-        mock_key_event = pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_a})
-        self.game_data, _ = main.handle_start_roll_events(mock_key_event, self.game_data, {})
+        mock_key_event = pygame.event.Event(pygame.KEYDOWN, {"key": pygame.K_a})
+        self.game_data, _ = main.handle_start_roll_events(
+            mock_key_event, self.game_data, {}
+        )
         self.assertEqual(self.game_data["game_phase"], "START_ROLL")
 
     def test_clic_en_ficha_propia_selecciona_punto(self):
@@ -176,13 +188,17 @@ class TestUI(unittest.TestCase):
         self.game_data["game_phase"] = "PLAY"
         self.game_data["current_player"] = "B"
         self.game_data["moves_remaining"] = [3, 4]
-        
+
         # Suponemos que hay un movimiento legal desde el punto 19 para Negras
-        legal_moves = {19: [22, 23]} 
-        
-        with unittest.mock.patch('pygame_ui.main.get_point_from_mouse', return_value=19):
-            mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': (0,0)})
-            self.game_data, _ = main.handle_play_events(mock_event, self.game_data, legal_moves)
+        legal_moves = {19: [22, 23]}
+
+        with unittest.mock.patch(
+            "pygame_ui.main.get_point_from_mouse", return_value=19
+        ):
+            mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {"pos": (0, 0)})
+            self.game_data, _ = main.handle_play_events(
+                mock_event, self.game_data, legal_moves
+            )
 
         self.assertEqual(self.game_data["selected_point"], 19)
 
@@ -194,16 +210,20 @@ class TestUI(unittest.TestCase):
         self.game_data["game_phase"] = "PLAY"
         self.game_data["current_player"] = "B"
         self.game_data["moves_remaining"] = [3]
-        self.game_data["board"][18] = ["B"] # Ficha en el punto 19
+        self.game_data["board"][18] = ["B"]  # Ficha en el punto 19
         self.game_data["selected_point"] = 19
         legal_moves = {19: [22]}
 
-        with unittest.mock.patch('pygame_ui.main.get_point_from_mouse', return_value=22):
-            mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': (0,0)})
-            self.game_data, _ = main.handle_play_events(mock_event, self.game_data, legal_moves)
+        with unittest.mock.patch(
+            "pygame_ui.main.get_point_from_mouse", return_value=22
+        ):
+            mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {"pos": (0, 0)})
+            self.game_data, _ = main.handle_play_events(
+                mock_event, self.game_data, legal_moves
+            )
 
-        self.assertEqual(len(self.game_data["board"][18]), 0) # Punto de origen vacío
-        self.assertIn("B", self.game_data["board"][21]) # Punto de destino ocupado
+        self.assertEqual(len(self.game_data["board"][18]), 0)  # Punto de origen vacío
+        self.assertIn("B", self.game_data["board"][21])  # Punto de destino ocupado
         self.assertEqual(len(self.game_data["moves_remaining"]), 0)
         self.assertIsNone(self.game_data["selected_point"])
 
@@ -217,29 +237,36 @@ class TestUI(unittest.TestCase):
         self.game_data["moves_remaining"] = [3]
         self.game_data["board"][18] = ["B"]
         self.game_data["selected_point"] = 19
-        legal_moves = {19: [22]} # El único destino legal es 22
+        legal_moves = {19: [22]}  # El único destino legal es 22
 
         initial_board = [p.copy() for p in self.game_data["board"]]
 
-        with unittest.mock.patch('pygame_ui.main.get_point_from_mouse', return_value=23): # Clic en destino no válido
-            mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': (0,0)})
-            self.game_data, _ = main.handle_play_events(mock_event, self.game_data, legal_moves)
+        with unittest.mock.patch(
+            "pygame_ui.main.get_point_from_mouse", return_value=23
+        ):  # Clic en destino no válido
+            mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {"pos": (0, 0)})
+            self.game_data, _ = main.handle_play_events(
+                mock_event, self.game_data, legal_moves
+            )
 
         self.assertEqual(self.game_data["board"], initial_board)
         self.assertIsNone(self.game_data["selected_point"])
 
-    @unittest.mock.patch('pygame_ui.main.is_inside_triangle')
+    @unittest.mock.patch("pygame_ui.main.is_inside_triangle")
     def test_get_point_from_mouse_identifica_punto_correctamente(self, mock_is_inside):
         """
         Verifica que get_point_from_mouse devuelve el número de punto correcto
         cuando is_inside_triangle devuelve True para ese punto.
         """
         mock_is_inside.side_effect = lambda pos, tri: tri == main.point_positions[12]
-        
-        coordenadas_centro_punto_12 = (main.point_positions[12][2][0], main.point_positions[12][2][1] + 10)
-        
+
+        coordenadas_centro_punto_12 = (
+            main.point_positions[12][2][0],
+            main.point_positions[12][2][1] + 10,
+        )
+
         punto_detectado = main.get_point_from_mouse(coordenadas_centro_punto_12)
-        
+
         self.assertEqual(punto_detectado, 12)
 
     def test_get_point_from_mouse_identifica_barra(self):
@@ -249,10 +276,10 @@ class TestUI(unittest.TestCase):
         """
         bar_x_start = main.BOARD_MARGIN_X + 6 * main.POINT_WIDTH
         coordenadas_barra = (bar_x_start + main.BAR_WIDTH / 2, main.SCREEN_HEIGHT / 2)
-        
+
         zona_detectada = main.get_point_from_mouse(coordenadas_barra)
-        
-        self.assertEqual(zona_detectada, 'BAR')
+
+        self.assertEqual(zona_detectada, "BAR")
 
     def test_get_point_from_mouse_identifica_bear_off(self):
         """
@@ -261,28 +288,32 @@ class TestUI(unittest.TestCase):
         """
         off_x_start = main.SCREEN_WIDTH - main.BOARD_MARGIN_X - main.BEAR_OFF_WIDTH
         coordenadas_off = (off_x_start + 10, main.SCREEN_HEIGHT / 2)
-        
+
         zona_detectada = main.get_point_from_mouse(coordenadas_off)
-        
-        self.assertEqual(zona_detectada, 'OFF')
+
+        self.assertEqual(zona_detectada, "OFF")
 
     def test_lanzar_dados_con_espacio(self):
         """
         Verifica que pulsar espacio cuando no hay dados lanza unos nuevos
         y calcula los movimientos legales.
         """
-        self.game_data.update({
-            "game_phase": "PLAY",
-            "current_player": "W",
-            "dice": [],
-            "moves_remaining": []
-        })
-        
+        self.game_data.update(
+            {
+                "game_phase": "PLAY",
+                "current_player": "W",
+                "dice": [],
+                "moves_remaining": [],
+            }
+        )
+
         # Mock para controlar el resultado de los dados
-        with unittest.mock.patch('pygame_ui.main.roll_dice', return_value=(3, 4)):
-            mock_event = pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_SPACE})
-            self.game_data, legal_moves = main.handle_play_events(mock_event, self.game_data, {})
-        
+        with unittest.mock.patch("pygame_ui.main.roll_dice", return_value=(3, 4)):
+            mock_event = pygame.event.Event(pygame.KEYDOWN, {"key": pygame.K_SPACE})
+            self.game_data, legal_moves = main.handle_play_events(
+                mock_event, self.game_data, {}
+            )
+
         self.assertEqual(self.game_data["dice"], [3, 4])
         self.assertEqual(self.game_data["moves_remaining"], [3, 4])
         self.assertTrue(len(legal_moves) > 0)
@@ -292,14 +323,16 @@ class TestUI(unittest.TestCase):
         Verifica que si se lanzan dobles, el jugador recibe cuatro
         movimientos del mismo valor.
         """
-        self.game_data.update({
-            "game_phase": "PLAY",
-            "current_player": "W",
-            "dice": [],
-        })
-        
-        with unittest.mock.patch('pygame_ui.main.roll_dice', return_value=(5, 5)):
-            mock_event = pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_SPACE})
+        self.game_data.update(
+            {
+                "game_phase": "PLAY",
+                "current_player": "W",
+                "dice": [],
+            }
+        )
+
+        with unittest.mock.patch("pygame_ui.main.roll_dice", return_value=(5, 5)):
+            mock_event = pygame.event.Event(pygame.KEYDOWN, {"key": pygame.K_SPACE})
             self.game_data, _ = main.handle_play_events(mock_event, self.game_data, {})
 
         self.assertEqual(self.game_data["moves_remaining"], [5, 5, 5, 5])
@@ -309,19 +342,25 @@ class TestUI(unittest.TestCase):
         Verifica que cuando un jugador ha retirado sus 15 fichas, la fase
         del juego cambia a 'GAME_OVER'.
         """
-        self.game_data.update({
-            "game_phase": "PLAY",
-            "current_player": "W",
-            "off": {"W": 14, "B": 0},
-            "board": [["W"], *[[] for _ in range(23)]],  # Ficha en el punto 1
-            "moves_remaining": [1],
-            "selected_point": 1
-        })
+        self.game_data.update(
+            {
+                "game_phase": "PLAY",
+                "current_player": "W",
+                "off": {"W": 14, "B": 0},
+                "board": [["W"], *[[] for _ in range(23)]],  # Ficha en el punto 1
+                "moves_remaining": [1],
+                "selected_point": 1,
+            }
+        )
         legal_moves = {1: ["OFF"]}
 
-        with unittest.mock.patch('pygame_ui.main.get_point_from_mouse', return_value="OFF"):
-             mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': (0,0)})
-             self.game_data, _ = main.handle_play_events(mock_event, self.game_data, legal_moves)
+        with unittest.mock.patch(
+            "pygame_ui.main.get_point_from_mouse", return_value="OFF"
+        ):
+            mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {"pos": (0, 0)})
+            self.game_data, _ = main.handle_play_events(
+                mock_event, self.game_data, legal_moves
+            )
 
         # La victoria se comprueba en el bucle principal, no en el manejador de eventos
         self.game_data = main.check_for_win(self.game_data)
@@ -334,21 +373,26 @@ class TestUI(unittest.TestCase):
         Verifica que después de usar el último movimiento, el turno cambia
         al oponente.
         """
-        self.game_data.update({
-            "game_phase": "PLAY",
-            "current_player": "W",
-            "board": [*[[] for _ in range(6)], ["W"], *[[] for _ in range(17)]],
-            "moves_remaining": [1],
-            "selected_point": 7
-        })
+        self.game_data.update(
+            {
+                "game_phase": "PLAY",
+                "current_player": "W",
+                "board": [*[[] for _ in range(6)], ["W"], *[[] for _ in range(17)]],
+                "moves_remaining": [1],
+                "selected_point": 7,
+            }
+        )
         legal_moves = {7: [6]}
 
-        with unittest.mock.patch('pygame_ui.main.get_point_from_mouse', return_value=6):
-             mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': (0,0)})
-             self.game_data, _ = main.handle_play_events(mock_event, self.game_data, legal_moves)
+        with unittest.mock.patch("pygame_ui.main.get_point_from_mouse", return_value=6):
+            mock_event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {"pos": (0, 0)})
+            self.game_data, _ = main.handle_play_events(
+                mock_event, self.game_data, legal_moves
+            )
         self.assertEqual(self.game_data["current_player"], "B")
         self.assertEqual(self.game_data["dice"], [])
         self.assertEqual(self.game_data["moves_remaining"], [])
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
