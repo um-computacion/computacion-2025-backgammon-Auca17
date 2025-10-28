@@ -189,7 +189,12 @@ tests/test_logic.py:1:0: R0801: Similar lines in 2 files
             player2=self.__player2__,
             board=self.__board__,
             dice=self.__dice__,
-        ) (duplicate-code)
+        )
+
+    def test_initialization(self):
+        """
+        Verifica que el juego se inicializa correctamente.
+        """ (duplicate-code)
 
 -----------------------------------
 Your code has been rated at 8.16/10
