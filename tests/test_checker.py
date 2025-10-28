@@ -1,7 +1,38 @@
+"""
+Módulo de pruebas unitarias para la clase Checker.
+
+Este módulo contiene los tests que validan el comportamiento de las fichas
+del juego, incluyendo su creación, obtención de color y representación.
+
+Classes
+-------
+TestChecker
+    Suite de pruebas para la clase Checker
+"""
+
 import unittest
 from core.checker import Checker
 
+
 class TestChecker(unittest.TestCase):
+    """
+    Clase de pruebas unitarias para la clase Checker.
+    
+    Valida que las fichas se creen correctamente, mantengan su color
+    y puedan ser representadas como strings.
+    
+    Methods
+    -------
+    test_init_white()
+        Verifica la creación de una ficha blanca
+    test_init_black()
+        Verifica la creación de una ficha negra
+    test_get_color()
+        Verifica la obtención del color de la ficha
+    test_str()
+        Verifica la representación en string de la ficha
+    """
+    
     def test_initialization_valid_color(self):
         """
         Verifica que una ficha se inicializa correctamente con un color válido.

@@ -46,7 +46,6 @@ class TestDice(unittest.TestCase):
     test_is_double_false()
         Verifica que no se detecten dobles cuando los valores difieren
     """
-    
     def setUp(self):
         self.dice = Dice()
 
