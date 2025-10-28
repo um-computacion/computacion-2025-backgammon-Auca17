@@ -86,9 +86,7 @@ class Game:
         Reinicia el juego para una nueva partida.
         """
         # Corrección imprescindible: el constructor necesita el tablero y los dados.
-        self.__init__(
-            self.__players__[0], self.__players__[1], self.__board__, self.__dice__
-        )
+        self.__init__(self.__players__[0], self.__players__[1], self.__board__, self.__dice__)
 
     def get_current_player(self):
         """
