@@ -202,6 +202,7 @@ class TestCLI(unittest.TestCase):
         mock_game_instance.get_possible_moves.return_value = []
 
         cli.main()
+
         self.assertIn(
             call("No tienes movimientos posibles. El turno pasa al siguiente jugador."),
             mock_print.call_args_list,
@@ -221,10 +222,12 @@ class TestCLI(unittest.TestCase):
         """
         mock_game_instance = mock_game_cls.return_value
         mock_game_instance.is_over.side_effect = [False, True, True]
+
         mock_player = Mock()
         mock_player.get_name.return_value = "Alice"
         mock_player.__color__ = "white"
         mock_game_instance.get_current_player.return_value = mock_player
+
         mock_game_instance.get_possible_moves.return_value = [(0, 1)]
         mock_game_instance.get_dice_values.return_value = []  # No hay dados
 
@@ -245,10 +248,12 @@ class TestCLI(unittest.TestCase):
         """
         mock_game_instance = mock_game_cls.return_value
         mock_game_instance.is_over.side_effect = [False, True, True]
+
         mock_player = Mock()
         mock_player.get_name.return_value = "Alice"
         mock_player.__color__ = "white"
         mock_game_instance.get_current_player.return_value = mock_player
+
         mock_game_instance.get_dice_values.return_value = [1]
         mock_game_instance.get_possible_moves.return_value = [(0, 1)]
         mock_game_instance.make_move.side_effect = IndexError(
@@ -277,6 +282,7 @@ class TestCLI(unittest.TestCase):
         mock_game_instance.get_winner.return_value = None
 
         cli.main()
+
         self.assertIn(call("\n¡Juego terminado!"), mock_print.call_args_list)
 
 
