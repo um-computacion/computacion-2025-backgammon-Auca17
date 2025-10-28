@@ -7,6 +7,13 @@ from core.game import Game
 from core.player import Player
 from core.board import Board
 from core.dice import Dice
+from core.exceptions import (
+    BackgammonException,
+    InvalidMoveException,
+    OutOfBoundsException,
+    InsufficientDiceException,
+    NoPiecesException,
+)
 
 
 class TestBackgammonExceptions(unittest.TestCase):
@@ -56,19 +63,6 @@ class TestBackgammonExceptions(unittest.TestCase):
             self.__game__.make_move(0, 5)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
-from core.exceptions import (
-    BackgammonException,
-    InvalidMoveException,
-    OutOfBoundsException,
-    InsufficientDiceException,
-    NoPiecesException,
-)
-
-
 class TestCustomExceptions(unittest.TestCase):
     """
     Clase de pruebas para verificar la instanciación de las excepciones personalizadas.
@@ -83,3 +77,7 @@ class TestCustomExceptions(unittest.TestCase):
         self.assertIsInstance(OutOfBoundsException(), OutOfBoundsException)
         self.assertIsInstance(InsufficientDiceException(), InsufficientDiceException)
         self.assertIsInstance(NoPiecesException(), NoPiecesException)
+
+
+if __name__ == "__main__":
+    unittest.main()

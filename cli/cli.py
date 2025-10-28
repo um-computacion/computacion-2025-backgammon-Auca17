@@ -39,7 +39,7 @@ def _decide_first_player(player1_name, player2_name):
         if d1 > d2:
             print(f"¡{player1_name} empieza!")
             return 0
-        elif d2 > d1:
+        if d2 > d1:
             print(f"¡{player2_name} empieza!")
             return 1
         else:
@@ -91,7 +91,8 @@ def main():
         print("\n" + "=" * 50)
         __current_player__ = __game__.get_current_player()
         print(
-            f"Turno de {__current_player__.get_name()} ({'O' if __current_player__.__color__ == 'white' else 'X'})."
+            f"Turno de {__current_player__.get_player_name()} "
+            f"({'O' if __current_player__.__color__ == 'white' else 'X'})."
         )
         print(f"Tirada de dados: {__game__.get_dice_values()}")
 
@@ -129,7 +130,7 @@ def main():
     if __game__.is_over():
         __winner__ = __game__.get_winner()
         if __winner__:
-            print(f"\n¡Juego terminado! ¡{__winner__.get_name()} gana!")
+            print(f"\n¡Juego terminado! ¡{__winner__.get_player_name()} gana!")
         else:
             print("\n¡Juego terminado!")
 

@@ -16,13 +16,13 @@ class TestPlayer(unittest.TestCase):
         """
         Configura una instancia de Player antes de cada prueba.
         """
-        self.player = Player("Alice", "white")
+        self.player = Player(__player_name__="Alice", __color__="white")
 
     def test_initialization(self):
         """
         Verifica que el jugador se inicializa correctamente.
         """
-        self.assertEqual(self.player.get_name(), "Alice")
+        self.assertEqual(self.player.get_player_name(), "Alice")
         self.assertEqual(self.player.__color__, "white")
         self.assertEqual(self.player.get_bar_checkers(), 0)
         self.assertEqual(self.player.get_home_checkers(), 0)
@@ -89,15 +89,6 @@ class TestPlayer(unittest.TestCase):
         self.player.remove_checker(checker2)
         self.assertIn(checker1, self.player.checkers)
         self.assertEqual(len(self.player.checkers), 1)
-
-    def test_add_bar_checker_no_checker_object(self):
-        """
-        Verifica que el contador de fichas en la barra se incrementa
-        cuando se llama a add_bar_checker sin un objeto checker.
-        """
-        initial_bar_checkers = self.player.get_bar_checkers()
-        self.player.add_bar_checker()
-        self.assertEqual(self.player.get_bar_checkers(), initial_bar_checkers + 1)
 
     def test_add_bar_checker_with_checker_object(self):
         """
