@@ -1,3 +1,16 @@
+"""
+Módulo de pruebas unitarias para la clase Dice del juego Backgammon.
+
+Este módulo contiene las pruebas que validan el correcto funcionamiento
+de la clase Dice, incluyendo la inicialización, tirada de dados,
+obtención de valores y detección de dobles.
+
+Classes
+-------
+TestDice
+    Clase de pruebas unitarias para la clase Dice
+"""
+
 import unittest
 from unittest.mock import patch
 from core.dice import Dice
@@ -6,6 +19,34 @@ from core.dice import Dice
 
 
 class TestDice(unittest.TestCase):
+    """
+    Clase de pruebas unitarias para la clase Dice.
+    
+    Esta clase agrupa todas las pruebas relacionadas con el comportamiento
+    de los dados del juego, asegurando que las operaciones básicas funcionen
+    correctamente.
+    
+    Attributes
+    ----------
+    dice : Dice
+        Instancia de Dice utilizada en las pruebas
+        
+    Methods
+    -------
+    setUp()
+        Configura el entorno antes de cada prueba
+    test_init()
+        Verifica la inicialización correcta de los dados
+    test_roll()
+        Verifica que la tirada de dados funcione correctamente
+    test_get_values()
+        Verifica la obtención de valores de los dados
+    test_is_double_true()
+        Verifica la detección de dobles cuando los valores son iguales
+    test_is_double_false()
+        Verifica que no se detecten dobles cuando los valores difieren
+    """
+    
     def setUp(self):
         self.dice = Dice()
 
