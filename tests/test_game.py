@@ -3,6 +3,7 @@ Este módulo contiene las pruebas de integración para la clase Game.
 """
 
 import unittest
+from unittest.mock import patch
 from core.game import Game
 from core.player import Player
 from core.board import Board
@@ -423,6 +424,74 @@ class TestGame(unittest.TestCase):
         Verifica que get_winner devuelve None cuando no hay ganador.
         """
         self.assertIsNone(self.__game__.get_winner())
+
+    def test_get_reentry_moves_blocked(self):
+        """
+        Verifica que no se devuelven movimientos de reingreso si los puntos están bloqueados.
+        """
+        # Capturamos una ficha blanca
+        self.__game__.__board__.get_captured("white").append(Checker("white"))
+        self.__game__.__current_turn__ = 0  # Turno de blancas
+        self.__game__.__dice_values__ = [1]  # Mover a la posición 0
+
+        # El punto 0 está bloqueado por dos fichas negras
+        self.__game__.__board__.__points__[0] = [Checker("black"), Checker("black")]
+
+        moves = self.__game__._get_reentry_moves()
+        self.assertEqual(len(moves), 0)
+
+    def test_get_bear_off_moves_invalid_die(self):
+        """
+        Verifica que no se devuelven movimientos de bear off si el dado no es válido.
+        """
+        # Preparamos un escenario donde el jugador blanco puede hacer bear off
+        for i in range(24):
+            self.__game__.__board__.__points__[i] = []
+        self.__game__.__board__.__points__[20] = [Checker("white")]
+        self.__game__.__current_turn__ = 0  # Turno de blancas
+        self.__game__.__dice_values__ = [6]  # Se necesita un 4 para el bear off (24-20)
+
+        moves = self.__game__._get_bear_off_moves()
+        self.assertEqual(len(moves), 0)
+
+    def test_get_normal_moves_blocked(self):
+        """
+        Verifica que no se devuelven movimientos a puntos bloqueados.
+        """
+        # El punto 5 está bloqueado por 5 fichas negras en el setup inicial
+        self.__game__.__current_turn__ = 0  # Turno de blancas
+        self.__game__.__dice_values__ = [5]  # Mover del punto 0 al 5
+
+        moves = self.__game__._get_normal_moves()
+        # Verificamos que el movimiento '0 a 5' no está en la lista de posibles
+        self.assertNotIn("0 a 5", moves)
+
+    def test_validate_bear_off_not_ready(self):
+        """
+        Verifica que se lanza un error si se valida el bear off antes de tiempo.
+        """
+        self.__game__.__current_turn__ = 0  # Turno de blancas
+        # Hay fichas blancas fuera del cuadrante de casa en el setup inicial
+        with self.assertRaises(ValueError):
+            self.__game__._validate_bear_off(self.__game__.get_current_player(), 20)
+
+    @patch("core.game.Game.roll_dice")
+    def test_make_normal_move_and_dice_consumption(self, mock_roll_dice):
+        """
+        Verifica la ejecución de un movimiento normal y el consumo de dado.
+        """
+        self.__game__.__current_turn__ = 0  # Turno de blancas
+        self.__game__.__dice_values__ = [5]
+        initial_count_from = self.__game__.__board__.get_point_count(18)
+
+        # Movemos una ficha negra para que el punto 23 este libre para las blancas
+        self.__game__.__board__.__points__[23] = []
+        self.__game__.make_move(18, 23)
+        self.assertEqual(
+            self.__game__.__board__.get_point_count(18), initial_count_from - 1
+        )
+        self.assertEqual(self.__game__.__board__.get_point_count(23), 1)
+        self.assertEqual(self.__game__.__dice_values__, [])
 
 
 if __name__ == "__main__":

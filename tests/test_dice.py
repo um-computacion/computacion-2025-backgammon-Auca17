@@ -21,16 +21,16 @@ from core.dice import Dice
 class TestDice(unittest.TestCase):
     """
     Clase de pruebas unitarias para la clase Dice.
-    
+
     Esta clase agrupa todas las pruebas relacionadas con el comportamiento
     de los dados del juego, asegurando que las operaciones básicas funcionen
     correctamente.
-    
+
     Attributes
     ----------
     dice : Dice
         Instancia de Dice utilizada en las pruebas
-        
+
     Methods
     -------
     setUp()
@@ -46,6 +46,7 @@ class TestDice(unittest.TestCase):
     test_is_double_false()
         Verifica que no se detecten dobles cuando los valores difieren
     """
+
     def setUp(self):
         self.dice = Dice()
 

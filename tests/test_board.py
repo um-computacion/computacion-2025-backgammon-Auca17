@@ -5,14 +5,15 @@ Este módulo contiene las pruebas unitarias para la clase Board.
 import unittest
 from core.board import Board
 
+
 class TestBoard(unittest.TestCase):
     """
     Clase de pruebas unitarias para la clase Board.
-    
+
     Valida el correcto funcionamiento del tablero de Backgammon, incluyendo
     la inicialización, movimientos de fichas, capturas, bear-off y reingreso
     desde la barra.
-    
+
     Methods
     -------
     setUp()
@@ -202,6 +203,28 @@ class TestBoard(unittest.TestCase):
 
         representation = self.board.get_2d_representation()
         self.assertIn("W:1 B:1", representation)
+
+    def test_bear_off_checker_wrong_color(self):
+        """
+        Verifica que se lanza un ValueError al intentar hacer bear off de una ficha
+        desde un punto que contiene fichas del color opuesto.
+        """
+        # El punto 0 contiene fichas blancas. Intentamos hacer bear off de una negra.
+        with self.assertRaises(ValueError):
+            self.board.bear_off("black", 0)
+
+    def test_get_home(self):
+        """
+        Verifica que get_home devuelve la lista correcta de fichas que han salido.
+        """
+        # Preparamos el escenario: vaciamos el punto 23 y movemos una ficha blanca allí.
+        self.board.get_point(23).pop()
+        self.board.get_point(23).pop()
+        self.board.move_checker("white", 18, 23)
+        self.board.bear_off("white", 23)
+        home_checkers = self.board.get_home("white")
+        self.assertEqual(len(home_checkers), 1)
+        self.assertEqual(home_checkers[0].__color__, "white")
 
 
 if __name__ == "__main__":

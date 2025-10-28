@@ -8,6 +8,7 @@ from core.player import Player
 from core.board import Board
 from core.dice import Dice
 
+
 def _get_player_names():
     """Solicita y valida los nombres de los jugadores."""
     player1_name = ""

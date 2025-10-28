@@ -1,6 +1,7 @@
 """
 Este módulo contiene pruebas para verificar el manejo de excepciones y errores.
 """
+
 import unittest
 from core.game import Game
 from core.player import Player
@@ -57,3 +58,27 @@ class TestBackgammonExceptions(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+from core.exceptions import (
+    BackgammonException,
+    InvalidMoveException,
+    OutOfBoundsException,
+    InsufficientDiceException,
+    NoPiecesException,
+)
+
+
+class TestCustomExceptions(unittest.TestCase):
+    """
+    Clase de pruebas para verificar la instanciación de las excepciones personalizadas.
+    """
+
+    def test_exception_instantiation(self):
+        """
+        Verifica que todas las excepciones personalizadas se pueden instanciar.
+        """
+        self.assertIsInstance(BackgammonException(), BackgammonException)
+        self.assertIsInstance(InvalidMoveException(), InvalidMoveException)
+        self.assertIsInstance(OutOfBoundsException(), OutOfBoundsException)
+        self.assertIsInstance(InsufficientDiceException(), InsufficientDiceException)
+        self.assertIsInstance(NoPiecesException(), NoPiecesException)

@@ -10,6 +10,7 @@ Player
     Representa un jugador del juego con sus propiedades y estado
 """
 
+
 class Player:
     """
     Representa a un jugador de Backgammon.

@@ -13,6 +13,7 @@ Board
 
 from core.checker import Checker
 
+
 class Board:
     """
     Representa el tablero de Backgammon.
