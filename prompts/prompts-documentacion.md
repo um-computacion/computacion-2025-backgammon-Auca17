@@ -1,13 +1,13 @@
-## Prompt: Generación de Diagrama de Clases UML en Mermaid para carpeta Core
+# Registro de prompt y respuesta IA respecto a documentacion
 
-**Fecha:** 28 de octubre de 2025
+## Prompt: Generación de Diagrama de Clases UML en Mermaid para carpeta Core
 
 **Modelo / Herramienta:** GitHub Copilot (Claude Sonnet 4.5)
 
-**Prompt exacto: generar un diagrama de clases UML para Core**
-
+### Prompt exacto: generar un diagrama de clases UML para Core
 
 **Instrucciones del sistema:**
+
 - Siempre seguir los principios SOLID
 - Incluir docstrings y comentarios claros en el código generado
 - Proporcionar explicación detallada para cada prompt
@@ -18,6 +18,7 @@
 El usuario solicitó un diagrama de clases UML en formato Mermaid que represente todas las clases del paquete `core/` del proyecto Backgammon. Se adjuntó el archivo `dice.py` como referencia activa y un diagrama previo existente.
 
 **Archivos analizados:**
+
 - `core/board.py` - Clase Board (gestión del tablero)
 - `core/checker.py` - Clase Checker (fichas)
 - `core/dice.py` - Clase Dice (dados)
@@ -25,9 +26,9 @@ El usuario solicitó un diagrama de clases UML en formato Mermaid que represente
 - `core/player.py` - Clase Player (jugadores)
 - `core/exceptions.py` - Excepciones personalizadas
 
-### Respuesta / Resultado completo:
+### Respuesta / Resultado completo
 
-# Diagrama de Clases - Carpeta Core
+## Diagrama de clases - carpeta /core
 
 ```mermaid
 classDiagram
