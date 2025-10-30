@@ -11,10 +11,6 @@ Game
     Clase principal que controla el flujo del juego Backgammon
 """
 
-from core.board import Board
-from core.player import Player
-from core.dice import Dice
-
 
 class Game:
     """
@@ -85,10 +81,12 @@ class Game:
         """
         Reinicia el juego para una nueva partida.
         """
-        # Corrección imprescindible: el constructor necesita el tablero y los dados.
-        self.__init__(
-            self.__players__[0], self.__players__[1], self.__board__, self.__dice__
-        )
+        self.__board__.__init__()  # Reinicia el tablero a su estado inicial
+        self.__current_turn__ = 0
+        self.__history__ = []
+        self.__winner__ = None
+        self.__dice_values__ = []
+        self.start()  # Realiza la primera tirada de dados
 
     def get_current_player(self):
         """
@@ -117,10 +115,10 @@ class Game:
 
         if self.__board__.get_captured(__player__.__color__):
             return self._get_reentry_moves()
-        elif self._can_bear_off(__player__):
+        if self._can_bear_off(__player__):
             return self._get_bear_off_moves()
-        else:
-            return self._get_normal_moves()
+
+        return self._get_normal_moves()
 
     def _get_reentry_moves(self):
         """Calcula los movimientos de reingreso posibles desde la barra."""
@@ -149,13 +147,12 @@ class Game:
                 and self.__board__.get_point(__from_pos__)[-1].__color__
                 == __player__.__color__
             ):
-                for __die__ in set(__dice__):
-                    try:
-                        if self._validate_bear_off(__player__, __from_pos__):
-                            __to_pos__ = 24 if __player__.__color__ == "white" else -1
-                            __possible_moves__.append(f"{__from_pos__} a {__to_pos__}")
-                    except ValueError:
-                        continue
+                try:
+                    if self._validate_bear_off(__player__, __from_pos__):
+                        __to_pos__ = 24 if __player__.__color__ == "white" else -1
+                        __possible_moves__.append(f"{__from_pos__} a {__to_pos__}")
+                except ValueError:
+                    continue
         return __possible_moves__
 
     def _get_normal_moves(self):
@@ -284,7 +281,7 @@ class Game:
         Delega la ejecución a métodos helper según el tipo de movimiento.
         """
         __player__ = self.get_current_player()
-        is_bear_off = __to_pos__ == 24 or __to_pos__ == -1
+        is_bear_off = __to_pos__ in (24, -1)
 
         if is_bear_off:
             self._execute_bear_off(__player__, __from_pos__)

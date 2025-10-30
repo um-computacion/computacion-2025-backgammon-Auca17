@@ -13,14 +13,18 @@ Board
 
 from core.checker import Checker
 
+
 class Board:
     """
     Representa el tablero de Backgammon.
 
     Atributos:
-        __points__ (list): Una lista de 24 listas, donde cada una representa un punto en el tablero.
-        __captured__ (dict): Un diccionario que almacena las fichas capturadas de cada color.
-        __home__ (dict): Un diccionario que almacena las fichas que han salido del tablero para cada color.
+        __points__ (list): Una lista de 24 listas, donde cada una representa
+                           un punto en el tablero.
+        __captured__ (dict): Un diccionario que almacena las fichas capturadas
+                             de cada color.
+        __home__ (dict): Un diccionario que almacena las fichas que han salido
+                         del tablero para cada color.
     """
 
     def __init__(self):

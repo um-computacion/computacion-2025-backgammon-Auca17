@@ -11,6 +11,7 @@ Checker
     Representa una ficha individual del juego
 """
 
+
 class Checker:
     """
     Representa una ficha de Backgammon.

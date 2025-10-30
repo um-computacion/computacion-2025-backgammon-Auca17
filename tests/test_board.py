@@ -4,15 +4,17 @@ Este módulo contiene las pruebas unitarias para la clase Board.
 
 import unittest
 from core.board import Board
+from core.checker import Checker
+
 
 class TestBoard(unittest.TestCase):
     """
     Clase de pruebas unitarias para la clase Board.
-    
+
     Valida el correcto funcionamiento del tablero de Backgammon, incluyendo
     la inicialización, movimientos de fichas, capturas, bear-off y reingreso
     desde la barra.
-    
+
     Methods
     -------
     setUp()
@@ -202,6 +204,58 @@ class TestBoard(unittest.TestCase):
 
         representation = self.board.get_2d_representation()
         self.assertIn("W:1 B:1", representation)
+
+    def test_bear_off_checker_wrong_color(self):
+        """
+        Verifica que se lanza un ValueError al intentar hacer bear off de una ficha
+        desde un punto que contiene fichas del color opuesto.
+        """
+        # El punto 0 contiene fichas blancas. Intentamos hacer bear off de una negra.
+        with self.assertRaises(ValueError):
+            self.board.bear_off("black", 0)
+
+    def test_get_home(self):
+        """
+        Verifica que get_home devuelve la lista correcta de fichas que han salido.
+        """
+        # Preparamos el escenario: vaciamos el punto 23 y movemos una ficha blanca allí.
+        self.board.get_point(23).pop()
+        self.board.get_point(23).pop()
+        self.board.move_checker("white", 18, 23)
+
+        self.board.bear_off("white", 23)
+        home_checkers = self.board.get_home("white")
+        self.assertEqual(len(home_checkers), 1)
+        self.assertEqual(home_checkers[0].__color__, "white")
+
+    def test_enter_from_captured_and_capture(self):
+        """
+        Verifica que reingresar una ficha a un punto con una sola ficha oponente la captura.
+        """
+        # Preparamos el escenario: una ficha negra solitaria en el punto 2.
+        self.board.move_checker("black", 23, 2)
+        # Capturamos una ficha blanca para tenerla en la barra.
+        self.board.get_point(0).pop()  # Vaciamos el punto
+        self.board.move_checker("black", 12, 0)
+
+        # Ahora, la ficha blanca reingresa al punto 2, capturando a la negra.
+        self.board.enter_from_captured("white", 2)
+
+        self.assertEqual(len(self.board.get_captured("white")), 0)
+        self.assertEqual(len(self.board.get_captured("black")), 1)
+        self.assertEqual(self.board.get_point_count(2), 1)
+        self.assertEqual(self.board.get_point(2)[0].__color__, "white")
+
+    def test_get_2d_representation_with_stack_counter(self):
+        """
+        Verifica que la representación 2D muestra un contador para más de 5 fichas.
+        """
+        # Añadimos fichas al punto 0 para que tenga 6 fichas blancas.
+        for _ in range(4):
+            self.board.get_point(0).append(Checker("white"))
+
+        representation = self.board.get_2d_representation()
+        self.assertIn("x6", representation)
 
 
 if __name__ == "__main__":

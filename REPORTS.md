@@ -1,6 +1,7 @@
 # Automated Reports
 
 ## Coverage Report
+
 ```text
 Name                 Stmts   Miss  Cover   Missing
 --------------------------------------------------
@@ -19,6 +20,7 @@ TOTAL                  396     94    76%
 ```
 
 ## Pylint Report
+
 ```text
 ************* Module pygame_ui.main
 pygame_ui/main.py:1167:0: C0303: Trailing whitespace (trailing-whitespace)

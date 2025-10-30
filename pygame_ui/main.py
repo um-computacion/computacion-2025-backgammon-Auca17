@@ -1164,15 +1164,14 @@ def main_loop():
     pygame.quit()
 
 
-    
 def handle_play_events(event, game_data, legal_moves):
     """
     Maneja los eventos durante la fase de juego principal.
-    
+
     Esta función procesa los clics del ratón y pulsaciones de teclas durante
     la partida activa, gestionando la selección de fichas, validación de movimientos
     y cambios de turno.
-    
+
     Parameters
     ----------
     event : pygame.event.Event
@@ -1191,13 +1190,13 @@ def handle_play_events(event, game_data, legal_moves):
         Diccionario de movimientos legales disponibles donde:
         - Las claves son los puntos de origen (1-24, 'BAR')
         - Los valores son listas de destinos válidos (1-24, 'OFF')
-        
+
     Returns
     -------
     tuple
         Tupla (game_data, legal_moves) con el estado actualizado después
         de procesar el evento
-        
+
     Notes
     -----
     - Si se presiona ESPACIO, se lanzan los dados

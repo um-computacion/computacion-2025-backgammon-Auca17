@@ -10,38 +10,39 @@ Player
     Representa un jugador del juego con sus propiedades y estado
 """
 
+
 class Player:
     """
     Representa a un jugador de Backgammon.
 
     Atributos:
-        __name__ (str): El nombre del jugador.
+        __player_name__ (str): El nombre del jugador.
         __color__ (str): El color de las fichas del jugador.
         __checkers__ (list): Una lista de las fichas del jugador.
         __bar_checkers__ (int): El número de fichas en la barra.
         __home_checkers__ (int): El número de fichas en el cuadrante de casa.
     """
 
-    def __init__(self, __name__, __color__, __checkers__=None):
+    def __init__(self, __player_name__, __color__, __checkers__=None):
         """
         Inicializa un jugador con un nombre, color y una lista opcional de fichas.
 
         Args:
-            __name__ (str): El nombre del jugador.
+            __player_name__ (str): El nombre del jugador.
             __color__ (str): El color de las fichas del jugador.
             __checkers__ (list, opcional): Una lista de las fichas del jugador. Por defecto es None.
         """
-        self.__name__ = __name__
+        self.__player_name__ = __player_name__
         self.__color__ = __color__
         self.__checkers__ = __checkers__ if __checkers__ is not None else []
         self.__bar_checkers__ = 0
         self.__home_checkers__ = 0
 
-    def get_name(self):
+    def get_player_name(self):
         """
         Devuelve el nombre del jugador.
         """
-        return self.__name__
+        return self.__player_name__
 
     def add_bar_checker(self, __checker__=None):
         """
