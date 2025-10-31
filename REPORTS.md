@@ -1,7 +1,6 @@
 # Automated Reports
 
 ## Coverage Report
-
 ```text
 Name                 Stmts   Miss  Cover   Missing
 --------------------------------------------------
@@ -20,7 +19,6 @@ TOTAL                  397     10    97%
 ```
 
 ## Pylint Report
-
 ```text
 ************* Module pygame_ui.main
 pygame_ui/main.py:1:0: C0302: Too many lines in module (1283/1000) (too-many-lines)
@@ -77,14 +75,13 @@ cli/cli.py:42:8: R1705: Unnecessary "else" after "return", remove the "else" and
 core/game.py:84:8: C2801: Unnecessarily calls dunder method __init__. Instantiate class directly. (unnecessary-dunder-call)
 core/game.py:143:8: W0612: Unused variable '__dice__' (unused-variable)
 ************* Module tests.test_game
-tests/test_game.py:235:8: W0612: Unused variable 'player' (unused-variable)
-tests/test_game.py:346:8: W0612: Unused variable 'player' (unused-variable)
-tests/test_game.py:14:0: R0904: Too many public methods (30/20) (too-many-public-methods)
-tests/test_game.py:6:0: W0611: Unused patch imported from unittest.mock (unused-import)
+tests/test_game.py:234:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:345:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:13:0: R0904: Too many public methods (30/20) (too-many-public-methods)
 ************* Module tests.test_board
 tests/test_board.py:1:0: R0801: Similar lines in 2 files
 ==tests.test_exceptions:[29:37]
-==tests.test_game:[24:37]
+==tests.test_game:[23:36]
         self.__board__ = Board()
         self.__dice__ = Dice()
         self.__game__ = Game(
@@ -95,7 +92,7 @@ tests/test_board.py:1:0: R0801: Similar lines in 2 files
         ) (duplicate-code)
 
 -----------------------------------
-Your code has been rated at 9.25/10
+Your code has been rated at 9.26/10
 
 
 ```
