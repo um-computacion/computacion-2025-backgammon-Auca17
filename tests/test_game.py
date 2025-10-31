@@ -3,7 +3,6 @@ Este módulo contiene las pruebas de integración para la clase Game.
 """
 
 import unittest
-from unittest.mock import patch
 from core.game import Game
 from core.player import Player
 from core.board import Board
