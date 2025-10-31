@@ -322,7 +322,7 @@ def test_main_game_exit(self, mock_stdout, _mock_input, _mock_game_cls): #<-- Co
 **Texto exacto del prompt:**
 
 ```text
-Bien, nunca te pedi tanto, solo quiero un README.md con mi nombre, en el que se muestren Prerequisitos, de todo para correr, quiero que verifiques si se puede hacer un pip install -r requirementes, para que se instalen los requerimientos. Por otro lado expliques como funciona el pygame, que botones usa. Y como funciona el Cli de una manera super detallada para que no se salte nada. Haz un how to play cli y how to play pygame_ui, por ahora haz eso.
+Bien, solo quiero un README.md con mi nombre, en el que se muestren Prerequisitos, de todo para correr, quiero que verifiques si se puede hacer un pip install -r requirementes, para que se instalen los requerimientos. Por otro lado expliques como funciona el pygame, que botones usa. Y como funciona el Cli de una manera super detallada para que no se salte nada. Haz un how to play cli y how to play pygame_ui, por ahora haz eso.
 ```
 
 **Instrucciones del sistema:**

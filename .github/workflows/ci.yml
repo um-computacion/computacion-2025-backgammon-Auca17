@@ -10,7 +10,7 @@ jobs:
   build-and-analyze:
     runs-on: ubuntu-latest
     env:
-      PYTHONPATH: .  # para que los imports "from core..." funcionen en discover
+      PYTHONPATH: .  
 
     permissions:
       contents: write
