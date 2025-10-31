@@ -5,7 +5,8 @@
 **Modelo/herramienta usada:** GitHub Copilot (Claude Sonnet 4.5)
 
 **Texto exacto del prompt:**
-```
+
+```text
 generar un diagrama de clases UML para Core
 ```
 
@@ -311,5 +312,160 @@ def test_main_game_exit(self, mock_stdout, _mock_input, _mock_game_cls): #<-- Co
 - tests/* (todos los archivos de tests)
 
 **Resultado final:** Puntuación de Pylint incrementada de ~7.5/10 a **9.57/10**
+
+---
+
+## Prompt #3: Creación de README.md Conciso
+
+**Modelo/herramienta usada:** GitHub Copilot (Claude Sonnet 4.5)
+
+**Texto exacto del prompt:**
+
+```text
+Bien, nunca te pedi tanto, solo quiero un README.md con mi nombre, en el que se muestren Prerequisitos, de todo para correr, quiero que verifiques si se puede hacer un pip install -r requirementes, para que se instalen los requerimientos. Por otro lado expliques como funciona el pygame, que botones usa. Y como funciona el Cli de una manera super detallada para que no se salte nada. Haz un how to play cli y how to play pygame_ui, por ahora haz eso.
+```
+
+**Instrucciones del sistema:**
+
+- Siempre seguir los principios SOLID
+- Incluir docstrings y comentarios claros en el código generado
+- Proporcionar explicación detallada para cada prompt
+- Documentar cada prompt en archivos específicos
+
+**Contexto:**
+
+El usuario solicitó un README.md conciso (menos de 80 líneas) con:
+
+- Información del autor
+- Prerequisitos de instalación
+- Verificación de `pip install -r requirements.txt`
+- Guía detallada de cómo jugar en CLI
+- Guía detallada de cómo jugar en Pygame
+- Explicación de botones y controles
+
+**Respuesta/resultado completo devuelto por la IA:**
+
+```markdown
+# Backgammon
+
+Un juego de Backgammon implementado en Python con dos interfaces: una gráfica con Pygame y otra de línea de comandos.
+
+**Autor:** Augustus Rufino
+
+---
+
+## Prerrequisitos
+
+Asegúrate de tener Python instalado en tu sistema. Se recomienda usar **Python 3.8** o una versión superior.
+
+### 1. Crear Entorno Virtual
+
+Para mantener las dependencias aisladas, crea un entorno virtual:
+```bash
+python -m venv .venv
+```
+
+### 2. Activar Entorno Virtual
+
+Una vez creado, actívalo. El comando puede variar según tu sistema operativo y terminal:
+
+- **En Windows (usando Git Bash o similar):**
+
+    ```bash
+    source .venv/Scripts/activate
+    ```
+
+- **En Windows (usando Command Prompt o PowerShell):**
+
+    ```bash
+    .venv\Scripts\activate
+    ```
+
+- **En macOS / Linux:**
+
+    ```bash
+    source .venv/bin/activate
+    ```
+
+### 3. Instalar Dependencias
+
+Con el entorno virtual activado, instala las dependencias del proyecto:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Cómo Jugar
+
+Este proyecto incluye dos formas de jugar: una interfaz gráfica y una interfaz de línea de comandos.
+
+### Interfaz Gráfica (Pygame)
+
+Para iniciar la versión visual del juego, ejecuta el siguiente comando:
+
+```bash
+python pygame_ui/main.py
+```
+
+### Interfaz de Línea de Comandos (CLI)
+
+Para jugar en la terminal, utiliza este comando:
+
+```bash
+python cli/cli.py
+```
+
+---
+
+## Uso de la Interfaz Gráfica (Pygame)
+
+La interfaz gráfica ofrece una experiencia visual completa. El flujo del juego es el siguiente:
+
+1. **Menú Principal**: Inicia seleccionando "Jugador vs Jugador".
+2. **Entrada de Nombres**: Introduce los nombres para ambos jugadores.
+3. **Tirada Inicial**: La pantalla mostrará una tirada de un dado por jugador para decidir quién empieza. Presiona la barra espaciadora para continuar.
+4. **Juego Principal**: ¡Empieza a jugar!
+
+### Controles
+
+***Clic del Ratón**:
+
+- Haz clic en una de tus fichas para seleccionarla (se resaltará).
+- Haz clic en un punto de destino válido para mover la ficha.
+- **Barra Espaciadora**: Úsala al inicio de tu turno para tirar los dados.
+- **Tecla R**: Presiónala en cualquier momento durante la partida para reiniciar el juego y volver al menú principal.
+
+---
+
+## Uso de la Interfaz de Comandos (CLI)
+
+La versión CLI es ideal para jugar en un entorno de texto. El juego te guiará a través de los pasos:
+
+1. **Nombres de Jugadores**: El juego te pedirá que introduzcas los nombres de ambos jugadores al inicio.
+2. **Tirada Inicial**: Se realizará una tirada automática para decidir quién comienza.
+3. **Juego Principal**: El juego mostrará el tablero, la tirada de dados y una lista de todos los movimientos posibles en cada turno.
+
+### Comandos
+
+***Hacer un Movimiento**: Cuando se te pida, introduce tu movimiento con el formato `desde hasta`. Por ejemplo, para mover una ficha del punto 18 al 23, escribe:
+
+``` text
+    18 23
+```
+
+***Salir del Juego**: Para terminar la partida en cualquier momento, escribe `salir` y presiona Enter.
+
+**Estado de la salida:** ✅ Usado sin cambios
+
+El README generado fue verificado con:
+
+- Confirmación de existencia de `requirements.txt`
+- Validación de dependencias: pygame, coverage, pylint
+- Formato conciso y claro
+- Guías detalladas de uso para ambas interfaces
+
+**Referencia a archivos finales:** `README.md`
 
 ---
