@@ -188,8 +188,8 @@ class Board:
                 return "   "
             # Filas de fichas visibles
             if len(point) > row:
-                checker = "O" if point[row].__color__ == "white" else "X"
-                return f" {checker} "
+                checker = "B" if point[row].__color__ == "white" else "N"
+                return f"  {checker}"  # Dos espacios antes para centrar
             return "   "
 
         # Encabezados de números de puntos
@@ -214,7 +214,7 @@ class Board:
         # Barra central con conteo de fichas capturadas
         white_captured = len(self.__captured__["white"])
         black_captured = len(self.__captured__["black"])
-        bar_display = f"W:{white_captured} B:{black_captured}"
+        bar_display = f"B:{white_captured} N:{black_captured}"
         board_str += (
             f"                     |{bar_display.center(5)}|                     \n"
         )

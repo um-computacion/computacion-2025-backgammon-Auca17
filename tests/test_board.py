@@ -203,7 +203,7 @@ class TestBoard(unittest.TestCase):
         self.board.move_checker("white", 11, 23)
 
         representation = self.board.get_2d_representation()
-        self.assertIn("W:1 B:1", representation)
+        self.assertIn("B:1 N:1", representation)
 
     def test_bear_off_checker_wrong_color(self):
         """
