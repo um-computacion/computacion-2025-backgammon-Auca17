@@ -1,0 +1,43 @@
+# .dockerignore
+# Archivos y carpetas que NO deben copiarse al contenedor Docker
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Tests y reportes
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Documentación de desarrollo (opcional, puedes comentar si quieres incluirla)
+# prompts/
+# CHANGELOG.md

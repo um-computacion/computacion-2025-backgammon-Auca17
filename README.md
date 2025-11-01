@@ -50,6 +50,104 @@ pip install -r requirements.txt
 
 ---
 
+## 🐳 Uso con Docker (Recomendado para Portabilidad)
+
+Docker permite ejecutar el proyecto en cualquier computadora sin necesidad de instalar Python ni dependencias manualmente. Esta es la forma más fácil de compartir y ejecutar el proyecto.
+
+### Requisitos Previos
+
+* **Docker Desktop** instalado y corriendo
+  * Windows/Mac: [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+  * Linux: [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)
+
+### Verificar Instalación
+
+```bash
+docker --version
+docker-compose --version
+```
+
+### Primera Vez: Construir la Imagen
+
+```bash
+docker-compose build
+```
+
+Este comando:
+
+* Descarga Python 3.11
+* Instala todas las dependencias automáticamente
+* Empaqueta todo el proyecto
+* Crea una imagen lista para usar (~68 MB)
+
+### Ejecutar el CLI (Jugar)
+
+```bash
+docker-compose run --rm backgammon-cli
+```
+
+### Ejecutar los Tests
+
+```bash
+docker-compose run --rm backgammon-tests
+```
+
+### Ver Cobertura de Código
+
+```bash
+docker-compose run --rm backgammon-coverage
+```
+
+### Distribución a Otra Computadora
+
+**Opción 1: Con Git (Recomendado)**
+
+```bash
+# En la nueva computadora:
+git clone https://github.com/um-computacion/computacion-2025-backgammon-Auca17.git
+cd computacion-2025-backgammon-Auca17
+docker-compose build
+docker-compose run --rm backgammon-cli
+```
+
+**Opción 2: Exportar/Importar Imagen Docker**
+
+```bash
+# En tu computadora:
+docker save backgammon-game:latest -o backgammon-game.tar
+
+# Copia el archivo .tar a la otra computadora, luego:
+docker load -i backgammon-game.tar
+docker-compose run --rm backgammon-cli
+```
+
+### Comandos Útiles
+
+```bash
+# Ver imágenes Docker
+docker images
+
+# Reconstruir si modificas el código
+docker-compose build
+
+# Limpiar contenedores detenidos
+docker container prune -f
+
+# Eliminar imagen del proyecto
+docker rmi backgammon-game:latest
+```
+
+### Solución de Problemas
+
+* **Error: "Cannot connect to Docker daemon"**
+  * **Solución:** Abre Docker Desktop y espera a que diga "Engine running"
+* **Error: "Image not found"**
+  * **Solución:** Ejecuta `docker-compose build` primero
+* **Cambios en el código no se reflejan**
+  * **Solución:** Reconstruye con `docker-compose build`
+
+---
+
 ## Cómo Jugar
 
 Este proyecto incluye dos formas de jugar: una interfaz gráfica y una interfaz de línea de comandos.
