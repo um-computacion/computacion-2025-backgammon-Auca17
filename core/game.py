@@ -156,77 +156,76 @@ class Game:
 
     def _get_bear_off_moves(self):
         """
-        Calcula y devuelve todos los movimientos de bear-off válidos, incluyendo
-        movimientos exactos y la regla del 'overshoot'.
+        Calcula y devuelve todos los movimientos de bear-off válidos.
+        
+        Reglas:
+        1. Coincidencia exacta: Si el dado coincide con la distancia → sacar ficha
+        2. Ficha más lejana: Si NO hay coincidencia exacta para un dado → 
+           permitir sacar la ficha más lejana disponible
         """
         possible_moves = []
         player = self.get_current_player()
-        dice_values = set(self.get_dice_values())
-        home_board_range = range(18, 24) if player.__color__ == "white" else range(6)
-
-        # 1. Movimientos exactos
-        for from_pos in home_board_range:
-            if (
-                self.__board__.get_point_count(from_pos) > 0
-                and self.__board__.get_point(from_pos)[-1].__color__ == player.__color__
-            ):
-                for die in dice_values:
-                    try:
-                        if self._validate_bear_off(player, from_pos, die):
-                            possible_moves.append(f"sacar {from_pos + 1}")
-                    except (ValueError, IndexError):
-                        continue
-
-        # 2. Regla del 'overshoot'
-        # Si un dado es mayor que la ficha de mayor numeración y no hay otros
-        # movimientos posibles para ese dado, se puede usar para sacar esa ficha.
-        highest_checker_pos = -1
+        dice_values = list(self.get_dice_values())
+        
         if player.__color__ == "white":
-            for pos in range(18, 24):  # 18 to 23
-                if (
-                    self.__board__.get_point_count(pos) > 0
-                    and self.__board__.get_point(pos)[-1].__color__ == player.__color__
-                ):
-                    highest_checker_pos = pos
+            home_range = range(18, 24)  # 18-23
+        else:
+            home_range = range(0, 6)    # 0-5
+
+        # Encontrar la ficha más lejana (furthest from exit)
+        furthest_checker_pos = None
+        if player.__color__ == "white":
+            # Para blancas: más lejano = número menor (18 es más lejos que 23)
+            for pos in range(18, 24):
+                if (self.__board__.get_point_count(pos) > 0 and 
+                    self.__board__.get_point(pos)[-1].__color__ == player.__color__):
+                    furthest_checker_pos = pos
                     break
-        else:  # Black
-            for pos in range(6):  # 0 to 5
-                if (
-                    self.__board__.get_point_count(pos) > 0
-                    and self.__board__.get_point(pos)[-1].__color__ == player.__color__
-                ):
-                    highest_checker_pos = pos
+        else:
+            # Para negras: más lejano = número menor (0 es más lejos que 5)
+            for pos in range(0, 6):
+                if (self.__board__.get_point_count(pos) > 0 and 
+                    self.__board__.get_point(pos)[-1].__color__ == player.__color__):
+                    furthest_checker_pos = pos
                     break
 
-        if highest_checker_pos != -1:
-            for die in dice_values:
-                is_exact_move_possible_for_die = False
-                for from_pos in home_board_range:
-                    if (
-                        player.__color__ == "white"
-                        and 24 - from_pos == die
-                        and self.__board__.get_point_count(from_pos) > 0
-                    ):
-                        is_exact_move_possible_for_die = True
-                        break
-                    if (
-                        player.__color__ == "black"
-                        and from_pos + 1 == die
-                        and self.__board__.get_point_count(from_pos) > 0
-                    ):
-                        is_exact_move_possible_for_die = True
-                        break
+        # Procesar cada dado
+        for die in set(dice_values):
+            # Buscar coincidencias exactas para este dado
+            exact_match_found = False
+            
+            for from_pos in home_range:
+                if (self.__board__.get_point_count(from_pos) == 0 or
+                    self.__board__.get_point(from_pos)[-1].__color__ != player.__color__):
+                    continue
+                
+                # Calcular distancia a la salida
+                if player.__color__ == "white":
+                    distance = 24 - from_pos  # pos=23 → dist=1, pos=18 → dist=6
+                else:
+                    distance = from_pos + 1   # pos=0 → dist=1, pos=5 → dist=6
+                
+                # Si coincide exactamente
+                if distance == die:
+                    exact_match_found = True
+                    move_str = f"sacar {from_pos + 1}"
+                    if move_str not in possible_moves:
+                        possible_moves.append(move_str)
+            
+            # Si NO hay coincidencia exacta para este dado → usar ficha más lejana
+            if not exact_match_found and furthest_checker_pos is not None:
+                # Verificar que el dado sea mayor o igual a la distancia de la ficha más lejana
+                if player.__color__ == "white":
+                    furthest_distance = 24 - furthest_checker_pos
+                else:
+                    furthest_distance = furthest_checker_pos + 1
+                
+                if die >= furthest_distance:
+                    move_str = f"sacar {furthest_checker_pos + 1}"
+                    if move_str not in possible_moves:
+                        possible_moves.append(move_str)
 
-                if not is_exact_move_possible_for_die:
-                    try:
-                        if self._validate_bear_off(player, highest_checker_pos, die):
-                            move_str = f"sacar {highest_checker_pos + 1}"
-                            if move_str not in possible_moves:
-                                possible_moves.append(move_str)
-                    except (ValueError, IndexError):
-                        continue
-
-        return list(set(possible_moves))
+        return possible_moves
 
     def _get_normal_moves(self):
         """Calcula los movimientos normales posibles en el tablero."""
@@ -308,7 +307,12 @@ class Game:
 
     def _validate_bear_off(self, player, from_pos, die):
         """
-        Valida un movimiento de bear-off, incluyendo la regla del 'overshoot'.
+        Valida un movimiento de bear-off.
+        
+        Reglas:
+        1. Todas las fichas deben estar en home
+        2. Coincidencia exacta: distancia = dado
+        3. Ficha más lejana: Si NO hay coincidencia exacta → permitir sacar la más lejana
         """
         if not self._can_bear_off(player):
             raise ValueError(
@@ -323,42 +327,39 @@ class Game:
         if self.__board__.get_point(from_pos)[-1].__color__ != player.__color__:
             raise ValueError("El jugador no es dueño de la ficha.")
 
-        # 2. Regla del movimiento exacto
-        is_exact_move = False
-        if player.__color__ == "white" and 24 - from_pos == die:
-            is_exact_move = True
-        elif player.__color__ == "black" and from_pos + 1 == die:
-            is_exact_move = True
+        # 2. Calcular distancia a la salida
+        if player.__color__ == "white":
+            distance = 24 - from_pos  # pos=23 → dist=1, pos=18 → dist=6
+        else:
+            distance = from_pos + 1   # pos=0 → dist=1, pos=5 → dist=6
 
-        if is_exact_move:
+        # 3. Regla del movimiento exacto
+        if distance == die:
             return True
 
-        # 3. Regla del "Overshoot"
-        highest_checker_pos = -1
+        # 4. Regla de "ficha más lejana"
+        # Encontrar si esta es la ficha más lejana
+        is_furthest = False
         if player.__color__ == "white":
-            for pos in range(18, 24):  # 18 to 23
-                if (
-                    self.__board__.get_point_count(pos) > 0
-                    and self.__board__.get_point(pos)[-1].__color__ == player.__color__
-                ):
-                    highest_checker_pos = pos
+            # Para blancas: más lejano = número menor
+            is_furthest = True
+            for pos in range(18, from_pos):
+                if (self.__board__.get_point_count(pos) > 0 and 
+                    self.__board__.get_point(pos)[-1].__color__ == player.__color__):
+                    is_furthest = False
                     break
-        else:  # Black
-            for pos in range(6):  # 0 to 5
-                if (
-                    self.__board__.get_point_count(pos) > 0
-                    and self.__board__.get_point(pos)[-1].__color__ == player.__color__
-                ):
-                    highest_checker_pos = pos
+        else:
+            # Para negras: más lejano = número menor
+            is_furthest = True
+            for pos in range(0, from_pos):
+                if (self.__board__.get_point_count(pos) > 0 and 
+                    self.__board__.get_point(pos)[-1].__color__ == player.__color__):
+                    is_furthest = False
                     break
 
-        # El "overshoot" es válido si la ficha está en la posición más alta
-        # y el dado es mayor que la distancia necesaria para sacarla.
-        if from_pos == highest_checker_pos:
-            if player.__color__ == "white" and die > 24 - from_pos:
-                return True
-            if player.__color__ == "black" and die > from_pos + 1:
-                return True
+        # Si es la ficha más lejana y el dado es mayor o igual a la distancia → válido
+        if is_furthest and die >= distance:
+            return True
 
         raise ValueError("Movimiento de bear-off inválido.")
 
@@ -424,27 +425,47 @@ class Game:
         return False
 
     def _execute_bear_off(self, __player__, __from_pos__):
-        """Ejecuta el movimiento de sacar una ficha (bear off)."""
-        die = -1
+        """
+        Ejecuta el movimiento de sacar una ficha (bear off).
+        
+        Intenta usar el dado exacto primero, luego cualquier dado mayor
+        si aplica la regla de "ficha más lejana".
+        """
+        # Calcular distancia necesaria
         if __player__.__color__ == "white":
-            die = 24 - __from_pos__
+            distance = 24 - __from_pos__
         else:  # black
-            die = __from_pos__ + 1
+            distance = __from_pos__ + 1
 
-        if die not in self.__dice_values__:
-            return False  # No se puede usar un dado que no se tiene
+        # Intentar con dado exacto primero
+        if distance in self.__dice_values__:
+            try:
+                if self._validate_bear_off(__player__, __from_pos__, distance):
+                    self.__board__.bear_off(__player__.__color__, __from_pos__)
+                    self.__dice_values__.remove(distance)
+                    self.check_winner()
+                    if not self.__dice_values__ and not self.is_over():
+                        self.switch_turn()
+                    return True
+            except (ValueError, IndexError):
+                pass
 
-        try:
-            if self._validate_bear_off(__player__, __from_pos__, die):
-                self.__board__.bear_off(__player__.__color__, __from_pos__)
-                self.__dice_values__.remove(die)
-                self.check_winner()
-                if not self.__dice_values__ and not self.is_over():
-                    self.switch_turn()
-                return True
-        except (ValueError, IndexError):
-            return False  # Movimiento inválido
-        return False
+        # Si no hay dado exacto, intentar con dados mayores (regla de ficha más lejana)
+        available_dice = sorted([d for d in self.__dice_values__ if d >= distance], reverse=True)
+        
+        for die in available_dice:
+            try:
+                if self._validate_bear_off(__player__, __from_pos__, die):
+                    self.__board__.bear_off(__player__.__color__, __from_pos__)
+                    self.__dice_values__.remove(die)
+                    self.check_winner()
+                    if not self.__dice_values__ and not self.is_over():
+                        self.switch_turn()
+                    return True
+            except (ValueError, IndexError):
+                continue
+
+        return False  # No se pudo ejecutar el bear-off
 
     def _execute_board_move(self, __player__, __from_pos__, __to_pos__):
         """Ejecuta un movimiento normal en el tablero."""
