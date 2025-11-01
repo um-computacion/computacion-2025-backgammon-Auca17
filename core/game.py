@@ -157,35 +157,39 @@ class Game:
     def _get_bear_off_moves(self):
         """
         Calcula y devuelve todos los movimientos de bear-off válidos.
-        
+
         Reglas:
         1. Coincidencia exacta: Si el dado coincide con la distancia → sacar ficha
-        2. Ficha más lejana: Si NO hay coincidencia exacta para un dado → 
+        2. Ficha más lejana: Si NO hay coincidencia exacta para un dado →
            permitir sacar la ficha más lejana disponible
         """
         possible_moves = []
         player = self.get_current_player()
         dice_values = list(self.get_dice_values())
-        
+
         if player.__color__ == "white":
             home_range = range(18, 24)  # 18-23
         else:
-            home_range = range(0, 6)    # 0-5
+            home_range = range(0, 6)  # 0-5
 
         # Encontrar la ficha más lejana (furthest from exit)
         furthest_checker_pos = None
         if player.__color__ == "white":
             # Para blancas: más lejano = número menor (18 es más lejos que 23)
             for pos in range(18, 24):
-                if (self.__board__.get_point_count(pos) > 0 and 
-                    self.__board__.get_point(pos)[-1].__color__ == player.__color__):
+                if (
+                    self.__board__.get_point_count(pos) > 0
+                    and self.__board__.get_point(pos)[-1].__color__ == player.__color__
+                ):
                     furthest_checker_pos = pos
                     break
         else:
             # Para negras: más lejano = número menor (0 es más lejos que 5)
             for pos in range(0, 6):
-                if (self.__board__.get_point_count(pos) > 0 and 
-                    self.__board__.get_point(pos)[-1].__color__ == player.__color__):
+                if (
+                    self.__board__.get_point_count(pos) > 0
+                    and self.__board__.get_point(pos)[-1].__color__ == player.__color__
+                ):
                     furthest_checker_pos = pos
                     break
 
@@ -193,25 +197,28 @@ class Game:
         for die in set(dice_values):
             # Buscar coincidencias exactas para este dado
             exact_match_found = False
-            
+
             for from_pos in home_range:
-                if (self.__board__.get_point_count(from_pos) == 0 or
-                    self.__board__.get_point(from_pos)[-1].__color__ != player.__color__):
+                if (
+                    self.__board__.get_point_count(from_pos) == 0
+                    or self.__board__.get_point(from_pos)[-1].__color__
+                    != player.__color__
+                ):
                     continue
-                
+
                 # Calcular distancia a la salida
                 if player.__color__ == "white":
                     distance = 24 - from_pos  # pos=23 → dist=1, pos=18 → dist=6
                 else:
-                    distance = from_pos + 1   # pos=0 → dist=1, pos=5 → dist=6
-                
+                    distance = from_pos + 1  # pos=0 → dist=1, pos=5 → dist=6
+
                 # Si coincide exactamente
                 if distance == die:
                     exact_match_found = True
                     move_str = f"sacar {from_pos + 1}"
                     if move_str not in possible_moves:
                         possible_moves.append(move_str)
-            
+
             # Si NO hay coincidencia exacta para este dado → usar ficha más lejana
             if not exact_match_found and furthest_checker_pos is not None:
                 # Verificar que el dado sea mayor o igual a la distancia de la ficha más lejana
@@ -219,7 +226,7 @@ class Game:
                     furthest_distance = 24 - furthest_checker_pos
                 else:
                     furthest_distance = furthest_checker_pos + 1
-                
+
                 if die >= furthest_distance:
                     move_str = f"sacar {furthest_checker_pos + 1}"
                     if move_str not in possible_moves:
@@ -308,7 +315,7 @@ class Game:
     def _validate_bear_off(self, player, from_pos, die):
         """
         Valida un movimiento de bear-off.
-        
+
         Reglas:
         1. Todas las fichas deben estar en home
         2. Coincidencia exacta: distancia = dado
@@ -331,7 +338,7 @@ class Game:
         if player.__color__ == "white":
             distance = 24 - from_pos  # pos=23 → dist=1, pos=18 → dist=6
         else:
-            distance = from_pos + 1   # pos=0 → dist=1, pos=5 → dist=6
+            distance = from_pos + 1  # pos=0 → dist=1, pos=5 → dist=6
 
         # 3. Regla del movimiento exacto
         if distance == die:
@@ -344,16 +351,20 @@ class Game:
             # Para blancas: más lejano = número menor
             is_furthest = True
             for pos in range(18, from_pos):
-                if (self.__board__.get_point_count(pos) > 0 and 
-                    self.__board__.get_point(pos)[-1].__color__ == player.__color__):
+                if (
+                    self.__board__.get_point_count(pos) > 0
+                    and self.__board__.get_point(pos)[-1].__color__ == player.__color__
+                ):
                     is_furthest = False
                     break
         else:
             # Para negras: más lejano = número menor
             is_furthest = True
             for pos in range(0, from_pos):
-                if (self.__board__.get_point_count(pos) > 0 and 
-                    self.__board__.get_point(pos)[-1].__color__ == player.__color__):
+                if (
+                    self.__board__.get_point_count(pos) > 0
+                    and self.__board__.get_point(pos)[-1].__color__ == player.__color__
+                ):
                     is_furthest = False
                     break
 
@@ -427,7 +438,7 @@ class Game:
     def _execute_bear_off(self, __player__, __from_pos__):
         """
         Ejecuta el movimiento de sacar una ficha (bear off).
-        
+
         Intenta usar el dado exacto primero, luego cualquier dado mayor
         si aplica la regla de "ficha más lejana".
         """
@@ -451,8 +462,10 @@ class Game:
                 pass
 
         # Si no hay dado exacto, intentar con dados mayores (regla de ficha más lejana)
-        available_dice = sorted([d for d in self.__dice_values__ if d >= distance], reverse=True)
-        
+        available_dice = sorted(
+            [d for d in self.__dice_values__ if d >= distance], reverse=True
+        )
+
         for die in available_dice:
             try:
                 if self._validate_bear_off(__player__, __from_pos__, die):
