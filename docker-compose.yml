@@ -1,0 +1,34 @@
+# docker-compose.yml
+# Facilita la ejecución del proyecto con Docker
+
+services:
+  # Servicio principal: Juego de Backgammon CLI
+  backgammon-cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: backgammon-game:latest
+    container_name: backgammon-cli
+    stdin_open: true  # Permite interacción con el usuario
+    tty: true         # Habilita terminal interactiva
+    volumes:
+      - .:/app        # Monta el código local (útil para desarrollo)
+    command: python -m cli.cli
+
+  # Servicio para ejecutar tests
+  backgammon-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: backgammon-game:latest
+    container_name: backgammon-tests
+    command: python -m unittest discover tests -v
+
+  # Servicio para cobertura de código
+  backgammon-coverage:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: backgammon-game:latest
+    container_name: backgammon-coverage
+    command: coverage run -m unittest discover tests && coverage report
