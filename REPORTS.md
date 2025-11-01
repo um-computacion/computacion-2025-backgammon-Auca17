@@ -1,26 +1,24 @@
 # Automated Reports
 
 ## Coverage Report
-
 ```text
 Name                 Stmts   Miss  Cover   Missing
 --------------------------------------------------
 cli/__init__.py          0      0   100%
-cli/cli.py              79      4    95%   112, 127-128, 135
+cli/cli.py             114      6    95%   135, 157-159, 168, 180, 190
 core/__init__.py         0      0   100%
 core/board.py           98      0   100%
 core/checker.py         12      0   100%
 core/dice.py            12      0   100%
 core/exceptions.py       5      0   100%
-core/game.py           160      6    96%   154-155, 175, 198, 243, 302
+core/game.py           309     32    90%   281, 372-377, 451-453, 469, 478-481, 508-521, 536, 560, 564, 587, 600-605, 628
 core/player.py          31      0   100%
 --------------------------------------------------
-TOTAL                  397     10    97%
+TOTAL                  581     38    93%
 
 ```
 
 ## Pylint Report
-
 ```text
 ************* Module pygame_ui.main
 pygame_ui/main.py:1:0: C0302: Too many lines in module (1283/1000) (too-many-lines)
@@ -73,13 +71,34 @@ pygame_ui/main.py:1167:0: R0915: Too many statements (54/50) (too-many-statement
 pygame_ui/main.py:46:0: C0411: standard import "random" should be placed before third party import "pygame" (wrong-import-order)
 ************* Module cli.cli
 cli/cli.py:42:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+cli/cli.py:82:0: R0914: Too many local variables (19/15) (too-many-locals)
+cli/cli.py:82:0: R0912: Too many branches (20/12) (too-many-branches)
+cli/cli.py:82:0: R0915: Too many statements (71/50) (too-many-statements)
 ************* Module core.game
+core/game.py:338:0: C0325: Unnecessary parens after 'not' keyword (superfluous-parens)
 core/game.py:84:8: C2801: Unnecessarily calls dunder method __init__. Instantiate class directly. (unnecessary-dunder-call)
-core/game.py:143:8: W0612: Unused variable '__dice__' (unused-variable)
+core/game.py:157:4: R0912: Too many branches (20/12) (too-many-branches)
+core/game.py:242:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
+core/game.py:323:4: R0912: Too many branches (14/12) (too-many-branches)
+core/game.py:413:4: R0911: Too many return statements (7/6) (too-many-return-statements)
+core/game.py:413:4: R0912: Too many branches (21/12) (too-many-branches)
+core/game.py:413:4: R0915: Too many statements (54/50) (too-many-statements)
 ************* Module tests.test_game
-tests/test_game.py:234:8: W0612: Unused variable 'player' (unused-variable)
-tests/test_game.py:345:8: W0612: Unused variable 'player' (unused-variable)
-tests/test_game.py:13:0: R0904: Too many public methods (30/20) (too-many-public-methods)
+tests/test_game.py:641:0: C0301: Line too long (111/100) (line-too-long)
+tests/test_game.py:1:0: C0302: Too many lines in module (1178/1000) (too-many-lines)
+tests/test_game.py:210:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:226:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:311:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:399:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:576:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:629:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:654:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:904:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:928:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:1096:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:1130:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:1159:8: W0612: Unused variable 'player' (unused-variable)
+tests/test_game.py:13:0: R0904: Too many public methods (73/20) (too-many-public-methods)
 ************* Module tests.test_board
 tests/test_board.py:1:0: R0801: Similar lines in 2 files
 ==tests.test_exceptions:[29:37]
@@ -91,10 +110,15 @@ tests/test_board.py:1:0: R0801: Similar lines in 2 files
             player2=self.__player2__,
             board=self.__board__,
             dice=self.__dice__,
-        ) (duplicate-code)
+        )
+
+    def test_initialization(self):
+        """
+        Verifica que el juego se inicializa correctamente.
+        """ (duplicate-code)
 
 -----------------------------------
-Your code has been rated at 9.26/10
+Your code has been rated at 9.36/10
 
 
 ```
