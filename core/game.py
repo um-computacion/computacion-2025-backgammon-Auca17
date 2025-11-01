@@ -295,7 +295,7 @@ class Game:
     def _can_bear_off(self, __player__):
         """
         Verifica si un jugador puede empezar a sacar fichas.
-        
+
         Según las reglas oficiales de Backgammon:
         - El jugador NO debe tener fichas capturadas en la barra.
         - Todas las 15 fichas deben estar en su cuadrante de casa.
@@ -303,7 +303,7 @@ class Game:
         # Verificar que no hay fichas en la barra (regla oficial)
         if self.__board__.get_captured(__player__.__color__):
             return False
-        
+
         # El home board de las blancas son los puntos 18-23 (visual 19-24).
         # El de las negras son los puntos 0-5 (visual 1-6).
         __home_points__ = range(18, 24) if __player__.__color__ == "white" else range(6)
@@ -413,25 +413,25 @@ class Game:
     def _would_waste_dice(self, __from_pos__, __to_pos__):
         """
         Verifica si un movimiento desperdiciaría dados que podrían usarse.
-        
+
         Implementa la regla oficial de Backgammon:
         - Si es posible usar ambos dados, el jugador DEBE hacerlo.
         - Si solo uno es jugable, debe usar el más alto posible.
-        
+
         Returns:
             bool: True si el movimiento desperdiciaría dados, False si es válido.
         """
         # Si solo queda un dado, no hay desperdicio posible
         if len(self.__dice_values__) <= 1:
             return False
-        
+
         __player__ = self.get_current_player()
         is_bear_off = __to_pos__ in (24, -1)
         is_reentry = self.current_player_has_captured()
-        
+
         # Calcular qué dado se usaría con este movimiento
         die_to_use = None
-        
+
         if is_reentry:
             if __player__.__color__ == "white":
                 die_to_use = __to_pos__ + 1
@@ -442,7 +442,7 @@ class Game:
                 distance = 24 - __from_pos__
             else:  # black
                 distance = __from_pos__ + 1
-            
+
             # Para bear-off, puede usar dado exacto o mayor
             if distance in self.__dice_values__:
                 die_to_use = distance
@@ -455,23 +455,23 @@ class Game:
             # Movimiento normal
             __direction__ = 1 if __player__.__color__ == "white" else -1
             die_to_use = (__to_pos__ - __from_pos__) * __direction__
-        
+
         # Si no podemos determinar el dado, permitir el movimiento
         if die_to_use is None or die_to_use not in self.__dice_values__:
             return False
-        
+
         # Simular el estado después del movimiento
         remaining_dice = self.__dice_values__.copy()
         remaining_dice.remove(die_to_use)
-        
+
         # Si no quedan dados después, no hay desperdicio
         if not remaining_dice:
             return False
-        
+
         # Guardar dados actuales y simular dados restantes
         original_dice = self.__dice_values__
         self.__dice_values__ = remaining_dice
-        
+
         # Verificar si hay movimientos posibles con los dados restantes
         try:
             possible_moves_after = self.get_possible_moves()
@@ -479,14 +479,14 @@ class Game:
             # Si hay error al calcular, permitir el movimiento
             self.__dice_values__ = original_dice
             return False
-        
+
         # Restaurar dados originales
         self.__dice_values__ = original_dice
-        
+
         # Si SÍ hay movimientos después, el movimiento es válido
         if possible_moves_after:
             return False
-        
+
         # Si NO hay movimientos después, verificar si había alternativa mejor
         # Solo verificar si tenemos exactamente 2 dados (caso más común)
         if len(self.__dice_values__) == 2:
@@ -494,39 +494,39 @@ class Game:
             for die in set(self.__dice_values__):
                 if die == die_to_use:
                     continue
-                
+
                 # Primero verificar si ese dado alternativo ES JUGABLE
                 self.__dice_values__ = [die]
                 alternative_first_moves = self.get_possible_moves()
-                
+
                 if not alternative_first_moves:
                     # Este dado alternativo no es jugable, continuar
                     self.__dice_values__ = original_dice
                     continue
-                
+
                 # El dado alternativo SÍ es jugable. Ahora simular usarlo
                 test_remaining = original_dice.copy()
                 test_remaining.remove(die)
-                
+
                 self.__dice_values__ = test_remaining
                 try:
                     alternative_moves_after = self.get_possible_moves()
                 except Exception:  # pylint: disable=broad-except
                     alternative_moves_after = []
-                
+
                 self.__dice_values__ = original_dice
-                
+
                 # Si con el dado alternativo SÍ hay movimientos después
                 if alternative_moves_after:
                     return True  # El movimiento actual desperdiciaría dados
-        
+
         return False  # El movimiento es válido (no hay mejor alternativa)
 
     def make_move(self, __from_pos__, __to_pos__):
         """
         Realiza un movimiento en el tablero si es válido.
         Delega la ejecución a métodos helper según el tipo de movimiento.
-        
+
         Valida la regla de uso obligatorio de dados:
         - Si es posible usar ambos dados, el jugador DEBE hacerlo.
         - Si solo uno es jugable, debe usar el más alto posible.
@@ -534,7 +534,7 @@ class Game:
         # Validar regla de uso obligatorio de dados
         if self._would_waste_dice(__from_pos__, __to_pos__):
             return False
-        
+
         __player__ = self.get_current_player()
         is_bear_off = __to_pos__ in (24, -1)
         is_reentry = self.current_player_has_captured()
