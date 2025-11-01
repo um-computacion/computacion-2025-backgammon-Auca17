@@ -48,11 +48,35 @@ def _decide_first_player(player1_name, player2_name):
 
 
 def _display_possible_moves(moves):
-    """Muestra la lista de movimientos posibles en formato vertical."""
-    if moves:
-        print("Movimientos posibles:")
-        for i, move in enumerate(moves, 1):
-            print(f"{i}) {move}")
+    """
+    Muestra la lista de movimientos posibles, ajustando la numeración
+    interna (0-23) a la mostrada al usuario (1-24).
+    """
+    if not moves:
+        return
+
+    print("Movimientos posibles:")
+    for i, move in enumerate(moves, 1):
+        if move.startswith("sacar"):
+            # El formato "sacar [número]" ya es amigable para el usuario
+            print(f"{i}) {move.capitalize()}")
+        elif " a " in move:
+            parts = move.split(" a ")
+            from_str = parts[0]
+            to_str = parts[1]
+
+            display_move = ""
+            if from_str == "Barra":
+                # Reingreso desde la barra
+                to_pos = int(to_str) + 1
+                display_move = f"Barra a {to_pos}"
+            else:
+                # Movimiento normal
+                from_pos = int(from_str) + 1
+                display_to = str(int(to_str) + 1)
+                display_move = f"{from_pos} a {display_to}"
+
+            print(f"{i}) {display_move}")
 
 
 def main():
@@ -85,6 +109,7 @@ def main():
     print(
         "Los jugadores se turnan para ingresar movimientos en el formato: 'desde hasta'"
     )
+    print("Para retirar fichas, usa el comando: 'sacar [número]', ej. 'sacar 24'.")
     print("Escribe 'salir' para terminar.")
 
     while not __game__.is_over():
@@ -92,7 +117,7 @@ def main():
         __current_player__ = __game__.get_current_player()
         print(
             f"Turno de {__current_player__.get_player_name()} "
-            f"({'O' if __current_player__.__color__ == 'white' else 'X'})."
+            f"({'B' if __current_player__.__color__ == 'white' else 'N'})."
         )
         print(f"Tirada de dados: {__game__.get_dice_values()}")
 
@@ -106,26 +131,56 @@ def main():
 
         _display_possible_moves(__possible_moves__)
 
-        # Si no quedan dados, el turno debería cambiar. make_move se encarga de esto.
         if not __game__.get_dice_values():
-            # No es necesario cambiar de turno aquí, make_move lo gestiona
             continue
 
-        __move__ = input("Ingresa tu movimiento ('desde hasta', ej. '18 23'): ").strip()
-        if __move__.lower() == "salir":
+        # Mensaje contextual para bear-off
+        if __game__.can_current_player_bear_off():
+            print("Recuerda: para retirar una ficha, escribe 'sacar [número]'.")
+
+        __move__ = input("Ingresa tu movimiento: ").strip().lower()
+        if __move__ == "salir":
             print("Juego terminado.")
             break
 
         try:
-            __from_pos__, __to_pos__ = map(int, __move__.split())
-            if __game__.make_move(__from_pos__, __to_pos__):
-                print("Movimiento exitoso.")
-            else:
-                print("Movimiento inválido. Inténtalo de nuevo.")
-        except ValueError:
-            print("Formato de entrada inválido. Usa 'desde hasta'.")
-        except IndexError as e:
-            print(f"Error: {e}")
+            if __move__.startswith("sacar "):
+                parts = __move__.split()
+                if len(parts) == 2 and parts[1].isdigit():
+                    from_pos = int(parts[1])
+                    player_color = __game__.get_current_player().__color__
+                    to_pos_bear_off = 24 if player_color == "white" else -1
+
+                    if __game__.make_move(from_pos - 1, to_pos_bear_off):
+                        print("Ficha retirada con éxito.")
+                    else:
+                        print("Movimiento de 'sacar' inválido.")
+                else:
+                    print("Formato de 'sacar' inválido. Usa 'sacar [número]'.")
+                continue
+
+            # Procesar reingreso (un solo número)
+            if __game__.current_player_has_captured() and __move__.isdigit():
+                to_pos = int(__move__) - 1
+                if __game__.make_move(-1, to_pos):  # -1 indica "desde la barra"
+                    print("Movimiento exitoso.")
+                else:
+                    print("Movimiento de reingreso inválido.")
+                continue
+
+            # Procesar movimiento normal 'desde hasta'
+            if " " in __move__:
+                __from_pos__, __to_pos__ = map(int, __move__.split())
+                if __game__.make_move(__from_pos__ - 1, __to_pos__ - 1):
+                    print("Movimiento exitoso.")
+                else:
+                    print("Movimiento inválido.")
+                continue
+
+            print("Formato de entrada no reconocido. Inténtalo de nuevo.")
+
+        except (ValueError, IndexError):
+            print("Entrada inválida. Asegúrate de usar el formato correcto.")
 
     if __game__.is_over():
         __winner__ = __game__.get_winner()

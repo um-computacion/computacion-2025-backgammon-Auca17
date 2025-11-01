@@ -7,6 +7,7 @@ classDiagram
         -int __current_turn__
         -List~int~ __dice_values__
         -Player __winner__
+        -List __history__
         +__init__(player1: Player, player2: Player, board: Board, dice: Dice)
         +start() void
         +roll_dice() void
@@ -19,13 +20,21 @@ classDiagram
         +get_winner() Player
         +display_board() void
         +reset() void
+        +current_player_has_captured() bool
+        +can_current_player_bear_off() bool
+        -_get_reentry_moves() List~str~
+        -_get_bear_off_moves() List~str~
+        -_get_normal_moves() List~str~
         -_validate_move(player: Player, from_pos: int, to_pos: int, die: int) bool
         -_validate_reentry(player: Player, to_pos: int, die: int) bool
         -_validate_bear_off(player: Player, from_pos: int, die: int) bool
+        -_validate_bear_off_white(start: int, die_value: int) bool
+        -_validate_bear_off_black(start: int, die_value: int) bool
         -_can_bear_off(player: Player) bool
         -_execute_move(player: Player, from_pos: int, to_pos: int) void
         -_execute_reentry(player: Player, to_pos: int) void
         -_execute_bear_off(player: Player, from_pos: int) void
+        -_execute_board_move(player: Player, from_pos: int, to_pos: int) void
     }
 
     %% Clase Board - Representa el tablero

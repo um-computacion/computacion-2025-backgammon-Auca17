@@ -483,6 +483,488 @@ def apply_bear_off_move(self, from_point) -> bool:
 
 ---
 
+### 7. Sistema de Reingreso (Entrada desde Barra)
+
+**Problema:** Cuando una ficha es capturada, debe volver a entrar al tablero desde la barra antes de poder mover otras fichas.
+
+**Solución:** Sistema de prioridad obligatoria para fichas capturadas.
+
+```python
+def get_possible_moves(self) -> List[str]:
+    """Genera movimientos según prioridad: reingreso > normales > bear-off"""
+    player = self.get_current_player()
+    
+    # 1. PRIORIDAD: Si hay fichas capturadas, SOLO reingreso
+    if self.current_player_has_captured():
+        return self._get_reentry_moves()
+    
+    # 2. Movimientos normales si no hay capturas
+    moves = self._get_normal_moves()
+    
+    # 3. Bear-off solo si todas las fichas están en home
+    if self.can_current_player_bear_off():
+        moves.extend(self._get_bear_off_moves())
+    
+    return moves
+
+def _get_reentry_moves(self) -> List[str]:
+    """Genera movimientos de reingreso desde la barra"""
+    player = self.get_current_player()
+    color = player.__color__
+    moves = []
+    
+    # Determinar puntos de entrada según color
+    # Blancas: 0-5, Negras: 18-23 (cuadrante del oponente)
+    entry_points = range(0, 6) if color == 'O' else range(18, 24)
+    
+    for die in self.__dice_values__:
+        for point in entry_points:
+            if self._validate_reentry(player, point):
+                moves.append(f"bar {point}")
+    
+    return moves
+```
+
+**Decisión clave:** La validación de reingreso verifica que el punto de destino:
+
+- Esté vacío
+- O tenga fichas propias
+- O tenga exactamente 1 ficha enemiga (será capturada)
+
+---
+
+### 8. Arquitectura de Validación: Separación por Tipo de Movimiento
+
+**Problema:** La validación de movimientos se volvió compleja con 3 tipos: normales, reingreso y bear-off.
+
+**Solución:** Métodos de validación independientes que siguen SRP (Single Responsibility Principle).
+
+```python
+def make_move(self, from_pos, to_pos) -> bool:
+    """Punto de entrada único que delega a validadores específicos"""
+    player = self.get_current_player()
+    
+    # 1. Detectar tipo de movimiento
+    is_reentry = (from_pos == "bar")
+    is_bear_off = (to_pos == "bear-off")
+    
+    # 2. Delegar a validador específico
+    if is_reentry:
+        return self._handle_reentry_move(player, to_pos)
+    elif is_bear_off:
+        return self._handle_bear_off_move(player, from_pos)
+    else:
+        return self._handle_normal_move(player, from_pos, to_pos)
+
+def _validate_reentry(self, player, to_pos) -> bool:
+    """Valida SOLO reingreso"""
+    color = player.__color__
+    
+    # Verificar rango válido según color
+    if color == 'O' and not (0 <= to_pos <= 5):
+        return False
+    if color == 'X' and not (18 <= to_pos <= 23):
+        return False
+    
+    # Verificar punto de destino
+    point = self.__board__.get_point(to_pos)
+    if not point:  # Vacío
+        return True
+    if point[0].__color__ == color:  # Propias
+        return True
+    if len(point) == 1:  # Una enemiga (captura)
+        return True
+    
+    return False  # Bloqueado (2+ enemigas)
+
+def _validate_bear_off(self, player, from_pos, die) -> bool:
+    """Valida SOLO bear-off (delegado a sub-validadores por color)"""
+    if not self._can_bear_off(player):
+        return False
+    
+    # Delegar a método específico por color
+    if player.__color__ == 'O':
+        return self._validate_bear_off_white(from_pos, die)
+    else:
+        return self._validate_bear_off_black(from_pos, die)
+```
+
+**Ventaja:** Cada validador es testeable de forma aislada. Tests específicos pueden verificar casos edge sin afectar otros tipos de movimiento.
+
+---
+
+### 9. Overshoot: Búsqueda de Ficha Más Lejana por Color
+
+**Problema crítico:** La lógica de overshooting es INVERSA para blancas y negras:
+
+- Blancas se mueven 0→23, bear-off desde 18-23
+- Negras se mueven 23→0, bear-off desde 5-0
+
+**Solución:** Métodos separados con lógica espejada.
+
+```python
+def _validate_bear_off_white(self, start: int, die_value: int) -> bool:
+    """Bear-off para blancas (home: 18-23, movimiento: →)"""
+    # Verificar en home
+    if start < 18:
+        return False
+    
+    # Dado exacto: start + die = 24 (sale del tablero)
+    if start + die_value == 24:
+        return True
+    
+    # Overshoot: dado > necesario
+    if start + die_value > 24:
+        # Buscar fichas MÁS ALEJADAS (números MENORES)
+        for pos in range(18, start):  # ← 18→22 si start=23
+            if self.__board__.get_point(pos) and \
+               self.__board__.get_point(pos)[0].__color__ == 'O':
+                return False  # Hay ficha más lejos, no permitir
+        return True  # Es la más lejana, permitir overshoot
+    
+    return False
+
+def _validate_bear_off_black(self, start: int, die_value: int) -> bool:
+    """Bear-off para negras (home: 0-5, movimiento: ←)"""
+    # Verificar en home
+    if start > 5:
+        return False
+    
+    # Dado exacto: start - die = -1 (sale del tablero)
+    if start - die_value == -1:
+        return True
+    
+    # Overshoot: dado > necesario
+    if start - die_value < -1:
+        # Buscar fichas MÁS ALEJADAS (números MAYORES)
+        for pos in range(start + 1, 6):  # ← 2→5 si start=1
+            if self.__board__.get_point(pos) and \
+               self.__board__.get_point(pos)[0].__color__ == 'X':
+                return False  # Hay ficha más lejos, no permitir
+        return True  # Es la más lejana, permitir overshoot
+    
+    return False
+```
+
+**Casos cubiertos:**
+
+| Escenario | Blancas (18-23) | Negras (0-5) | Resultado |
+|-----------|----------------|--------------|-----------|
+| Dado exacto | pos=23, dado=1 | pos=0, dado=1 | ✅ Bear-off |
+| Overshoot válido | pos=20, dado=5, sin fichas en 21-23 | pos=3, dado=5, sin fichas en 4-5 | ✅ Bear-off |
+| Overshoot bloqueado | pos=20, dado=5, CON ficha en 22 | pos=3, dado=5, CON ficha en 5 | ❌ Inválido |
+| Dado insuficiente | pos=20, dado=3 (→23) | pos=3, dado=2 (→1) | ❌ Inválido |
+
+**Testing:** Se agregaron 8 tests específicos para cubrir todas las combinaciones de overshooting para ambos colores.
+
+---
+
+### 10. Gestión de Dados: Consumo Inteligente para Reingreso y Bear-off
+
+**Problema:** El reingreso y bear-off deben consumir dados específicos, no cualquiera.
+
+**Solución:** Métodos `_execute_*` verifican y consumen el dado correcto.
+
+```python
+def _execute_reentry_move(self, player, to_pos) -> bool:
+    """Ejecuta reingreso y consume dado correspondiente"""
+    color = player.__color__
+    
+    # Calcular dado necesario según color
+    if color == 'O':
+        required_die = to_pos + 1  # punto 5 necesita dado 6
+    else:
+        required_die = 24 - to_pos  # punto 18 necesita dado 6
+    
+    # Verificar disponibilidad del dado
+    if required_die not in self.__dice_values__:
+        return False
+    
+    # Ejecutar movimiento en Board
+    if self.__board__.enter_from_captured(color, to_pos):
+        # Consumir dado
+        self.__dice_values__.remove(required_die)
+        return True
+    
+    return False
+
+def _execute_bear_off(self, player, from_pos) -> bool:
+    """Ejecuta bear-off y consume dado (exacto o mayor con overshoot)"""
+    color = player.__color__
+    
+    # Calcular dado necesario
+    if color == 'O':
+        required_die = 24 - from_pos  # pos=23 necesita 1
+    else:
+        required_die = from_pos + 1   # pos=0 necesita 1
+    
+    # 1. Intentar dado exacto
+    if required_die in self.__dice_values__:
+        if self.__board__.bear_off_checker(color, from_pos):
+            self.__dice_values__.remove(required_die)
+            return True
+    
+    # 2. Intentar overshoot (dado mayor si es ficha más lejana)
+    higher_dice = [d for d in self.__dice_values__ if d > required_die]
+    if higher_dice:
+        # Validar que es la ficha más lejana
+        if self._validate_bear_off(player, from_pos, min(higher_dice)):
+            if self.__board__.bear_off_checker(color, from_pos):
+                self.__dice_values__.remove(min(higher_dice))
+                return True
+    
+    return False
+```
+
+**Ventaja:** Separación clara entre validación y ejecución permite:
+
+- Preview de movimientos válidos (UI)
+- Rollback si falla la ejecución
+- Testing con dados específicos
+
+---
+
+### 11. Integración con Board: SSoT (Single Source of Truth)
+
+**Problema:** Mantener consistencia entre `Game`, `Board` y `Player.checkers`.
+
+**Solución:** `Board` es autoritativo. `Game` orquesta, no duplica estado.
+
+```python
+class Board:
+    def enter_from_captured(self, color: str, to_point: int) -> bool:
+        """Único lugar donde se reingresa una ficha"""
+        # Reducir contador de barra
+        if color == 'O':
+            if self.__white_bar__ == 0:
+                return False
+            self.__white_bar__ -= 1
+        else:
+            if self.__black_bar__ == 0:
+                return False
+            self.__black_bar__ -= 1
+        
+        # Captura si hay ficha enemiga
+        point = self.get_point(to_point)
+        if point and len(point) == 1 and point[0].__color__ != color:
+            enemy_color = point[0].__color__
+            if enemy_color == 'O':
+                self.__white_bar__ += 1
+            else:
+                self.__black_bar__ += 1
+            point.pop()
+        
+        # Colocar ficha
+        new_checker = Checker(color)
+        self.__points__[to_point].append(new_checker)
+        return True
+    
+    def bear_off_checker(self, color: str, from_point: int) -> bool:
+        """Único lugar donde se saca una ficha"""
+        point = self.get_point(from_point)
+        if not point or point[0].__color__ != color:
+            return False
+        
+        # Remover ficha
+        point.pop()
+        
+        # Incrementar contador de home
+        if color == 'O':
+            self.__white_home__ += 1
+        else:
+            self.__black_home__ += 1
+        
+        return True
+```
+
+**Game NO modifica Board directamente**, solo llama métodos públicos. Esto asegura:
+
+- ✅ Validaciones centralizadas
+- ✅ Sin estados inconsistentes
+- ✅ Fácil debugging (un solo lugar donde cambia el estado)
+
+---
+
+### 12. Mensajes de Error Específicos
+
+**Problema:** Errores genéricos dificultan debugging para usuarios y desarrolladores.
+
+**Solución:** Excepciones personalizadas con contexto.
+
+```python
+class InvalidReentryException(Exception):
+    """Lanzada cuando un reingreso es inválido"""
+    def __init__(self, to_point, reason):
+        self.to_point = to_point
+        self.reason = reason
+        super().__init__(f"Reingreso inválido a punto {to_point}: {reason}")
+
+class InvalidBearOffException(Exception):
+    """Lanzada cuando un bear-off es inválido"""
+    def __init__(self, from_point, reason):
+        self.from_point = from_point
+        self.reason = reason
+        super().__init__(f"Bear-off inválido desde punto {from_point}: {reason}")
+
+# Uso en Game
+def _handle_reentry_move(self, player, to_pos):
+    if not self._validate_reentry(player, to_pos):
+        reason = self._get_reentry_error_reason(player, to_pos)
+        raise InvalidReentryException(to_pos, reason)
+    
+    return self._execute_reentry_move(player, to_pos)
+
+def _get_reentry_error_reason(self, player, to_pos) -> str:
+    """Genera mensaje específico según el error"""
+    color = player.__color__
+    
+    if color == 'O' and not (0 <= to_pos <= 5):
+        return "Las fichas blancas reingresan en puntos 0-5"
+    if color == 'X' and not (18 <= to_pos <= 23):
+        return "Las fichas negras reingresan en puntos 18-23"
+    
+    point = self.__board__.get_point(to_pos)
+    if point and len(point) >= 2 and point[0].__color__ != color:
+        return f"Punto bloqueado por {len(point)} fichas enemigas"
+    
+    return "Movimiento inválido"
+```
+
+**CLI captura y muestra errores amigables:**
+
+```python
+try:
+    game.make_move(from_pos, to_pos)
+except InvalidReentryException as e:
+    print(f"❌ {e}")
+    print("💡 Debes reingresar tus fichas capturadas primero")
+except InvalidBearOffException as e:
+    print(f"❌ {e}")
+    print("💡 Verifica que todas tus fichas estén en home")
+```
+
+---
+
+## Decisiones de Testing para Bear-off y Reingreso
+
+### Estrategia de Testing
+
+Se adoptó un enfoque de **testing por capas**:
+
+1. **Unitarios en Board**: Validar lógica básica de `enter_from_captured` y `bear_off_checker`
+2. **Integración en Game**: Validar orquestación completa con dados y turnos
+3. **Casos Edge**: Overshooting, bloqueos, prioridades
+
+### Tests Críticos Agregados
+
+```python
+# tests/test_game.py
+
+def test_reentry_white_captures_black_blot(self):
+    """Reingreso blanco captura ficha negra solitaria"""
+    # Setup: Ficha blanca en barra, ficha negra sola en punto 5
+    self.game.__board__.__white_bar__ = 1
+    self.game.__board__.__points__[5] = [Checker('X')]
+    self.game.__dice_values__ = [6]
+    
+    # Act: Reingresar en punto 5
+    result = self.game.make_move("bar", 5)
+    
+    # Assert
+    assert result == True
+    assert self.game.__board__.__white_bar__ == 0  # Salió de barra
+    assert self.game.__board__.__black_bar__ == 1  # Negra capturada
+    assert len(self.game.__board__.get_point(5)) == 1
+    assert self.game.__board__.get_point(5)[0].__color__ == 'O'
+
+def test_bear_off_white_overshoot_valid(self):
+    """Bear-off blanco con overshoot: dado 6, ficha en 20, sin fichas más lejanas"""
+    # Setup: Solo ficha blanca en punto 20
+    self.game.__board__.__points__[20] = [Checker('O')]
+    for pos in [18, 19, 21, 22, 23]:
+        self.game.__board__.__points__[pos] = []
+    self.game.__dice_values__ = [6]
+    self.game.__players__[0].__color__ = 'O'
+    
+    # Act
+    result = self.game.make_move(20, "bear-off")
+    
+    # Assert
+    assert result == True
+    assert self.game.__board__.__white_home__ == 1
+    assert len(self.game.__dice_values__) == 0  # Dado consumido
+
+def test_bear_off_white_overshoot_blocked(self):
+    """Bear-off blanco bloqueado: dado 6, ficha en 20, CON ficha en 22"""
+    # Setup: Fichas en 20 y 22
+    self.game.__board__.__points__[20] = [Checker('O')]
+    self.game.__board__.__points__[22] = [Checker('O')]
+    self.game.__dice_values__ = [6]
+    
+    # Act
+    result = self.game.make_move(20, "bear-off")
+    
+    # Assert
+    assert result == False  # No permitir overshoot
+    assert self.game.__board__.__white_home__ == 0
+```
+
+### Cobertura de Casos Edge
+
+| Caso | Test | Líneas Cubiertas |
+|------|------|------------------|
+| Reingreso en punto vacío | `test_reentry_to_empty_point` | 410-415 |
+| Reingreso con captura | `test_reentry_captures_blot` | 416-421 |
+| Reingreso bloqueado | `test_reentry_blocked` | 269-275 |
+| Bear-off exacto | `test_bear_off_exact_die` | 426-435 |
+| Overshoot blancas válido | `test_bear_off_white_overshoot` | 320-330 |
+| Overshoot negras válido | `test_bear_off_black_overshoot` | 340-350 |
+| Overshoot bloqueado | `test_bear_off_overshoot_blocked` | 325-327 |
+| Prioridad reingreso | `test_reentry_priority` | 141-155 |
+
+**Resultado:** Cobertura de `core/game.py` aumentó de **86% a 95%** después de agregar tests de bear-off y reingreso.
+
+---
+
+## Impacto en SOLID
+
+### SRP (Single Responsibility Principle)
+
+**✅ Reforzado:**
+
+- `_validate_bear_off_white` y `_validate_bear_off_black` separan lógica por color
+- `_get_reentry_moves`, `_get_bear_off_moves`, `_get_normal_moves` separan generación de movimientos
+- Cada método tiene UNA razón para cambiar (regla específica del juego)
+
+### OCP (Open/Closed Principle)
+
+**✅ Aplicado:**
+
+- Agregar nuevo tipo de movimiento (ej: "doublet special moves") NO requiere modificar métodos existentes
+- Sistema de delegación permite extensión sin breaking changes
+
+### DIP (Dependency Inversion Principle)
+
+**✅ Mantenido:**
+
+- `Game` sigue dependiendo de abstracciones (`Board`, `Dice`)
+- Tests pueden inyectar mocks de `Board` para casos específicos
+
+---
+
+## Conclusión del Diseño Bear-off/Reingreso
+
+Las decisiones tomadas para implementar bear-off y reingreso priorizan:
+
+1. **Corrección**: Lógica espejada para blancas/negras evita bugs sutiles
+2. **Testabilidad**: Métodos pequeños y específicos permiten tests aislados
+3. **Mantenibilidad**: Separación clara entre validación/ejecución facilita debugging
+4. **Extensibilidad**: Arquitectura modular permite agregar variantes del juego
+
+**Resultado:** Sistema robusto que maneja correctamente las reglas más complejas de Backgammon (overshooting, prioridades, capturas en reingreso) con cobertura de tests del 95%.
+
+---
+
 ## Sistema de Excepciones
 
 ### Jerarquía

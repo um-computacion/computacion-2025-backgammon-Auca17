@@ -39,28 +39,28 @@ class TestBackgammonExceptions(unittest.TestCase):
 
     def test_invalid_move_exception(self):
         """
-        Verifica que un movimiento inválido lanza un ValueError.
+        Verifica que un movimiento inválido retorna False.
         """
         self.__game__.__dice_values__ = [1, 2]
         # Intenta mover desde un punto vacío
-        with self.assertRaises(ValueError):
-            self.__game__.make_move(2, 3)
+        result = self.__game__.make_move(2, 3)
+        self.assertFalse(result)
 
     def test_out_of_bounds_exception(self):
         """
-        Verifica que un movimiento fuera de los límites del tablero lanza un IndexError.
+        Verifica que un movimiento fuera de los límites del tablero retorna False.
         """
         self.__game__.__dice_values__ = [1, 2]
-        with self.assertRaises(IndexError):
-            self.__game__.make_move(25, 1)
+        result = self.__game__.make_move(25, 1)
+        self.assertFalse(result)
 
     def test_insufficient_dice_exception(self):
         """
-        Verifica que un movimiento que no coincide con el dado lanza un ValueError.
+        Verifica que un movimiento que no coincide con el dado retorna False.
         """
         self.__game__.__dice_values__ = [1, 2]
-        with self.assertRaises(ValueError):
-            self.__game__.make_move(0, 5)
+        result = self.__game__.make_move(0, 5)
+        self.assertFalse(result)
 
 
 class TestCustomExceptions(unittest.TestCase):

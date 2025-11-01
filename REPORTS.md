@@ -1,6 +1,7 @@
 # Automated Reports
 
 ## Coverage Report
+
 ```text
 Name                 Stmts   Miss  Cover   Missing
 --------------------------------------------------
@@ -19,6 +20,7 @@ TOTAL                  397     10    97%
 ```
 
 ## Pylint Report
+
 ```text
 ************* Module pygame_ui.main
 pygame_ui/main.py:1:0: C0302: Too many lines in module (1283/1000) (too-many-lines)

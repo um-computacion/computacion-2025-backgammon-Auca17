@@ -694,3 +694,136 @@ class TestCLI(unittest.TestCase):
 **Referencia a archivos finales:** tests/test_cli.py
 
 ---
+
+## Prompt #13: Mejora de Cobertura en core/game.py - Tests de Validaci�n y Manejo de Excepciones
+
+**Modelo/herramienta usada:** GitHub Copilot (Chat - GPT-4, noviembre 2024)
+
+**Texto exacto del prompt:**
+
+``` text
+Hazle cobertura a solo core/game.py en las siguientes lineas. Los def hazlos en test_game:
+Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------
+core\game.py           243     34    86%   139, 193-199, 217-218, 221-227, 253-254, 275, 314, 320, 322, 324, 347-353, 361, 389, 420, 424, 443, 445-447, 466
+```
+
+**Instrucciones del sistema:**
+
+- Siempre sigue los principios SOLID
+- Incluir docstrings y comentarios claros en el c�digo generado
+- Proporciona una explicaci�n detallada para cada prompt y documenta tanto el prompt como la respuesta generada dentro de los archivos prompts-desarrollo.md, prompts/prompts-documentacion.md o prompts/prompts-testing.md. Usa �nicamente estos archivos para la documentaci�n de prompts.
+- Por cada prompt debe quedar registrado: Modelo / herramienta usada (nombre y versi�n si corresponde), El texto exacto del prompt (sin reescrituras subjetivas), Instrucciones del sistema (si las hubo), Respuesta/resultado completo devuelto por la IA, Indicar si la salida fue usada sin cambios, usada con modificaciones (mostrar las modificaciones) o descartada, Referencia a los archivos finales que incorporaron contenido generado por IA (ej:core/board.py)
+
+**Respuesta/resultado completo devuelto por la IA:**
+
+---
+
+Se crearon 24 nuevos tests para cubrir las l�neas faltantes en core/game.py, enfoc�ndose en casos edge, manejo de excepciones y validaciones espec�ficas del bear-off y reingreso de fichas.
+
+**Tests generados:**
+
+1. **test_get_reentry_moves_type_error**: Manejo de TypeError cuando hay valores None en dados
+2. **test_get_bear_off_moves_white_all_positions_overshoot**: B�squeda de ficha m�s lejana para blancas
+3. **test_get_bear_off_moves_black_overshoot_search**: Overshoot para fichas negras
+4. **test_validate_reentry_black_wrong_dice**: Validaci�n de dados incorrectos en reingreso
+5. **test_validate_bear_off_not_ready**: Verificaci�n de bear-off cuando no est� listo
+6. **test_validate_bear_off_out_of_bounds**: Detecci�n de posici�n fuera de l�mites
+7. **test_validate_bear_off_empty_point**: Validaci�n de punto vac�o en bear-off
+8. **test_validate_bear_off_wrong_owner**: Verificaci�n de propiedad de ficha
+9. **test_validate_bear_off_black_overshoot_search**: B�squeda de overshoot para negras
+10. **test_validate_bear_off_overshoot_invalid**: Overshoot inv�lido para ficha no lejana
+11. **test_validate_move_blocked_destination**: Punto de destino bloqueado
+12. **test_execute_reentry_move_false_return**: Fallo en reingreso sin fichas capturadas
+13. **test_execute_bear_off_no_die_available**: Bear-off sin dado necesario
+14. **test_execute_bear_off_false_returns**: Manejo de excepciones en bear-off
+15. **test_execute_board_move_false_return**: Movimiento inv�lido en tablero
+16. **test_get_bear_off_moves_overshoot_exception_handling**: Manejo robusto de excepciones en overshoot
+17. **test_get_normal_moves_value_error_handling**: Manejo de ValueError en movimientos normales
+18. **test_validate_reentry_white_wrong_dice**: Validaci�n alternativa de dados para negras
+19. **test_execute_reentry_removes_white_die**: Consumo de dado blanco en reingreso
+20. **test_execute_reentry_removes_black_die**: Consumo de dado negro en reingreso
+21. **test_execute_bear_off_die_not_exact_match**: Detecci�n temprana de dado incorrecto
+22. **test_execute_bear_off_exception_return**: Retorno False despu�s de excepci�n
+23. **test_execute_board_move_exception_return**: Manejo de excepciones en movimientos
+24. **test_get_reentry_moves_with_none_value**: Manejo de dados no inicializados
+
+**Resultado de ejecuci�n:**
+
+- Total de tests ejecutados: 124 (68 en test_game.py)
+- Todos los tests pasaron correctamente (OK)
+- Cobertura de core/game.py: **95%** (243 statements, 12 miss)
+- Cobertura total del proyecto: **97%** (515 statements, 18 miss)
+
+**Mejoras realizadas:**
+
+La cobertura de core/game.py aument� de **86% a 95%**, cubriendo casos cr�ticos como:
+
+- Manejo de excepciones en bear-off y reingreso
+- Validaci�n de overshoot para ambos jugadores
+- Consumo correcto de dados despu�s de movimientos
+- Casos edge con valores None o inv�lidos
+- Verificaci�n de condiciones previas (fichas en home, dados disponibles, etc.)
+
+**Estado de la salida:** Usada con modificaci�n menor.
+
+**Modificaci�n realizada:** Se corrigi� el test `test_validate_move_blocked_destination` que inicialmente fall� porque faltaba colocar una ficha blanca en el punto de origen.
+
+**Referencia a archivos finales:** tests/test_game.py
+
+---
+
+## Prompt #14: Mejora de Docstrings con Estilo Junior Developer
+
+**Modelo/herramienta usada:** GitHub Copilot (Chat - GPT-4, noviembre 2024)
+
+**Texto exacto del prompt:**
+
+``` text
+Bien de todos estos tests, quiero un docstring que explique que hace cada test en su docstring y que todo este codeado por alguien que es junior, haz eso y al final evalua los tests, lo unico necesario es que la cobertura total este en +90%
+```
+
+**Instrucciones del sistema:**
+
+- Siempre sigue los principios SOLID
+- Incluir docstrings y comentarios claros en el c�digo generado
+
+**Respuesta/resultado completo devuelto por la IA:**
+
+---
+
+Se mejoraron todos los docstrings de los 24 tests nuevos para que fueran m�s explicativos y pedag�gicos, simulando el estilo de un desarrollador junior que explica con detalle cada concepto.
+
+**Enfoque de mejora:**
+
+1. **Docstrings extensos y educativos**: Cada test ahora explica no solo QU� verifica, sino tambi�n POR QU� es importante y C�MO funciona la mec�nica del juego.
+2. **Lenguaje accesible**: Se utiliz� un lenguaje simple y directo, evitando jerga t�cnica innecesaria.
+3. **Ejemplos concretos**: Se incluyeron ejemplos num�ricos espec�ficos
+4. **Contexto del juego**: Se explicaron reglas de backgammon relevantes para cada test.
+
+**Resultado de evaluaci�n final:**
+
+``` text
+Ran 124 tests in 0.172s
+OK
+
+Coverage Report:
+Name                 Stmts   Miss  Cover
+----------------------------------------
+core\game.py           243     12    95%
+TOTAL                  515     18    97%
+```
+
+**Logros alcanzados:**
+
+? **Cobertura total: 97%** (objetivo >90% cumplido)
+? **Cobertura core/game.py: 95%** (subi� de 86%)
+? **124 tests pasando sin errores**
+? **Docstrings pedag�gicos y explicativos**
+? **C�digo robusto con manejo de excepciones**
+
+**Estado de la salida:** Usada sin cambios.
+
+**Referencia a archivos finales:** tests/test_game.py
+
+---

@@ -71,14 +71,15 @@ class TestCLI(unittest.TestCase):
         """
         Verifica que la lista de movimientos posibles se muestra correctamente.
         """
-        moves = [(0, 1), (1, 2)]
+        moves = ["0 a 1", "Barra a 5", "sacar 24"]
         # pylint: disable=protected-access
         cli._display_possible_moves(moves)
         mock_print.assert_has_calls(
             [
                 call("Movimientos posibles:"),
-                call("1) (0, 1)"),
-                call("2) (1, 2)"),
+                call("1) 1 a 2"),
+                call("2) Barra a 6"),
+                call("3) Sacar 24"),
             ]
         )
 
@@ -109,7 +110,7 @@ class TestCLI(unittest.TestCase):
         mock_player.__color__ = "white"
         mock_game_instance.get_current_player.return_value = mock_player
         mock_game_instance.get_dice_values.return_value = [5, 2]
-        mock_game_instance.get_possible_moves.return_value = [(11, 16), (11, 18)]
+        mock_game_instance.get_possible_moves.return_value = ["11 a 16", "11 a 18"]
         mock_game_instance.make_move.side_effect = [True, True]
         mock_game_instance.get_winner.return_value.get_player_name.return_value = (
             "Alice"
@@ -121,8 +122,8 @@ class TestCLI(unittest.TestCase):
         mock_decide.assert_called_once_with("Alice", "Bob")
         mock_game_instance.make_move.assert_has_calls(
             [
-                call(11, 16),
-                call(11, 18),
+                call(10, 15),
+                call(10, 17),
             ]
         )
         self.assertIn(
@@ -149,17 +150,21 @@ class TestCLI(unittest.TestCase):
         mock_game_instance.get_current_player.return_value = mock_player
 
         mock_game_instance.get_dice_values.return_value = [1, 2]
-        mock_game_instance.get_possible_moves.return_value = [(0, 1)]
+        mock_game_instance.get_possible_moves.return_value = ["0 a 1"]
+        # Simulamos que el jugador está en fase de reingreso para probar el mensaje de ayuda.
+        mock_game_instance.current_player_has_captured.return_value = True
+        mock_game_instance.can_current_player_bear_off.return_value = False
 
         cli.main()
+
         self.assertIn(
-            call("Formato de entrada inválido. Usa 'desde hasta'."),
+            call("Entrada inválida. Asegúrate de usar el formato correcto."),
             mock_print.call_args_list,
         )
 
     @patch("cli.cli._get_player_names", return_value=("Alice", "Bob"))
     @patch("cli.cli._decide_first_player", return_value=0)
-    @patch("builtins.input", side_effect=["", "0 5", "salir"])
+    @patch("builtins.input", side_effect=["", "1 6", "salir"])
     @patch("cli.cli.Game")
     @patch("builtins.print")
     def test_main_failed_move(
@@ -177,15 +182,13 @@ class TestCLI(unittest.TestCase):
         mock_game_instance.get_current_player.return_value = mock_player
 
         mock_game_instance.get_dice_values.return_value = [1, 2]
-        mock_game_instance.get_possible_moves.return_value = [(0, 1)]
+        mock_game_instance.get_possible_moves.return_value = ["0 a 1"]
         mock_game_instance.make_move.return_value = False
 
         cli.main()
 
         mock_game_instance.make_move.assert_called_once_with(0, 5)
-        self.assertIn(
-            call("Movimiento inválido. Inténtalo de nuevo."), mock_print.call_args_list
-        )
+        self.assertIn(call("Movimiento inválido."), mock_print.call_args_list)
 
     @patch("cli.cli._get_player_names", return_value=("Alice", "Bob"))
     @patch("cli.cli._decide_first_player", return_value=0)
@@ -213,6 +216,101 @@ class TestCLI(unittest.TestCase):
             mock_print.call_args_list,
         )
         mock_game_instance.switch_turn.assert_called_once()
+
+    @patch("cli.cli._get_player_names", return_value=("Alice", "Bob"))
+    @patch("cli.cli._decide_first_player", return_value=0)
+    @patch("builtins.input", side_effect=["", "5", "salir"])
+    @patch("cli.cli.Game")
+    @patch("builtins.print")
+    def test_main_reentry_flow(
+        self, mock_print, mock_game_cls, _mock_input, _mock_decide, _mock_get_names
+    ):
+        """
+        Verifica el flujo de reingreso con un solo número.
+        """
+        mock_game_instance = mock_game_cls.return_value
+        mock_game_instance.is_over.side_effect = [False, False, True]
+
+        mock_player = Mock()
+        mock_player.get_player_name.return_value = "Alice"
+        mock_player.__color__ = "white"
+        mock_game_instance.get_current_player.return_value = mock_player
+
+        # Simulamos que el jugador tiene una ficha capturada
+        mock_game_instance.current_player_has_captured.return_value = True
+        mock_game_instance.get_dice_values.return_value = [5, 2]
+        mock_game_instance.get_possible_moves.return_value = ["Barra a 4", "Barra a 1"]
+        mock_game_instance.make_move.return_value = True
+
+        cli.main()
+
+        # Verificamos que se llamó a make_move con -1 (desde la barra) y el destino correcto (4)
+        mock_game_instance.make_move.assert_called_once_with(-1, 4)
+        self.assertIn(call("Movimiento exitoso."), mock_print.call_args_list)
+
+    @patch("cli.cli._get_player_names", return_value=("Alice", "Bob"))
+    @patch("cli.cli._decide_first_player", return_value=0)
+    @patch("builtins.input", side_effect=["", "sacar 24", "salir"])
+    @patch("cli.cli.Game")
+    @patch("builtins.print")
+    def test_main_bear_off_flow_simplified(
+        self, mock_print, mock_game_cls, _mock_input, _mock_decide, _mock_get_names
+    ):
+        """
+        Verifica el flujo de bear-off con el comando 'sacar'.
+        """
+        mock_game_instance = mock_game_cls.return_value
+        mock_game_instance.is_over.side_effect = [False, False, True]
+
+        mock_player = Mock()
+        mock_player.get_player_name.return_value = "Alice"
+        mock_player.__color__ = "white"
+        mock_game_instance.get_current_player.return_value = mock_player
+
+        mock_game_instance.current_player_has_captured.return_value = False
+        mock_game_instance.can_current_player_bear_off.return_value = True
+        mock_game_instance.get_dice_values.return_value = [1, 2]
+        mock_game_instance.get_possible_moves.return_value = ["sacar 24"]
+        mock_game_instance.make_move.return_value = True
+
+        cli.main()
+
+        # Verificamos que se llamó a make_move con la posición correcta para el bear-off (23)
+        # y el destino especial para bear-off de blancas (24).
+        mock_game_instance.make_move.assert_called_once_with(23, 24)
+        self.assertIn(call("Ficha retirada con éxito."), mock_print.call_args_list)
+
+    @patch("cli.cli._get_player_names", return_value=("Alice", "Bob"))
+    @patch("cli.cli._decide_first_player", return_value=0)
+    @patch("builtins.input", side_effect=["", "invalid format", "salir"])
+    @patch("cli.cli.Game")
+    @patch("builtins.print")
+    def test_main_invalid_move_format_bear_off(
+        self, mock_print, mock_game_cls, _mock_input, _mock_decide, _mock_get_names
+    ):
+        """
+        Verifica el mensaje de ayuda contextual para un formato inválido durante el bear-off.
+        """
+        mock_game_instance = mock_game_cls.return_value
+        mock_game_instance.is_over.side_effect = [False, False, True]
+
+        mock_player = Mock()
+        mock_player.get_player_name.return_value = "Alice"
+        mock_player.__color__ = "white"
+        mock_game_instance.get_current_player.return_value = mock_player
+
+        mock_game_instance.current_player_has_captured.return_value = False
+        mock_game_instance.can_current_player_bear_off.return_value = True
+        mock_game_instance.get_dice_values.return_value = [1, 2]
+        mock_game_instance.get_possible_moves.return_value = ["sacar 24"]
+
+        cli.main()
+
+        mock_print.assert_has_calls(
+            [
+                call("Recuerda: para retirar una ficha, escribe 'sacar [número]'."),
+            ]
+        )
 
 
 if __name__ == "__main__":
