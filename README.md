@@ -121,31 +121,6 @@ docker load -i backgammon-game.tar
 docker-compose run --rm backgammon-cli
 ```
 
-### Comandos Útiles
-
-```bash
-# Ver imágenes Docker
-docker images
-
-# Reconstruir si modificas el código
-docker-compose build
-
-# Limpiar contenedores detenidos
-docker container prune -f
-
-# Eliminar imagen del proyecto
-docker rmi backgammon-game:latest
-```
-
-### Solución de Problemas
-
-* **Error: "Cannot connect to Docker daemon"**
-  * **Solución:** Abre Docker Desktop y espera a que diga "Engine running"
-* **Error: "Image not found"**
-  * **Solución:** Ejecuta `docker-compose build` primero
-* **Cambios en el código no se reflejan**
-  * **Solución:** Reconstruye con `docker-compose build`
-
 ---
 
 ## Cómo Jugar
