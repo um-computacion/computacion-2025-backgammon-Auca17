@@ -101,10 +101,35 @@ La versión CLI es ideal para jugar en un entorno de texto. El juego te guiará 
 
 ### Comandos
 
-* **Hacer un Movimiento**: Cuando se te pida, introduce tu movimiento con el formato `desde hasta`. Por ejemplo, para mover una ficha del punto 18 al 23, escribe:
+* **Hacer un Movimiento Normal**: Cuando se te pida, introduce tu movimiento con el formato `desde hasta`. Por ejemplo, para mover una ficha del punto 18 al 23, escribe:
 
     ``` text
     18 23
     ```
+
+* **Reingresar Fichas Capturadas**: Si tienes fichas en la barra (capturadas por el oponente), debes reingresarlas antes de hacer otros movimientos. El juego te mostrará automáticamente los movimientos de reingreso posibles. Simplemente introduce el número del punto de destino. Por ejemplo, para reingresar una ficha al punto 5:
+
+    ``` text
+    5
+    ```
+
+    **Nota importante sobre el reingreso:**
+  * Las fichas **blancas** capturadas reingresan desde la barra a los puntos **1-6** (usando la numeración visual del tablero)
+  * Las fichas **negras** capturadas reingresan desde la barra a los puntos **19-24** (usando la numeración visual del tablero)
+  * Solo puedes reingresar en un punto que esté vacío o tenga tus propias fichas, o con solo una ficha del oponente (la cual será capturada)
+  * Debes reingresar todas tus fichas capturadas antes de poder mover otras fichas
+
+* **Sacar Fichas (Bear-off)**: Cuando todas tus fichas estén en tu tablero de casa (home), puedes comenzar a sacarlas. El juego te mostrará automáticamente los movimientos de bear-off posibles. Usa el comando `sacar [número]`. Por ejemplo, para sacar una ficha del punto 24:
+
+    ``` text
+    sacar 24
+    ```
+
+    **Nota importante sobre el bear-off:**
+  * Las fichas **blancas** deben estar todas en los puntos **19-24** (cuadrante superior derecho) para poder sacarlas
+  * Las fichas **negras** deben estar todas en los puntos **1-6** (cuadrante inferior derecho) para poder sacarlas
+  * Puedes usar un dado con valor exacto para sacar una ficha (ej: ficha en punto 24 con dado 1 para blancas)
+  * **Overshooting**: Si el dado es mayor al necesario y no tienes fichas más alejadas, puedes usar ese dado para sacar la ficha (ej: ficha blanca en punto 21 con dado 5, cuando no hay fichas en 22, 23 o 24)
+  * El primer jugador que saque todas sus 15 fichas gana la partida
 
 * **Salir del Juego**: Para terminar la partida en cualquier momento, escribe `salir` y presiona Enter.

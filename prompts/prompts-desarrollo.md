@@ -1220,8 +1220,8 @@ def get_bear_off_moves(self, dice: List[int]) -> List[str]:
         home_positions = range(0, 6)
     # Para cada posici�n en home
     for pos in home_positions:
-        point = self.__board__.get_point(pos)
-        if not point or point[0].__color__ != player_color:
+        point = self.**board**.get_point(pos)
+        if not point or point[0].**color** != player_color:
             continue
         # Intentar bear-off con cada dado
         for die in dice:
