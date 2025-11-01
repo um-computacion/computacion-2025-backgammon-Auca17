@@ -5,6 +5,83 @@ Todas las modificaciones notables de este proyecto serán documentadas en este a
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+---
+
+## [1.4.11] – 2025-11-01 → Commit 547a447
+
+**Resumen:** Se añade soporte Docker completo para ejecutar el proyecto sin instalar Python ni dependencias locales. Incluye docker-compose, script helper en PowerShell y guía de uso en el README.
+
+### Added (Novedades en 1.4.11)
+
+Docker/.dockerignore: ignora cachés, entornos virtuales, IDEs, artefactos de tests y archivos de Docker para acelerar builds.
+
+Docker/Dockerfile: imagen base python:3.11-slim, instala requirements.txt, copia código y expone CMD para python -m cli.cli.
+
+Docker/docker-compose.yml: servicios listos para:
+
+backgammon-cli (jugar por CLI, con stdin_open/tty y volume .:/app para desarrollo),
+
+backgammon-tests (unittest),
+
+backgammon-coverage (coverage run + report).
+
+Docker/docker-helper.ps1: helper en PowerShell con comandos: build, play, test, coverage, clean, status, shell, help.
+
+README.md: sección “🐳 Uso con Docker”, requisitos, primeros pasos, comandos útiles, distribución de imagen y troubleshooting.
+
+### Changed (Novedades en 1.4.11)
+
+Documentación ampliada para flujo Docker-first: build, run, tests y cobertura ejecutables con docker-compose.
+
+### Notes (Novedades en 1.4.11)
+
+La imagen se etiqueta como backgammon-game:latest.
+
+El volumen .:/app permite hot-reload del código en desarrollo (reconstruir si cambian dependencias).
+
+La CLI es el punto de entrada por defecto; si luego se agrega UI web, ya hay puerto EXPOSE 8000 reservado.
+
+---
+
+## [1.4.10] – 2025-11-01 → Commit 9af9224
+
+**Resumen:** Se implementa la validación oficial de bear-off (prohibido con fichas en barra) y la regla de uso obligatorio de dados. Se documenta el proceso y se añaden tests focalizados.
+
+### Added (Novedades en 1.4.10)
+
+**Regla de uso obligatorio de dados en core/game.py:**
+
+- Nuevo helper `_would_waste_dice(__from_pos__, __to_pos__)` que simula el estado restante para evitar jugadas que desperdicien dados (si se pueden usar ambos, deben usarse; si sólo uno, se usa el más alto).
+
+**Tests de juego en tests/test_game.py** para:
+
+- Rechazar jugadas que impiden usar el segundo dado.
+- Permitir un único dado cuando el otro está bloqueado.
+- Omisión de validación cuando queda un solo dado.
+
+**Documentación de prompts** de desarrollo en `prompts/prompts-desarrollo.md` (+622) con el análisis de reglas, corrección de bug y diseño de la validación de dados (Prompts #31 y #32).
+
+### Changed (Cambios en 1.4.10)
+
+**core/game.py (+128):**
+
+- `_can_bear_off(__player__)`: ahora verifica explícitamente que no haya fichas capturadas antes de permitir bear-off y que todas las fichas estén en el home board del jugador.
+- `make_move(...)`: integra la validación de la nueva regla llamando a `_would_waste_dice(...)` antes de ejecutar el movimiento.
+
+### Fixed (Correcciones en 1.4.10)
+
+**Bear-off con fichas en barra:** ya no es posible comenzar a retirar fichas si el jugador tiene piezas capturadas (cumplimiento de regla oficial).
+
+### Notes (Novedades en 1.4.10)
+
+- No se modificó la lógica existente de movimientos; la validación se añadió como capa previa (SRP/OCP).
+- Cambios por archivo:
+  - core/game.py +128 / −0
+  - tests/test_game.py +116 / −0
+  - prompts/prompts-desarrollo.md +622 / −0
+
+---
+
 ## [1.4.9] – 2025-10-29 → Commit 6266e6c
 
 **Archivo:** tests/test_board.py
